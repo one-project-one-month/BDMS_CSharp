@@ -1,0 +1,109 @@
+﻿namespace BDMS.Shared;
+
+public class Result<T>
+{
+    public bool IsSuccess { get; set; }
+    public bool IsError { get { return !IsSuccess; } }
+    public bool IsValidationError() => Type == EnumRespType.ValidationError;
+    public bool IsSystemError() => Type == EnumRespType.SystemError;
+    public bool IsNotFound() => Type == EnumRespType.SystemError;
+
+    private EnumRespType Type { get; set; }
+    public T Data { get; set; } = default!;
+    public string Message { get; set; } = null!;
+
+    public EnumRespType GetEnumRespType() => Type;
+
+    #region Success
+
+    public static Result<T> Success(T data, string message = "Success")
+    {
+        return new Result<T>()
+        {
+            IsSuccess = true,
+            Type = EnumRespType.Success,
+            Data = data,
+            Message = message
+        };
+    }
+
+    #endregion
+
+    #region DeleteSuccess
+
+    public static Result<T> DeleteSuccess(string message = "Deleting Successful.")
+    {
+        return new Result<T>()
+        {
+            IsSuccess = true,
+            Type = EnumRespType.Success,
+            Message = message
+        };
+    }
+
+    #endregion
+
+    #region ValidationError
+
+    public static Result<T> ValidationError(string message, T? data = default)
+    {
+        return new Result<T>()
+        {
+            IsSuccess = true,
+            Type = EnumRespType.ValidationError,
+            Data = data,
+            Message = message
+        };
+    }
+
+    #endregion
+
+    #region SystemError
+
+    public static Result<T> SystemError(string message, T? data = default)
+    {
+        return new Result<T>()
+        {
+            IsSuccess = true,
+            Type = EnumRespType.SystemError,
+            Data = data,
+            Message = message
+        };
+    }
+
+    #endregion
+
+    #region NotFound
+
+    public static Result<T> NotFound(string message, T? data = default)
+    {
+        return new Result<T>()
+        {
+            IsSuccess = true,
+            Type = EnumRespType.NotFound,
+            Data = data,
+            Message = message
+        };
+    }
+
+    #endregion
+
+    public class PagedResult<T>
+    {
+        public IEnumerable<T> Items { get; set; } = new List<T>();
+        public int TotalCount { get; set; }
+    }
+}
+
+#region EnumRespType
+
+public enum EnumRespType
+{
+    None,
+    Success,
+    ValidationError,
+    SystemError,
+    NotFound
+}
+
+#endregion

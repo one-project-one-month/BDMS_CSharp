@@ -1,6 +1,28 @@
 @BDMS.Api_HostAddress = http://localhost:5017
 
-GET {{BDMS.Api_HostAddress}}/weatherforecast/
+### Create user (Service layer)
+POST {{BDMS.Api_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "username": "jdoe",
+  "email": "jdoe@example.com"
+}
+
+### Get all users (Service layer)
+GET {{BDMS.Api_HostAddress}}/api/users
 Accept: application/json
 
-###
+### Create donor (CQRS command)
+POST {{BDMS.Api_HostAddress}}/api/donors
+Content-Type: application/json
+
+{
+  "name": "Aung Aung",
+  "bloodType": "O+",
+  "lastDonationDate": "2025-01-10T00:00:00Z"
+}
+
+### Get donor by id (CQRS query)
+GET {{BDMS.Api_HostAddress}}/api/donors/{{donorId}}
+Accept: application/json

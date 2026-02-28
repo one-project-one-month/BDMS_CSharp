@@ -1,17 +1,17 @@
+# BDMS C# API (Clean Architecture)
 
-```bash
-dotnet ef dbcontext scaffold "Server=.;Database=BDMS;User ID=sa;Password=sasa@123;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -o AppDbContextModels -c AppDbContext -f
-```
+## Layers
+- **Domain**: Entities and core business rules (`User`, `BloodDonor`, `CanDonate`).
+- **Application**: Use-cases, service contracts, and CQRS handlers.
+- **Infrastructure**: EF Core `AppDbContext` and SQL Server configuration.
+- **API**: Controllers and dependency injection wiring.
 
-### Backend
-- **.NET 8.0**
-- **ASP.NET Core Web API** 
-- **Entity Framework Core 9.0.9** 
-- **MediatR 13.1.0** - Mediator pattern implementation
+## Tech Stack
+- .NET 8 Web API
+- Entity Framework Core + SQL Server
+- MediatR for CQRS (donor feature only)
 
-# Installed Packages
-MediatR - 13.1.0
-EntityFrameworkCore - 9.0.9
-EntityFrameworkCore.Design - 9.0.9
-EntityFrameworkCore.SqlServer - 9.0.9
-EntityFrameworkCore.Tools - 9.0.9
+## Run
+1. Update `BDMS.Api/appsettings.json` with your SQL Server connection string.
+2. Run the API.
+3. Use `BDMS.Api/BDMS.Api.http` to test endpoints.

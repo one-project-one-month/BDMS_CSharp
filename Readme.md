@@ -12,6 +12,6 @@
 - MediatR for CQRS (donor feature only)
 
 ## Run
-1. Update `BDMS.Api/appsettings.json` with your SQL Server connection string.
+1. Run `docker compose up -d`.
 2. Run the API.
 3. Use `BDMS.Api/BDMS.Api.http` to test endpoints.

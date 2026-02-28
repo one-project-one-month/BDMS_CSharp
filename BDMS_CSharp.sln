@@ -19,8 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDMS.Infrastructure", "BDMS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDMS.Domain.Tests", "BDMS.Domain.Tests\BDMS.Domain.Tests.csproj", "{0F86B15E-6CCF-432C-8A7F-151A8C395D24}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDMS.Api.Tests", "BDMS.Api.Tests\BDMS.Api.Tests.csproj", "{279809CD-5A09-4DDE-90E5-553DC08B2587}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,10 +45,6 @@ Global
 		{0F86B15E-6CCF-432C-8A7F-151A8C395D24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F86B15E-6CCF-432C-8A7F-151A8C395D24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F86B15E-6CCF-432C-8A7F-151A8C395D24}.Release|Any CPU.Build.0 = Release|Any CPU
-		{279809CD-5A09-4DDE-90E5-553DC08B2587}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{279809CD-5A09-4DDE-90E5-553DC08B2587}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{279809CD-5A09-4DDE-90E5-553DC08B2587}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{279809CD-5A09-4DDE-90E5-553DC08B2587}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

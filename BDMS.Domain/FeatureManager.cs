@@ -15,7 +15,7 @@ public static class FeatureManager
         // Configure DbContext with retry-on-failure
         builder.Services.AddDbContext<AppDbContext>(opt =>
         {
-            opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"));
+            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 
         }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 

@@ -6,18 +6,18 @@ using MediatR;
 
 namespace BDMS.Domain.Features.User.Handlers;
 
-public class GetAllUserHandler : IRequestHandler<Queries.GetAllUserQuery, Result<List<UserRespModel>>>
-{
-    private readonly AppDbContext _appDbContext;
+//public class GetAllUserHandler : IRequestHandler<Queries.GetAllUserQuery, Result<List<UserRespModel>>>
+//{
+//    private readonly AppDbContext _appDbContext;
 
-    public GetAllUserHandler(AppDbContext appDbContext)
-    {
-        _appDbContext = appDbContext;
-    }
+//    public GetAllUserHandler(AppDbContext appDbContext)
+//    {
+//        _appDbContext = appDbContext;
+//    }
 
-    public async Task<Result<List<UserRespModel>>> Handle(Queries.GetAllUserQuery request, CancellationToken cancellationToken)
-    {
-        var service = new UserService(_appDbContext);
-        return await service.GetAllUser();
-    }
-}
+//    public async Task<Result<List<UserRespModel>>> Handle(Queries.GetAllUserQuery request, CancellationToken cancellationToken)
+//    {
+//        var service = new UserService(_appDbContext);
+//        return await service.GetAllUser();
+//    }
+//}

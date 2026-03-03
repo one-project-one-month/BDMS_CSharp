@@ -485,11 +485,10 @@ WHERE r.name = 'user'
 GO
 
 -- =============================================
--- SEED DATA: Sample Users (password is a placeholder hash)
+-- SEED DATA: Sample Users
 -- =============================================
 INSERT INTO Users (role_id, hospital_id, user_name, email, password) VALUES
-((SELECT id FROM Roles WHERE name = 'admin'), NULL, 'System Admin',   'admin@bdms.com',    'hashed_password_here'),
-((SELECT id FROM Roles WHERE name = 'staff'), NULL, 'Staff Member',   'staff@bdms.com',    'hashed_password_here'),
-((SELECT id FROM Roles WHERE name = 'donor'), NULL, 'John Donor',     'john@example.com',  'hashed_password_here'),
-((SELECT id FROM Roles WHERE name = 'user'),  NULL, 'Jane User',      'jane@example.com',  'hashed_password_here');
+((SELECT id FROM Roles WHERE name = 'admin'), NULL, 'System Admin',   'admin@bdms.com', 'hzyrH78Tg/HWdPG+VPUser/+NaMo7kLsDdbYiRdnDAvozfPfJbf6otZKmNAmuvTR
+'),
+((SELECT id FROM Roles WHERE name = 'staff'), NULL, 'Staff Member',   'staff@bdms.com', 'BDoy7z8tvI0aeJfohVXAeiHsF+KlTT0xf38XnVjaQ38+1iQjUMcWiztyz/SzGwYM'),
 GO

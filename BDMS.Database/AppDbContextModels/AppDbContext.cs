@@ -41,11 +41,15 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-295DC70\\SQLEXPRESS;Database=BDMS;User ID=sa;Password=sasa@123;TrustServerCertificate=True;");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Announcement>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Announce__3213E83FD3CB9D04");
+            entity.HasKey(e => e.Id).HasName("PK__Announce__3213E83FB6141C6F");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Announcements_UpdatedAt"));
 
@@ -68,7 +72,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Appointment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Appointm__3213E83F735F62EA");
+            entity.HasKey(e => e.Id).HasName("PK__Appointm__3213E83F372F4F82");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Appointments_UpdatedAt"));
 
@@ -113,7 +117,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<BloodInventory>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Blood_In__3213E83FC4FB5E51");
+            entity.HasKey(e => e.Id).HasName("PK__Blood_In__3213E83F4944D6E7");
 
             entity.ToTable("Blood_Inventories", tb => tb.HasTrigger("trg_BloodInventories_UpdatedAt"));
 
@@ -158,7 +162,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<BloodRequest>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Blood_Re__3213E83F33FFC6F7");
+            entity.HasKey(e => e.Id).HasName("PK__Blood_Re__3213E83F76232F52");
 
             entity.ToTable("Blood_Requests", tb => tb.HasTrigger("trg_BloodRequests_UpdatedAt"));
 
@@ -168,6 +172,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.BloodGroup)
                 .HasMaxLength(5)
                 .HasColumnName("blood_group");
+            entity.Property(e => e.BloodRequestCode)
+                .HasMaxLength(255)
+                .HasColumnName("blood_request_code");
             entity.Property(e => e.ContactPhone)
                 .HasMaxLength(20)
                 .HasColumnName("contact_phone");
@@ -214,7 +221,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Certificate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Certific__3213E83F89FF4A90");
+            entity.HasKey(e => e.Id).HasName("PK__Certific__3213E83F53D21001");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Certificates_UpdatedAt"));
 
@@ -242,7 +249,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Donation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Donation__3213E83F50F0DA08");
+            entity.HasKey(e => e.Id).HasName("PK__Donation__3213E83F0B7BB1D4");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Donations_UpdatedAt"));
 
@@ -258,6 +265,9 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("created_at");
             entity.Property(e => e.CreatedBy).HasColumnName("created_by");
             entity.Property(e => e.DeletedAt).HasColumnName("deleted_at");
+            entity.Property(e => e.DonationCode)
+                .HasMaxLength(255)
+                .HasColumnName("donation_code");
             entity.Property(e => e.DonationDate).HasColumnName("donation_date");
             entity.Property(e => e.DonorId).HasColumnName("donor_id");
             entity.Property(e => e.HospitalId).HasColumnName("hospital_id");
@@ -297,7 +307,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Donor>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Donors__3213E83F708B4744");
+            entity.HasKey(e => e.Id).HasName("PK__Donors__3213E83FD58082EE");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Donors_UpdatedAt"));
 
@@ -345,7 +355,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Hospital>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Hospital__3213E83F25B9463A");
+            entity.HasKey(e => e.Id).HasName("PK__Hospital__3213E83F96539FF3");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Hospitals_UpdatedAt"));
 
@@ -379,7 +389,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<MedicalRecord>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Medical___3213E83F1D75B86C");
+            entity.HasKey(e => e.Id).HasName("PK__Medical___3213E83FC13939F3");
 
             entity.ToTable("Medical_Records", tb => tb.HasTrigger("trg_MedicalRecords_UpdatedAt"));
 
@@ -437,7 +447,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Permission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Permissi__3213E83F187A6861");
+            entity.HasKey(e => e.Id).HasName("PK__Permissi__3213E83F296D61B7");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Permissions_UpdatedAt"));
 
@@ -457,7 +467,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Roles__3213E83F63587BBF");
+            entity.HasKey(e => e.Id).HasName("PK__Roles__3213E83F801725A5");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Roles_UpdatedAt"));
 
@@ -503,7 +513,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Users__3213E83FC4BF364B");
+            entity.HasKey(e => e.Id).HasName("PK__Users__3213E83F48374B90");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Users_UpdatedAt"));
 

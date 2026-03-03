@@ -11,6 +11,8 @@ public partial class BloodRequest
 
     public int HospitalId { get; set; }
 
+    public string? BloodRequestCode { get; set; }
+
     public string PatientName { get; set; } = null!;
 
     public string BloodGroup { get; set; } = null!;

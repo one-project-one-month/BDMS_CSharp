@@ -15,6 +15,8 @@ public partial class Donation
 
     public int CreatedBy { get; set; }
 
+    public string? DonationCode { get; set; }
+
     public string BloodGroup { get; set; } = null!;
 
     public int? UnitsDonated { get; set; }

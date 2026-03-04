@@ -40,5 +40,10 @@ namespace BDMS.Shared
                 return (T)Convert.ChangeType(jsonStr, typeof(T));
             }
         }
+
+        public static T ToEnumOrDefault<T>(this string? value, T fallback) where T : struct, Enum
+        {
+            return Enum.TryParse<T>(value, true, out T result) ? result : fallback;
+        }
     }
 }

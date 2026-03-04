@@ -38,7 +38,7 @@ public static class FeatureManager
         builder.AddServices();
 
         var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;
-        builder.Services.AddSingleton(jwtSettings);          // ← MISSING: register JwtSettings
+        builder.Services.AddSingleton(jwtSettings);          
         builder.Services
                .AddAuthentication(options =>
                {

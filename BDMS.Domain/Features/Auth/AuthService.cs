@@ -23,7 +23,7 @@ namespace BDMS.Domain.Features.Auth
             _dbContext = dbContext;
             _tokenService = tokenService;
         }
-
+        #region Admin
         public async Task<Result<LoginResultInternal>> Login(AdminLoginCommand request, CancellationToken cancellationToken)
         {
             var user = await _dbContext.Users
@@ -39,7 +39,7 @@ namespace BDMS.Domain.Features.Auth
 
             if (!AdminRoles.Contains(user.Role.Name.ToLower()))
             {
-                return Result<LoginResultInternal>.ValidationError("Invalid email or password");
+                return Result<LoginResultInternal>.ValidationError("This is an invalid admin account");
             }
 
             if (!user.Password.VerifyPassword(request.Password))
@@ -66,5 +66,6 @@ namespace BDMS.Domain.Features.Auth
             };
             return Result<LoginResultInternal>.Success(result, "Login successful.");
         }
+        #endregion
     }
 }

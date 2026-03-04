@@ -16,13 +16,10 @@ namespace BDMS.Domain.Features.Auth.Handlers
     public class AdminLoginHandler : IRequestHandler<AdminLoginCommand, Result<LoginResultInternal>>
     {
         private readonly AuthService _authService;
-
-
         public AdminLoginHandler(AuthService authService)
         {
             _authService = authService;
         }
-
         public async Task<Result<LoginResultInternal>> Handle(AdminLoginCommand request, CancellationToken cancellationToken)
         {
             return await _authService.Login(request,cancellationToken);

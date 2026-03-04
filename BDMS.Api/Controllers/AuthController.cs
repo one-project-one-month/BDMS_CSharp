@@ -26,13 +26,27 @@ namespace BDMS.Api.Controllers
 
             var result = await _mediator.Send(command);
 
-            //Response.Cookies.Append(
-            //    _jwtSettings.AdminCookieName,
-            //    result.Data.Token,
-            //    BuildCookieOptions(result.Data.ExpireToken));
+            if (result.IsError || result.Data == null)
+                return Unauthorized(result);
+
+            Response.Cookies.Append(
+                _jwtSettings.AdminCookieName,
+                result.Data.Token,
+                BuildCookieOptions(result.Data.ExpireToken));
 
             return Excute(result);
 
+        }
+
+        [HttpPost("Logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete(
+                _jwtSettings.AdminCookieName,
+                BuildCookieOptions(DateTime.Now)
+            );
+
+            return Ok(Result<string>.Success("Logout Successfully"));
         }
 
         private static CookieOptions BuildCookieOptions(DateTime expires) => new()

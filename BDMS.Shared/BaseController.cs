@@ -16,8 +16,9 @@ namespace BDMS.Shared
             return responseType switch
             {
                 EnumRespType.Success => Ok(result),
+                EnumRespType.ValidationError => BadRequest(result),
                 EnumRespType.SystemError => StatusCode(500, result),
-                EnumRespType.NotFound => BadRequest(result),
+                EnumRespType.NotFound => NotFound(result),
                 EnumRespType.None => throw new Exception("EnumRespType is none. pls check your logic."),
                 _ => throw new Exception("Out of scope in Execute (BaseController). pls check your logic.")
             };

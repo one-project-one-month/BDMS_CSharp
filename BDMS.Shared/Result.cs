@@ -49,7 +49,7 @@ public class Result<T>
     {
         return new Result<T>()
         {
-            IsSuccess = true,
+            IsSuccess = false,
             Type = EnumRespType.ValidationError,
             Data = data,
             Message = message
@@ -64,7 +64,7 @@ public class Result<T>
     {
         return new Result<T>()
         {
-            IsSuccess = true,
+            IsSuccess = false,
             Type = EnumRespType.SystemError,
             Data = data,
             Message = message
@@ -79,7 +79,7 @@ public class Result<T>
     {
         return new Result<T>()
         {
-            IsSuccess = true,
+            IsSuccess = false,
             Type = EnumRespType.NotFound,
             Data = data,
             Message = message

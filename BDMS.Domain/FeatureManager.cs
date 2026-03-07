@@ -19,7 +19,7 @@ public static class FeatureManager
     private static void AddServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddTransient<UserService>();
-        builder.Services.AddTransient<AuthService>();
+        builder.Services.AddTransient<IAuthService,AuthService>();
         builder.Services.AddTransient<TokenService>();
     }
     
@@ -79,7 +79,7 @@ public static class FeatureManager
                });
 
         builder.Services.AddAuthorizationBuilder()
-            .AddPolicy("AdminOnly", policy => policy.RequireRole("admin", "staff"))
+            .AddPolicy("AdminOnly", policy => policy.RequireRole("admin"))
             .AddPolicy("StaffOnly", policy => policy.RequireRole("staff"))
             .AddPolicy("DonorOnly", policy => policy.RequireRole("donor"))
             .AddPolicy("ClientOnly", policy => policy.RequireRole("user"));

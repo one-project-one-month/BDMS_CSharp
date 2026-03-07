@@ -2,6 +2,7 @@
 using BDMS.Domain.Features.Auth.Models;
 using BDMS.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

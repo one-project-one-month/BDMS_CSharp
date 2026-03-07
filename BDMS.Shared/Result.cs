@@ -9,7 +9,7 @@ public class Result<T>
     public bool IsNotFound() => Type == EnumRespType.NotFound;
 
     private EnumRespType Type { get; set; }
-    public T Data { get; set; } = default!;
+    public T? Data { get; set; } = default!;
     public string Message { get; set; } = null!;
 
     public EnumRespType GetEnumRespType() => Type;
@@ -88,9 +88,9 @@ public class Result<T>
 
     #endregion
 
-    public class PagedResult<T>
+    public class PagedResult<TItems>
     {
-        public IEnumerable<T> Items { get; set; } = new List<T>();
+        public IEnumerable<TItems> Items { get; set; } = new List<TItems>();
         public int TotalCount { get; set; }
     }
 }

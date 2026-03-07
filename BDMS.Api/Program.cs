@@ -1,4 +1,6 @@
 using BDMS.Domain;
+using BDMS.Domain.Features.Appointment;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
@@ -96,3 +98,17 @@ finally
     Log.CloseAndFlush();
 }
 public partial class Program { }
+
+// Development 
+// conflicttesting 
+// conflict2
+// pull / merge 
+// ABCDDAFAFD1231231231
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+// Development environment is needed to use Swagger UI, otherwise it will not be available in production.\
+// You can enable it in production by removing the if condition, but it's generally not recommended for security reasons.

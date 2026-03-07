@@ -9,7 +9,7 @@ namespace BDMS.Shared
 {
     public class BaseController : ControllerBase
     {
-        protected IActionResult Excute<T>(Result<T> result)
+        protected IActionResult Execute<T>(Result<T> result)
         {
             var responseType = result.GetEnumRespType();
 

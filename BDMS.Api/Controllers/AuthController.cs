@@ -1,4 +1,4 @@
-﻿using BDMS.Domain.Features.Auth.Commands;
+using BDMS.Domain.Features.Auth.Commands;
 using BDMS.Domain.Features.Auth.Models;
 using BDMS.Shared;
 using MediatR;
@@ -35,8 +35,7 @@ namespace BDMS.Api.Controllers
                 result.Data.Token,
                 BuildCookieOptions(result.Data.ExpireToken));
 
-            return Excute(result);
-
+            return Execute(result);
         }
 
         [HttpPost("Logout")]

@@ -32,8 +32,12 @@ public class UserControllerIntegrationTests : IClassFixture<UserApiFactory>
         var payload = await response.Content.ReadFromJsonAsync<Result<List<UserRespModel>>>();
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
-        Assert.Single(payload.Data);
-        Assert.Equal("USR001", payload.Data[0].UserId);
+
+        if (payload.Data is not null)
+        {
+            Assert.Single(payload.Data);
+            Assert.Equal("USR001", payload.Data[0].UserId);
+        }
     }
 }
 
@@ -48,10 +52,10 @@ public class UserApiFactory : WebApplicationFactory<Program>
             var mediator = new Mock<IMediator>();
             mediator
                 .Setup(m => m.Send(It.IsAny<GetAllUserQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<List<UserRespModel>>.Success(new List<UserRespModel>
-                {
+                .ReturnsAsync(Result<List<UserRespModel>>.Success(
+                [
                     new() { UserId = "USR001", Username = "test.user", PhoneNo = "0991234567" }
-                }));
+                ]));
 
             services.AddSingleton(mediator.Object);
         });

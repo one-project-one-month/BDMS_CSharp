@@ -18,5 +18,9 @@
   <ItemGroup>
     <PackageReference Include="MediatR" Version="13.1.0" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Features\Donations\Commands\" />
+  </ItemGroup>
 
 </Project>

@@ -43,6 +43,10 @@ namespace BDMS.Shared
             }
         }
 
+        public static T ToEnumOrDefault<T>(this string? value, T fallback) where T : struct, Enum
+        {
+            return Enum.TryParse<T>(value, true, out T result) ? result : fallback;
+        }
 
         public static string HashPassword(this string password)
         {

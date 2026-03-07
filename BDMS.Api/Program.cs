@@ -1,4 +1,6 @@
 using BDMS.Domain;
+using BDMS.Domain.Features.Appointment;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +50,8 @@ builder.Services.AddSwaggerGen(opt =>
             }
         });
 });
+
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 builder.AddDomain();
 

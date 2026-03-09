@@ -2,7 +2,6 @@ using BDMS.Domain.Features.UserAuth.Commands;
 using BDMS.Domain.Features.UserAuth.Models;
 using BDMS.Shared;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
@@ -35,7 +34,7 @@ namespace BDMS.Api.Controllers
                 result.Data.Token,
                 BuildCookieOptions(result.Data.ExpireToken));
 
-            return Excute(result);
+            return Execute(result);
         }
 
         [HttpPost("register")]
@@ -59,7 +58,7 @@ namespace BDMS.Api.Controllers
                 result.Data.Token,
                 BuildCookieOptions(result.Data.ExpireToken));
 
-            return Excute(result);
+            return Execute(result);
         }
 
         [HttpPost("logout")]

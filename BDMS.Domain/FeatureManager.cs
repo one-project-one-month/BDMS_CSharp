@@ -1,6 +1,7 @@
 ﻿using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Auth;
 using BDMS.Domain.Features.User;
+using BDMS.Domain.Features.UserAuth;
 using BDMS.Shared;
 using BDMS.Shared.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,7 +20,8 @@ public static class FeatureManager
     private static void AddServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddTransient<UserService>();
-        builder.Services.AddTransient<IAuthService,AuthService>();
+        builder.Services.AddTransient<AuthService>();
+        builder.Services.AddTransient<BDMS.Domain.Features.UserAuth.UserAuthService>();
         builder.Services.AddTransient<TokenService>();
     }
     
@@ -28,7 +30,13 @@ public static class FeatureManager
         // Configure DbContext with retry-on-failure
         builder.Services.AddDbContext<AppDbContext>(opt =>
         {
-            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+            {
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null);
+            });
 
         }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 

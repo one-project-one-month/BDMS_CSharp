@@ -15,8 +15,8 @@ namespace BDMS.Domain.Features.Auth.Handlers
 {
     public class AdminLoginHandler : IRequestHandler<AdminLoginCommand, Result<LoginResultInternal>>
     {
-        private readonly AuthService _authService;
-        public AdminLoginHandler(AuthService authService)
+        private readonly IAuthService _authService;
+        public AdminLoginHandler(IAuthService authService)
         {
             _authService = authService;
         }

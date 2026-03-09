@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.Auth
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         private readonly AppDbContext _dbContext;
         private readonly TokenService _tokenService;
@@ -33,19 +33,19 @@ namespace BDMS.Domain.Features.Auth
                                         .FirstOrDefaultAsync(u => u.Email == request.Email && u.IsActive, cancellationToken);
 
             if (user is null)
-            {
-                return Result<LoginResultInternal>.ValidationError("Invalid email or password");
-            }
+                return Result<LoginResultInternal>.ValidationError("Request cannot be null");
+
+            if (request.Email is null)
+                return Result<LoginResultInternal>.ValidationError("Email is required");
+
+            if (request.Password is null)
+                return Result<LoginResultInternal>.ValidationError("Password is required");
 
             if (!AdminRoles.Contains(user.Role.Name.ToLower()))
-            {
-                return Result<LoginResultInternal>.ValidationError("This is an invalid admin account");
-            }
+                return Result<LoginResultInternal>.ValidationError("This is an invalid admin & staff account");
 
             if (!user.Password.VerifyPassword(request.Password))
-            {
                 return Result<LoginResultInternal>.ValidationError("Invalid password");
-            }
 
             var permissions = user.Role.RolePermissions.Select(rp => rp.Permission.Name).ToList();
 

@@ -6,7 +6,7 @@ namespace BDMS.Domain.Features.User.Commands;
 
 public class UpdateUserCommand : IRequest<Result<UserRespModel>>
 {
-    public string UserId { get; set; }
+    public required string UserId { get; set; }
     public string PhoneNo { get; set; } = null!;
 }
 

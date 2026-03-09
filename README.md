@@ -10,7 +10,7 @@ SQL Server is available at `localhost,1433` with:
 
 - User: `sa`
 - Password: `BDMS@2026`
-- Database: `BDMSDb`
+- Database: `BDMS`
 
 ## Start the project (new developer setup)
 

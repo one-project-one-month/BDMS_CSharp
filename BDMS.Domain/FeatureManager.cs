@@ -1,4 +1,5 @@
 ﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Domain.Features.Donor;
 using BDMS.Domain.Features.Auth;
 using BDMS.Domain.Features.User;
 using BDMS.Domain.Features.UserAuth;
@@ -43,6 +44,8 @@ public static class FeatureManager
         // Register MediatR - scan the current assembly for handlers
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
+        builder.Services.AddTransient<UserService>();
+        builder.Services.AddTransient<DonorService>();
         builder.AddServices();
 
         var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;

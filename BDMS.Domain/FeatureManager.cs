@@ -4,6 +4,8 @@ using BDMS.Domain.Features.Donor;
 using BDMS.Domain.Features.Auth;
 using BDMS.Domain.Features.User;
 using BDMS.Domain.Features.UserAuth;
+using BDMS.Domain.Features.Announcement;
+using BDMS.Domain.Features.Appointment;
 using BDMS.Shared;
 using BDMS.Shared.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,10 +23,12 @@ public static class FeatureManager
 {
     private static void AddServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddTransient<UserService>();
-        builder.Services.AddTransient<AuthService>();
-        builder.Services.AddTransient<IUserAuthService,UserAuthService>();
-        builder.Services.AddTransient<TokenService>();
+        builder.Services.AddScoped<UserService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IUserAuthService, UserAuthService>();
+        builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+        builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+        builder.Services.AddScoped<TokenService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)
@@ -45,9 +49,8 @@ public static class FeatureManager
         // Register MediatR - scan the current assembly for handlers
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
-        builder.Services.AddTransient<UserService>();
-        builder.Services.AddTransient<PermissionService>();
-        builder.Services.AddTransient<DonorService>();
+        builder.Services.AddScoped<PermissionService>();
+        builder.Services.AddScoped<DonorService>();
         builder.AddServices();
 
         var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;

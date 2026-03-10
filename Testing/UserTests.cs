@@ -13,11 +13,11 @@ using Xunit;
 
 namespace Testing;
 
-public class UserControllerIntegrationTests : IClassFixture<UserApiFactory>
+public class UserTests : IClassFixture<UserApiFactory>
 {
     private readonly HttpClient _client;
 
-    public UserControllerIntegrationTests(UserApiFactory factory)
+    public UserTests(UserApiFactory factory)
     {
         _client = factory.CreateClient();
     }

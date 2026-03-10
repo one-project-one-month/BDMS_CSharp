@@ -22,6 +22,6 @@ public class GetAllDonationHandler : IRequestHandler<Queries.GetAllDonationQuery
     public async Task<Result<List<DonationRespModel>>> Handle(Queries.GetAllDonationQuery query, CancellationToken cancellationToken)
     {
         var service = new DonationService(_db);
-        return await service.GetAllDonationsAsync();
+        return await service.GetAllDonations();
     }
 }

@@ -1,4 +1,6 @@
-﻿using BDMS.Domain.Features.User.Queries;
+﻿using BDMS.Domain.Features.Donations.Commands;
+using BDMS.Domain.Features.Donations.Models;
+using BDMS.Domain.Features.User.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +24,33 @@ namespace BDMS.Api.Controllers
             var query = new GetAllUserQuery();
             var result = await mediator.Send(query);
             if(!result.IsSuccess)
+            {
+                return BadRequest(result.Message);
+            }
+            return Ok(result);
+        }
+
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> CreateDonation(DonationCreateReqModel reqModel)
+        {
+            var command = new CreateDonationCommand()
+            {
+                DonorId = reqModel.DonorId,
+                HospitalId = reqModel.HospitalId,
+                BloodRequestId = reqModel.BloodRequestId,
+                CreatedBy = reqModel.CreatedBy,
+                DonationCode = reqModel.DonationCode,
+                BloodGroup = reqModel.BloodGroup,
+                UnitsDonated = reqModel.UnitsDonated,
+                DonationDate = reqModel.DonationDate,
+                Status = reqModel.Status,
+                Remarks = reqModel.Remarks,
+                CreatedAt = reqModel.CreatedAt
+            };
+
+            var result = await mediator.Send(command);
+            if (!result.IsSuccess)
             {
                 return BadRequest(result.Message);
             }

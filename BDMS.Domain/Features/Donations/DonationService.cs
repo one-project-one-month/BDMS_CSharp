@@ -1,5 +1,6 @@
 ﻿using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Donation.Models;
+using BDMS.Domain.Features.Donations.Models;
 using BDMS.Shared;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ public class DonationService
             _db = db;
         }
 
-    public async Task<Result<List<DonationRespModel>>> GetAllDonationsAsync()
+    public async Task<Result<List<DonationRespModel>>> GetAllDonations()
     {
         try
         {
@@ -63,6 +64,63 @@ public class DonationService
         {
 
             return Result<List<DonationRespModel>>.SystemError($"Error retriving Donation : {ex.Message}");
+        }
+    }
+
+    public async Task<Result<DonationRespModel>> CreateDonation(DonationCreateReqModel reqModel)
+    {
+        try
+        {
+            var donation = new BDMS.Database.AppDbContextModels.Donation()
+            {
+                DonorId = reqModel.DonorId,
+                HospitalId = reqModel.HospitalId,
+                BloodRequestId = reqModel.BloodRequestId,
+                CreatedBy = reqModel.CreatedBy,
+                DonationCode = reqModel.DonationCode,
+                BloodGroup = reqModel.BloodGroup,
+                UnitsDonated = reqModel.UnitsDonated,
+                DonationDate = reqModel.DonationDate,
+                Status = reqModel.Status,
+                Remarks = reqModel.Remarks,
+                CreatedAt = reqModel.CreatedAt
+            };
+
+            await _db.Donations.AddAsync(donation);
+            await _db.SaveChangesAsync();
+
+            var resp = new DonationRespModel
+            {
+                Id = donation.Id,
+                DonorId = donation.DonorId,
+                HospitalId = donation.HospitalId,
+                BloodRequestId = donation.BloodRequestId,
+                CreatedBy = donation.CreatedBy,
+                DonationCode = donation.DonationCode,
+                BloodGroup = donation.BloodGroup,
+                UnitsDonated = donation.UnitsDonated,
+                DonationDate = donation.DonationDate,
+                Status = donation.Status,
+                ApprovedBy = donation.ApprovedBy,
+                ApprovedAt = donation.ApprovedAt,
+                Remarks = donation.Remarks,
+                CreatedAt = donation.CreatedAt,
+                UpdatedAt = donation.UpdatedAt,
+                DeletedAt = donation.DeletedAt,
+                ApprovedByNavigation = donation.ApprovedByNavigation,
+                BloodInventory = donation.BloodInventory,
+                BloodRequest = donation.BloodRequest,
+                CreatedByNavigation = donation.CreatedByNavigation,
+                Donor = donation.Donor,
+                Hospital = donation.Hospital,
+                MedicalRecord = donation.MedicalRecord
+            };
+            return Result<DonationRespModel>.Success(resp, "Donation is created successfully!");
+
+        }
+        catch (Exception ex)
+        {
+            return Result<DonationRespModel>.SystemError($"Error in creating donation {ex.Message}");
         }
     }
 } 

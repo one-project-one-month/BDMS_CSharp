@@ -1,4 +1,5 @@
 ﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Domain.Features.Appointment;
 using BDMS.Domain.Features.Auth;
 using BDMS.Domain.Features.User;
 using BDMS.Shared;
@@ -20,6 +21,7 @@ public static class FeatureManager
     {
         builder.Services.AddTransient<UserService>();
         builder.Services.AddTransient<IAuthService,AuthService>();
+        builder.Services.AddTransient<IAppointmentService,AppointmentService>();
         builder.Services.AddTransient<TokenService>();
     }
     
@@ -80,6 +82,7 @@ public static class FeatureManager
 
         builder.Services.AddAuthorizationBuilder()
             .AddPolicy("AdminOnly", policy => policy.RequireRole("admin"))
+            .AddPolicy("AdminStaff", policy => policy.RequireRole("admin", "staff"))
             .AddPolicy("StaffOnly", policy => policy.RequireRole("staff"))
             .AddPolicy("DonorOnly", policy => policy.RequireRole("donor"))
             .AddPolicy("ClientOnly", policy => policy.RequireRole("user"));

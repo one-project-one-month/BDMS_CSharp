@@ -24,6 +24,7 @@
   
   <ItemGroup>
     <Folder Include="Features\Auth\Queries\" />
+    <Folder Include="Features\Announcement\" />
     <Folder Include="Features\UserAuth\Commands\" />
     <Folder Include="Features\UserAuth\Handlers\" />
     <Folder Include="Features\UserAuth\Models\" />

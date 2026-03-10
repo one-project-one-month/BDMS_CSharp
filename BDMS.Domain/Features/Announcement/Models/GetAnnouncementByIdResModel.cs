@@ -2,7 +2,7 @@ using System;
 
 namespace BDMS.Domain.Features.Announcement.Models;
 
-public class GetAnnouncementResModel
+public class GetAnnouncementByIdResModel
 {
     public int Id { get; set; }
     public string Title { get; set; } = null!;

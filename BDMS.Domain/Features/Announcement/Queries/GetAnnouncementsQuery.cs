@@ -5,6 +5,6 @@ using System.Collections.Generic;
 
 namespace BDMS.Domain.Features.Announcement.Queries;
 
-public class GetAnnouncementsQuery : IRequest<Result<List<GetAnnouncementResModel>>>
+public class GetAnnouncementsQuery : IRequest<Result<List<AnnouncementListItemResModel>>>
 {
 }

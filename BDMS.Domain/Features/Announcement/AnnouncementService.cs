@@ -19,7 +19,7 @@ public class AnnouncementService : IAnnouncementService
         _dbContext = dbContext;
     }
 
-    public async Task<Result<CreateAnnouncementResModel>> CreateAnnouncement(CreateAnnouncementReqModel request, CancellationToken cancellationToken)
+    public async Task<Result<(CreateAnnouncementResModel Res, CreateAnnouncementReqModel Req)>> CreateAnnouncement(CreateAnnouncementReqModel request, CancellationToken cancellationToken)
     {
         try
         {
@@ -36,7 +36,7 @@ public class AnnouncementService : IAnnouncementService
             _dbContext.Announcements.Add(announcement);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            var result = new CreateAnnouncementResModel
+            var res = new CreateAnnouncementResModel
             {
                 Id = announcement.Id,
                 Title = announcement.Title,
@@ -46,22 +46,22 @@ public class AnnouncementService : IAnnouncementService
                 CreatedAt = announcement.CreatedAt
             };
 
-            return Result<CreateAnnouncementResModel>.Success(result, "Announcement created successfully.");
+            return Result<(CreateAnnouncementResModel, CreateAnnouncementReqModel)>.Success((res, request), "Announcement created successfully.");
         }
         catch (Exception ex)
         {
-            return Result<CreateAnnouncementResModel>.SystemError($"An error occurred while creating the announcement: {ex.Message}");
+            return Result<(CreateAnnouncementResModel, CreateAnnouncementReqModel)>.SystemError($"An error occurred while creating the announcement: {ex.Message}");
         }
     }
 
-    public async Task<Result<UpdateAnnouncementResModel>> UpdateAnnouncement(UpdateAnnouncementReqModel request, CancellationToken cancellationToken)
+    public async Task<Result<(UpdateAnnouncementResModel Res, UpdateAnnouncementReqModel Req)>> UpdateAnnouncement(UpdateAnnouncementReqModel request, CancellationToken cancellationToken)
     {
         try
         {
             var announcement = await _dbContext.Announcements.FindAsync(new object[] { request.Id }, cancellationToken);
             if (announcement == null)
             {
-                return Result<UpdateAnnouncementResModel>.ValidationError("Announcement not found.");
+                return Result<(UpdateAnnouncementResModel, UpdateAnnouncementReqModel)>.ValidationError("Announcement not found.");
             }
 
             announcement.Title = request.Title;
@@ -72,7 +72,7 @@ public class AnnouncementService : IAnnouncementService
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            var result = new UpdateAnnouncementResModel
+            var res = new UpdateAnnouncementResModel
             {
                 Id = announcement.Id,
                 Title = announcement.Title,
@@ -82,46 +82,52 @@ public class AnnouncementService : IAnnouncementService
                 UpdatedAt = announcement.UpdatedAt
             };
 
-            return Result<UpdateAnnouncementResModel>.Success(result, "Announcement updated successfully.");
+            return Result<(UpdateAnnouncementResModel, UpdateAnnouncementReqModel)>.Success((res, request), "Announcement updated successfully.");
         }
         catch (Exception ex)
         {
-            return Result<UpdateAnnouncementResModel>.SystemError($"An error occurred while updating the announcement: {ex.Message}");
+            return Result<(UpdateAnnouncementResModel, UpdateAnnouncementReqModel)>.SystemError($"An error occurred while updating the announcement: {ex.Message}");
         }
     }
 
-    public async Task<Result<bool>> DeleteAnnouncement(int id, CancellationToken cancellationToken)
+    public async Task<Result<(DeleteAnnouncementResModel Res, DeleteAnnouncementReqModel Req)>> DeleteAnnouncement(DeleteAnnouncementReqModel request, CancellationToken cancellationToken)
     {
         try
         {
-            var announcement = await _dbContext.Announcements.FindAsync(new object[] { id }, cancellationToken);
+            var announcement = await _dbContext.Announcements.FindAsync(new object[] { request.Id }, cancellationToken);
             if (announcement == null)
             {
-                return Result<bool>.ValidationError("Announcement not found.");
+                return Result<(DeleteAnnouncementResModel, DeleteAnnouncementReqModel)>.ValidationError("Announcement not found.");
             }
 
             _dbContext.Announcements.Remove(announcement);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result<bool>.Success(true, "Announcement deleted successfully.");
+            var res = new DeleteAnnouncementResModel
+            {
+                Id = request.Id,
+                Message = "Announcement deleted successfully."
+            };
+
+            return Result<(DeleteAnnouncementResModel, DeleteAnnouncementReqModel)>.Success((res, request), "Announcement deleted successfully.");
         }
         catch (Exception ex)
         {
-            return Result<bool>.SystemError($"An error occurred while deleting the announcement: {ex.Message}");
+            return Result<(DeleteAnnouncementResModel, DeleteAnnouncementReqModel)>.SystemError($"An error occurred while deleting the announcement: {ex.Message}");
         }
     }
 
-    public async Task<Result<GetAnnouncementResModel>> GetAnnouncementById(int id, CancellationToken cancellationToken)
+    public async Task<Result<(GetAnnouncementByIdResModel Res, GetAnnouncementByIdReqModel Req)>> GetAnnouncementById(GetAnnouncementByIdReqModel request, CancellationToken cancellationToken)
     {
         try
         {
-            var announcement = await _dbContext.Announcements.FindAsync(new object[] { id }, cancellationToken);
+            var announcement = await _dbContext.Announcements.FindAsync(new object[] { request.Id }, cancellationToken);
             if (announcement == null)
             {
-                return Result<GetAnnouncementResModel>.ValidationError("Announcement not found.");
+                return Result<(GetAnnouncementByIdResModel, GetAnnouncementByIdReqModel)>.ValidationError("Announcement not found.");
             }
 
-            var result = new GetAnnouncementResModel
+            var res = new GetAnnouncementByIdResModel
             {
                 Id = announcement.Id,
                 Title = announcement.Title,
@@ -132,36 +138,33 @@ public class AnnouncementService : IAnnouncementService
                 UpdatedAt = announcement.UpdatedAt
             };
 
-            return Result<GetAnnouncementResModel>.Success(result);
+            return Result<(GetAnnouncementByIdResModel, GetAnnouncementByIdReqModel)>.Success((res, request));
         }
         catch (Exception ex)
         {
-            return Result<GetAnnouncementResModel>.SystemError($"An error occurred while getting the announcement: {ex.Message}");
+            return Result<(GetAnnouncementByIdResModel, GetAnnouncementByIdReqModel)>.SystemError($"An error occurred while getting the announcement: {ex.Message}");
         }
     }
 
-    public async Task<Result<List<GetAnnouncementResModel>>> GetAnnouncements(CancellationToken cancellationToken)
+    public async Task<Result<List<AnnouncementListItemResModel>>> GetAnnouncements(CancellationToken cancellationToken)
     {
         try
         {
             var announcements = await _dbContext.Announcements
-                .Select(a => new GetAnnouncementResModel
+                .Select(a => new AnnouncementListItemResModel
                 {
                     Id = a.Id,
                     Title = a.Title,
-                    Content = a.Content,
                     IsActive = a.IsActive,
-                    ExpiredAt = a.ExpiredAt,
-                    CreatedAt = a.CreatedAt,
-                    UpdatedAt = a.UpdatedAt
+                    CreatedAt = a.CreatedAt
                 })
                 .ToListAsync(cancellationToken);
 
-            return Result<List<GetAnnouncementResModel>>.Success(announcements);
+            return Result<List<AnnouncementListItemResModel>>.Success(announcements);
         }
         catch (Exception ex)
         {
-            return Result<List<GetAnnouncementResModel>>.SystemError($"An error occurred while getting announcements: {ex.Message}");
+            return Result<List<AnnouncementListItemResModel>>.SystemError($"An error occurred while getting announcements: {ex.Message}");
         }
     }
 }

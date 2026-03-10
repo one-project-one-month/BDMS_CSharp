@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.Announcement.Handlers;
 
-public class GetAnnouncementsHandler : IRequestHandler<GetAnnouncementsQuery, Result<List<GetAnnouncementResModel>>>
+public class GetAnnouncementsHandler : IRequestHandler<GetAnnouncementsQuery, Result<List<AnnouncementListItemResModel>>>
 {
     private readonly IAnnouncementService _announcementService;
 
@@ -17,7 +17,7 @@ public class GetAnnouncementsHandler : IRequestHandler<GetAnnouncementsQuery, Re
         _announcementService = announcementService;
     }
 
-    public async Task<Result<List<GetAnnouncementResModel>>> Handle(GetAnnouncementsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<List<AnnouncementListItemResModel>>> Handle(GetAnnouncementsQuery request, CancellationToken cancellationToken)
     {
         return await _announcementService.GetAnnouncements(cancellationToken);
     }

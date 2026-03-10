@@ -4,10 +4,8 @@ using MediatR;
 
 namespace BDMS.Domain.Features.Announcement.Queries;
 
-public class GetAnnouncementByIdQuery : IRequest<Result<GetAnnouncementResModel>>
+public class GetAnnouncementByIdQuery : GetAnnouncementByIdReqModel, IRequest<Result<(GetAnnouncementByIdResModel Res, GetAnnouncementByIdReqModel Req)>>
 {
-    public int Id { get; set; }
-
     public GetAnnouncementByIdQuery(int id)
     {
         Id = id;

@@ -1,4 +1,5 @@
-﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Database.AppDbContextModels;
+using BDMS.Domain.Features.Permissions;
 using BDMS.Domain.Features.Donor;
 using BDMS.Domain.Features.Auth;
 using BDMS.Domain.Features.User;
@@ -45,6 +46,7 @@ public static class FeatureManager
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
         builder.Services.AddTransient<UserService>();
+        builder.Services.AddTransient<PermissionService>();
         builder.Services.AddTransient<DonorService>();
         builder.AddServices();
 

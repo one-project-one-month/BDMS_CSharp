@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.UserAuth
 {
-    public class UserAuthService
+    public class UserAuthService : IUserAuthService
     {
         private readonly AppDbContext _dbContext;
         private readonly TokenService _tokenService;

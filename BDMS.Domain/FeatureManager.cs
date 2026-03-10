@@ -21,7 +21,7 @@ public static class FeatureManager
     {
         builder.Services.AddTransient<UserService>();
         builder.Services.AddTransient<AuthService>();
-        builder.Services.AddTransient<BDMS.Domain.Features.UserAuth.UserAuthService>();
+        builder.Services.AddTransient<IUserAuthService,UserAuthService>();
         builder.Services.AddTransient<TokenService>();
     }
     

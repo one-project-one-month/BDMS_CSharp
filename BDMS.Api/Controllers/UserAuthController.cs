@@ -35,7 +35,7 @@ namespace BDMS.Api.Controllers
                 result.Data.Token,
                 BuildCookieOptions(result.Data.ExpireToken));
 
-            return Excute(result);
+            return Execute(result);
         }
 
         [HttpPost("register")]
@@ -59,7 +59,7 @@ namespace BDMS.Api.Controllers
                 result.Data.Token,
                 BuildCookieOptions(result.Data.ExpireToken));
 
-            return Excute(result);
+            return Execute(result);
         }
 
         [HttpPost("logout")]

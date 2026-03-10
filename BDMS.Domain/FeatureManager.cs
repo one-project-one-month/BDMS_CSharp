@@ -1,4 +1,5 @@
 ﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Domain.Features.Announcement;
 using BDMS.Domain.Features.Auth;
 using BDMS.Domain.Features.User;
 using BDMS.Domain.Features.UserAuth;
@@ -23,11 +24,11 @@ public static class FeatureManager
         builder.Services.AddTransient<AuthService>();
         builder.Services.AddTransient<IUserAuthService,UserAuthService>();
         builder.Services.AddTransient<TokenService>();
+        builder.Services.AddTransient<IAnnouncementService,AnnouncementService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)
     {
-        // Configure DbContext with retry-on-failure
         builder.Services.AddDbContext<AppDbContext>(opt =>
         {
             opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
@@ -40,7 +41,6 @@ public static class FeatureManager
 
         }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
-        // Register MediatR - scan the current assembly for handlers
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
         builder.AddServices();

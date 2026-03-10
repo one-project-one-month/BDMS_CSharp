@@ -1,4 +1,5 @@
-﻿using BDMS.Domain.Features.Donations.Commands;
+﻿using BDMS.Domain.Features.Donation.Queries;
+using BDMS.Domain.Features.Donations.Commands;
 using BDMS.Domain.Features.Donations.Models;
 using BDMS.Domain.Features.User.Queries;
 using MediatR;
@@ -11,18 +12,18 @@ namespace BDMS.Api.Controllers
     [ApiController]
     public class DonationController : ControllerBase
     {
-        private readonly IMediator mediator;
+        private readonly IMediator _mediator;
 
         public DonationController(IMediator mediator)
         {
-            this.mediator = mediator;
+            _mediator = mediator;
         }
 
         [HttpGet("List")]
         public async Task<IActionResult> GetAllDonation()
         {
-            var query = new GetAllUserQuery();
-            var result = await mediator.Send(query);
+            var query = new GetAllDonationQuery();
+            var result = await _mediator.Send(query);
             if(!result.IsSuccess)
             {
                 return BadRequest(result.Message);
@@ -49,7 +50,7 @@ namespace BDMS.Api.Controllers
                 CreatedAt = reqModel.CreatedAt
             };
 
-            var result = await mediator.Send(command);
+            var result = await _mediator.Send(command);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Message);

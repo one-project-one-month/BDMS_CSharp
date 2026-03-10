@@ -80,10 +80,10 @@ public class DonationService
                 DonationCode = reqModel.DonationCode,
                 BloodGroup = reqModel.BloodGroup,
                 UnitsDonated = reqModel.UnitsDonated,
-                DonationDate = reqModel.DonationDate,
-                Status = reqModel.Status,
+                DonationDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                Status = "Pending",
                 Remarks = reqModel.Remarks,
-                CreatedAt = reqModel.CreatedAt
+                CreatedAt = DateTime.UtcNow,
             };
 
             await _db.Donations.AddAsync(donation);

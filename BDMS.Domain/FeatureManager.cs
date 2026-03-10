@@ -1,4 +1,5 @@
 ﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Domain.Features.Donation;
 using BDMS.Domain.Features.User;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -23,5 +24,7 @@ public static class FeatureManager
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
         builder.Services.AddTransient<UserService>();
+
+        builder.Services.AddTransient<DonationService>();
     }
 }

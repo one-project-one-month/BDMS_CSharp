@@ -12,9 +12,9 @@ namespace BDMS.Domain.Features.UserAuth.Handlers
 {
     public class UserLoginHandler : IRequestHandler<UserLoginCommand, Result<UserLoginResultInternal>>
     {
-        private readonly UserAuthService _userAuthService;
+        private readonly IUserAuthService _userAuthService;
 
-        public UserLoginHandler(UserAuthService userAuthService)
+        public UserLoginHandler(IUserAuthService userAuthService)
         {
             _userAuthService = userAuthService;
         }

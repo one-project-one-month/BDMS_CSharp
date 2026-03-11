@@ -1,7 +1,11 @@
-﻿using BDMS.Database.AppDbContextModels;
-using BDMS.Domain.Features.Appointment;
+using BDMS.Database.AppDbContextModels;
+using BDMS.Domain.Features.Permissions;
+using BDMS.Domain.Features.Donor;
 using BDMS.Domain.Features.Auth;
 using BDMS.Domain.Features.User;
+using BDMS.Domain.Features.UserAuth;
+using BDMS.Domain.Features.Announcement;
+using BDMS.Domain.Features.Appointment;
 using BDMS.Shared;
 using BDMS.Shared.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,10 +23,12 @@ public static class FeatureManager
 {
     private static void AddServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddTransient<UserService>();
-        builder.Services.AddTransient<IAuthService,AuthService>();
-        builder.Services.AddTransient<IAppointmentService,AppointmentService>();
-        builder.Services.AddTransient<TokenService>();
+        builder.Services.AddScoped<UserService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IUserAuthService, UserAuthService>();
+        builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+        builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+        builder.Services.AddScoped<TokenService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)
@@ -30,13 +36,21 @@ public static class FeatureManager
         // Configure DbContext with retry-on-failure
         builder.Services.AddDbContext<AppDbContext>(opt =>
         {
-            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+            {
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null);
+            });
 
         }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
         // Register MediatR - scan the current assembly for handlers
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
+        builder.Services.AddScoped<PermissionService>();
+        builder.Services.AddScoped<DonorService>();
         builder.AddServices();
 
         var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;

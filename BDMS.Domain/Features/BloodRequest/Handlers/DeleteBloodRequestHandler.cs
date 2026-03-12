@@ -1,14 +1,15 @@
 using BDMS.Domain.Features.BloodRequest.Commands;
 using BDMS.Shared;
 using MediatR;
+using BDMS.Domain.Features.BloodRequest;
 
 namespace BDMS.Domain.Features.BloodRequest.Handlers;
 
 public class DeleteBloodRequestHandler : IRequestHandler<DeleteBloodRequestCommand, Result<string>>
 {
-    private readonly BloodRequestService _service;
+    private readonly IBloodRequestService _service;
 
-    public DeleteBloodRequestHandler(BloodRequestService service)
+    public DeleteBloodRequestHandler(IBloodRequestService service)
     {
         _service = service;
     }

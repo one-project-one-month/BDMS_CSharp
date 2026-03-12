@@ -2,14 +2,15 @@ using BDMS.Domain.Features.BloodRequest.Commands;
 using BDMS.Domain.Features.BloodRequest.Models;
 using BDMS.Shared;
 using MediatR;
+using BDMS.Domain.Features.BloodRequest;
 
 namespace BDMS.Domain.Features.BloodRequest.Handlers;
 
 public class CreateBloodRequestHandler : IRequestHandler<CreateBloodRequestCommand, Result<BloodRequestRespModel>>
 {
-    private readonly BloodRequestService _service;
+    private readonly IBloodRequestService _service;
 
-    public CreateBloodRequestHandler(BloodRequestService service)
+    public CreateBloodRequestHandler(IBloodRequestService service)
     {
         _service = service;
     }

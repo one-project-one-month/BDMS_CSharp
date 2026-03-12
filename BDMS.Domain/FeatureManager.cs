@@ -29,6 +29,10 @@ public static class FeatureManager
         builder.Services.AddScoped<IUserAuthService, UserAuthService>();
         builder.Services.AddScoped<IAppointmentService, AppointmentService>();
         builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+        builder.Services.AddScoped<IPermissionService, PermissionService>();
+        builder.Services.AddScoped<IDonorService, DonorService>();
+        builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
+        builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
     }
     
@@ -50,9 +54,6 @@ public static class FeatureManager
         // Register MediatR - scan the current assembly for handlers
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
-        builder.Services.AddScoped<PermissionService>();
-        builder.Services.AddScoped<DonorService>();
-        builder.Services.AddScoped<BloodRequestService>();
         builder.AddServices();
 
         var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;

@@ -18,8 +18,8 @@ public class BloodRequestController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("List")]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    [HttpGet("list")]
+    public async Task<IActionResult> GetAllBloodRequestList(CancellationToken ct)
     {
         var result = await _mediator.Send(new GetAllBloodRequestsQuery(), ct);
         if (!result.IsSuccess)
@@ -28,18 +28,18 @@ public class BloodRequestController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("Edit")]
-    public async Task<IActionResult> GetById([FromQuery] int bloodRequestId, CancellationToken ct)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetBloodRequestById([FromRoute] int id, CancellationToken ct)
     {
-        var result = await _mediator.Send(new GetBloodRequestByIdQuery { Id = bloodRequestId }, ct);
+        var result = await _mediator.Send(new GetBloodRequestByIdQuery { Id = id }, ct);
         if (!result.IsSuccess)
             return BadRequest(result.Message);
 
         return Ok(result);
     }
 
-    [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] BloodRequestReqModel model, CancellationToken ct)
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateBloodRequest([FromBody] BloodRequestReqModel model, CancellationToken ct)
     {
         var command = new CreateBloodRequestCommand
         {
@@ -61,8 +61,8 @@ public class BloodRequestController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("Update")]
-    public async Task<IActionResult> Update([FromBody] BloodRequestReqModel model, CancellationToken ct)
+    [HttpPut("update")]
+    public async Task<IActionResult> UpdateBloodRequest([FromBody] BloodRequestReqModel model, CancellationToken ct)
     {
         var command = new UpdateBloodRequestCommand
         {
@@ -85,7 +85,7 @@ public class BloodRequestController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPatch("{id}/Status")]
+    [HttpPatch("{id}/status")]
     public async Task<IActionResult> UpdateStatus([FromRoute] int id, [FromBody] UpdateBloodRequestStatusReqModel model, CancellationToken ct)
     {
         if (!Enum.TryParse<EnumBloodRequestStatus>(model.Status, true, out var status) || status == EnumBloodRequestStatus.None)
@@ -105,10 +105,10 @@ public class BloodRequestController : ControllerBase
         return Ok(result);
     }
 
-    [HttpDelete("Delete")]
-    public async Task<IActionResult> Delete([FromQuery] int bloodRequestId, CancellationToken ct)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteBloodRequest([FromRoute] int id, CancellationToken ct)
     {
-        var result = await _mediator.Send(new DeleteBloodRequestCommand { Id = bloodRequestId }, ct);
+        var result = await _mediator.Send(new DeleteBloodRequestCommand { Id = id }, ct);
         if (!result.IsSuccess)
             return BadRequest(result.Message);
 

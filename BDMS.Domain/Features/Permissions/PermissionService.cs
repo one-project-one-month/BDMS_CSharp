@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.Permissions
 {
-    public class PermissionService
+    public class PermissionService : IPermissionService
     {
         private readonly AppDbContext _db;
 
 
-        public PermissionService (AppDbContext db)
+        public PermissionService(AppDbContext db)
         {
             _db = db;
         }
@@ -91,7 +91,8 @@ namespace BDMS.Domain.Features.Permissions
             }
         }
 
-        public async Task<Result<PermissionReqRespModel>> DeletePermissionById(int Id) {
+        public async Task<Result<PermissionReqRespModel>> DeletePermissionById(int Id)
+        {
             try
             {
                 var permission = await _db.Permissions
@@ -103,7 +104,7 @@ namespace BDMS.Domain.Features.Permissions
                 }
 
                 bool isUsed = await _db.RolePermissions.AnyAsync(rp => rp.RoleId == Id);
-                
+
                 if (isUsed)
                 {
                     return Result<PermissionReqRespModel>.ValidationError("Permission is assigned to a role.");
@@ -112,7 +113,7 @@ namespace BDMS.Domain.Features.Permissions
                 _db.Permissions.Remove(permission);
                 await _db.SaveChangesAsync();
 
-                var result = new PermissionReqRespModel { Id = Id , Name = permission.Name};
+                var result = new PermissionReqRespModel { Id = Id, Name = permission.Name };
 
                 return Result<PermissionReqRespModel>.Success(result, "Permission is deleted.");
             }

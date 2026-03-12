@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BDMS.Domain.Features.BloodRequest;
 
-public class BloodRequestService
+public class BloodRequestService : IBloodRequestService
 {
     private readonly AppDbContext _db;
     private static readonly string[] AllowedUrgencies = ["low", "medium", "high", "critical"];

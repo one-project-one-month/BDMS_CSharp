@@ -27,7 +27,7 @@ public class BloodRequestTests : IClassFixture<BloodRequestApiFactory>
     [Fact]
     public async Task GetAllBloodRequests_ReturnsOkWithData()
     {
-        var response = await _client.GetAsync("/api/BloodRequest/List");
+        var response = await _client.GetAsync("/api/BloodRequest/list");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var payload = await response.Content.ReadFromJsonAsync<Result<List<BloodRequestRespModel>>>();
@@ -41,7 +41,7 @@ public class BloodRequestTests : IClassFixture<BloodRequestApiFactory>
     [Fact]
     public async Task CreateBloodRequest_ReturnsOkWithPendingStatus()
     {
-        var response = await _client.PostAsJsonAsync("/api/BloodRequest/Create", BuildRequestModel());
+        var response = await _client.PostAsJsonAsync("/api/BloodRequest/create", BuildRequestModel());
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var payload = await response.Content.ReadFromJsonAsync<Result<BloodRequestRespModel>>();

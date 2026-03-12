@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BDMS.Domain.Features.Donor;
 
-public class DonorService
+public class DonorService : IDonorService
 {
     private readonly AppDbContext _db;
 

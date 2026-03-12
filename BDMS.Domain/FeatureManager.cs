@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using BDMS.Domain.Features.Roles;
 
 namespace BDMS.Domain;
 
@@ -33,6 +34,7 @@ public static class FeatureManager
         builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
+        builder.Services.AddScoped<RoleService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)

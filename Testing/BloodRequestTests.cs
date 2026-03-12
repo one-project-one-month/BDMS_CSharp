@@ -188,7 +188,7 @@ public class BloodRequestApiFactory : WebApplicationFactory<Program>
 
             mediator
                 .Setup(m => m.Send(It.IsAny<DeleteBloodRequestCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<string>.Success(null, "Deleting Successful."));
+                .ReturnsAsync(Result<string>.Success("Deleting Successful."));
 
             services.AddSingleton(mediator.Object);
         });

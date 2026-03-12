@@ -20,7 +20,7 @@ namespace BDMS.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("List")]
+        [HttpGet("list")]
         public async Task<IActionResult> GetAllAppointmentList(CancellationToken ct)
         {
             var query = new GetAllAppointmentQuery();

@@ -209,7 +209,7 @@ public class DonorService : IDonorService
             donor.DeletedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
-            return Result<DonorRespModel>.Success(null, "Donor deleted successfully");
+            return Result<DonorRespModel>.Success(new DonorRespModel { Id = donorId }, "Donor deleted successfully");
         }
         catch (Exception ex)
         {

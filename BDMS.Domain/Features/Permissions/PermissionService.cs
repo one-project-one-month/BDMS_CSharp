@@ -40,7 +40,7 @@ namespace BDMS.Domain.Features.Permissions
 
                 return Result<PermissionReqRespModel>.Success(result);
             }
-            catch (Exception ex)
+            catch 
             {
                 return Result<PermissionReqRespModel>.SystemError("Error creating permission");
             }
@@ -60,7 +60,7 @@ namespace BDMS.Domain.Features.Permissions
 
                 return Result<List<PermissionReqRespModel>>.Success(results);
             }
-            catch (Exception ex)
+            catch 
             {
                 return Result<List<PermissionReqRespModel>>.SystemError("Error retrieving permissions");
             }
@@ -76,6 +76,9 @@ namespace BDMS.Domain.Features.Permissions
                 {
                     return Result<PermissionReqRespModel>.ValidationError("Permission does not exist.");
                 }
+                
+                if (string.IsNullOrWhiteSpace(permissionReqRespModel.Name))
+                    return Result<PermissionReqRespModel>.ValidationError("Permission name should not empty.");
 
                 permission.Name = permissionReqRespModel.Name;
 
@@ -85,7 +88,7 @@ namespace BDMS.Domain.Features.Permissions
 
                 return Result<PermissionReqRespModel>.Success(result);
             }
-            catch (Exception ex)
+            catch 
             {
                 return Result<PermissionReqRespModel>.SystemError("Error updating permission");
             }
@@ -117,7 +120,7 @@ namespace BDMS.Domain.Features.Permissions
 
                 return Result<PermissionReqRespModel>.Success(result, "Permission is deleted.");
             }
-            catch (Exception ex)
+            catch 
             {
                 return Result<PermissionReqRespModel>.SystemError("Error retrieving permission.");
             }

@@ -134,7 +134,7 @@ public class BloodRequestService : IBloodRequestService
             entity.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync(ct);
 
-            return Result<string>.Success(null, "Deleting Successful.");
+            return Result<string>.Success("Deleting Successful.");
         }
         catch (Exception ex)
         {

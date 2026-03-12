@@ -17,7 +17,7 @@ namespace BDMS.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("List")]
+        [HttpGet("list")]
         public async Task<IActionResult> GetAllUserList()
         {
             var query = new GetAllUserQuery();
@@ -29,7 +29,7 @@ namespace BDMS.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPut("Update")]
+        [HttpPut("update")]
         public async Task<IActionResult> UpdateUser(string UserId, string PhoneNo)
         {
             var command = new UpdateUserCommand

@@ -17,7 +17,7 @@ namespace BDMS.Api.Controllers
             this.mediator = mediator;
         }
 
-        [HttpGet("List")]
+        [HttpGet("list")]
         public async Task<IActionResult> GetAllPermissions()
         {
             var query = new GetAllPermissions();
@@ -29,7 +29,7 @@ namespace BDMS.Api.Controllers
             return Ok(results);
         }
 
-        [HttpPost("Create")]
+        [HttpPost("create")]
         public async Task<IActionResult> CreatePermission(PermissionReqRespModel model) 
         {
             var command = new CreatePermissionCommand { Id = model.Id, Name = model.Name };
@@ -41,7 +41,7 @@ namespace BDMS.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPut("Edit")]
+        [HttpPut("edit")]
         public async Task<IActionResult> UpdatePermission(PermissionReqRespModel model)
         {
             var command = new UpdatePermissionCommand { Id = model.Id, Name = model.Name };
@@ -53,7 +53,7 @@ namespace BDMS.Api.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("Delete")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> DeletePermission(PermissionReqRespModel model)
         {
             var command = new DeletePermissionCommand { Id = model.Id };

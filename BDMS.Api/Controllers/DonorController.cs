@@ -18,7 +18,7 @@ public class DonorController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("List")]
+    [HttpGet("list")]
     public async Task<IActionResult> GetAllDonorsList()
     {
         var query = new GetAllDonorsQuery();
@@ -29,7 +29,7 @@ public class DonorController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("Create")]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateDonor(DonorReqModel reqModel)
     {
         var command = new CreateDonorCommand
@@ -54,7 +54,7 @@ public class DonorController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("Edit")]
+    [HttpGet("edit")]
     public async Task<IActionResult> GetDonorById(int donorId)
     {
         var query = new GetAllDonorByIdQuery
@@ -69,7 +69,7 @@ public class DonorController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("Update")]
+    [HttpPut("update")]
     public async Task<IActionResult> UpdateDonor(DonorReqModel reqModel)
     {
         var command = new UpdateDonorCommand()
@@ -95,7 +95,7 @@ public class DonorController : ControllerBase
         return Ok(result);
     }
 
-    [HttpDelete("Delete")]
+    [HttpDelete("delete")]
     public async Task<IActionResult> DeleteDonorAsync(int donorId)
     {
         var command = new DeleteDonorCommand

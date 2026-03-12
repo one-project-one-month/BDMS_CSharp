@@ -6,6 +6,7 @@ using BDMS.Domain.Features.User;
 using BDMS.Domain.Features.UserAuth;
 using BDMS.Domain.Features.Announcement;
 using BDMS.Domain.Features.Appointment;
+using BDMS.Domain.Features.BloodRequest;
 using BDMS.Shared;
 using BDMS.Shared.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,11 +24,14 @@ public static class FeatureManager
 {
     private static void AddServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IUserAuthService, UserAuthService>();
         builder.Services.AddScoped<IAppointmentService, AppointmentService>();
         builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+        builder.Services.AddScoped<IPermissionService, PermissionService>();
+        builder.Services.AddScoped<IDonorService, DonorService>();
+        builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
+        builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
     }
     
@@ -49,8 +53,6 @@ public static class FeatureManager
         // Register MediatR - scan the current assembly for handlers
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
-        builder.Services.AddScoped<PermissionService>();
-        builder.Services.AddScoped<DonorService>();
         builder.AddServices();
 
         var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;

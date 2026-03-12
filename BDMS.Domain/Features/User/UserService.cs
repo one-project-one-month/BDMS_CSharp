@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BDMS.Domain.Features.User
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly AppDbContext _appDbContext;
 
@@ -19,19 +19,19 @@ namespace BDMS.Domain.Features.User
         //{
         //    try
         //    {
-        //        var result = await _appDbContext.TblEmployees.ToListAsync();
-        //        if (result.Count == 0)
-        //            return Result<List<UserRespModel>>.NotFound("Cannot find the user");
+        //        //    var result = await _appDbContext.TblEmployees.ToListAsync();
+        //        //    if (result.Count == 0)
+        //        //        return Result<List<UserRespModel>>.NotFound("Cannot find the user");
 
-        //        var data = result.Select(a => new UserRespModel
-        //        {
-        //            UserId = a.EmployeeId,
-        //            Username = a.Username,
-        //            Email = a.Email,
-        //            PhoneNo = a.PhoneNo
+        //        //var data = result.Select(a => new UserRespModel
+        //        //{
+        //        //    UserId = a.EmployeeId,
+        //        //    Username = a.Username,
+        //        //    Email = a.Email,
+        //        //    PhoneNo = a.PhoneNo
 
-        //        }).ToList();
-        //        return Result<List<UserRespModel>>.Success(data, "Success");
+        //        //}).ToList();
+        //        return Result<List<UserRespModel>>.Success(new(), "Success");
         //    }
         //    catch (Exception ex)
         //    {

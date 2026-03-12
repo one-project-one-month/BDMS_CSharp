@@ -6,6 +6,7 @@ using BDMS.Domain.Features.User;
 using BDMS.Domain.Features.UserAuth;
 using BDMS.Domain.Features.Announcement;
 using BDMS.Domain.Features.Appointment;
+using BDMS.Domain.Features.BloodRequest;
 using BDMS.Shared;
 using BDMS.Shared.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,6 +52,7 @@ public static class FeatureManager
 
         builder.Services.AddScoped<PermissionService>();
         builder.Services.AddScoped<DonorService>();
+        builder.Services.AddScoped<BloodRequestService>();
         builder.AddServices();
 
         var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;

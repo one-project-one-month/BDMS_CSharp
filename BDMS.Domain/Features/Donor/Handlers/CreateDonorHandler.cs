@@ -1,27 +1,20 @@
-﻿using BDMS.Database.AppDbContextModels;
-using BDMS.Domain.Features.Donor.Models;
+﻿using BDMS.Domain.Features.Donor.Models;
 using BDMS.Shared;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.Donor.Handlers;
 
 public class CreateDonorHandler : IRequestHandler<Commands.CreateDonorCommand, Result<DonorRespModel>>
 {
-    private readonly AppDbContext _db;
+    private readonly IDonorService _donorService;
 
-    public CreateDonorHandler(AppDbContext db)
+    public CreateDonorHandler(IDonorService donorService)
     {
-        _db = db;
+        _donorService = donorService;
     }
 
     public async Task<Result<DonorRespModel>> Handle(Commands.CreateDonorCommand request, CancellationToken cancellationToken)
     {
-        var service = new DonorService(_db);
         var donor_request = new DonorReqModel()
         {
             UserId = request.UserId,
@@ -36,6 +29,6 @@ public class CreateDonorHandler : IRequestHandler<Commands.CreateDonorCommand, R
             Address = request.Address,
             IsActive = request.IsActive
         };
-        return await service.CreateDonor(donor_request);
+        return await _donorService.CreateDonor(donor_request);
     }
 }

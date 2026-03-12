@@ -1,5 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
-using BDMS.Domain.Features.Donor.Models;
+﻿using BDMS.Domain.Features.Donor.Models;
 using BDMS.Shared;
 using MediatR;
 
@@ -7,16 +6,15 @@ namespace BDMS.Domain.Features.Donor.Handlers;
 
 public class UpdateDonorHandler : IRequestHandler<Commands.UpdateDonorCommand, Result<Models.DonorRespModel>>
 {
-    private readonly AppDbContext _db;
+    private readonly IDonorService _donorService;
 
-    public UpdateDonorHandler(AppDbContext db)
+    public UpdateDonorHandler(IDonorService donorService)
     {
-        _db = db;
+        _donorService = donorService;
     }
 
     public async Task<Result<DonorRespModel>> Handle(Commands.UpdateDonorCommand command, CancellationToken cancellationToken)
     {
-        var service = new DonorService(_db);
         var donor_request = new DonorReqModel()
         {
             Id = command.Id,
@@ -33,6 +31,6 @@ public class UpdateDonorHandler : IRequestHandler<Commands.UpdateDonorCommand, R
             IsActive = command.IsActive
 
         };
-        return await service.UpdateDonor(donor_request);
+        return await _donorService.UpdateDonor(donor_request);
     }
 }

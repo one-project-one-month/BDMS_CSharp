@@ -1,5 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
-using BDMS.Domain.Features.Donor.Models;
+﻿using BDMS.Domain.Features.Donor.Models;
 using BDMS.Shared;
 using MediatR;
 
@@ -7,16 +6,15 @@ namespace BDMS.Domain.Features.Donor.Handlers;
 
 public class GetAllDonorByIdHandler : IRequestHandler<Queries.GetAllDonorByIdQuery, Result<DonorRespModel>>
 {
-    private readonly AppDbContext _db;
+    private readonly IDonorService _donorService;
 
-    public GetAllDonorByIdHandler(AppDbContext db)
+    public GetAllDonorByIdHandler(IDonorService donorService)
     {
-        _db = db;
+        _donorService = donorService;
     }
 
     public async Task<Result<DonorRespModel>> Handle(Queries.GetAllDonorByIdQuery request, CancellationToken cancellationToken)
     {
-        var service = new DonorService(_db);
-        return await service.GetDonorById(request.Id);
+        return await _donorService.GetDonorById(request.Id);
     }
 }

@@ -4,6 +4,7 @@ using BDMS.Domain.Features.MedicalRecord.Commands;
 using BDMS.Domain.Features.MedicalRecord.Models;
 using BDMS.Domain.Features.MedicalRecord.Queries;
 using BDMS.Shared;
+using BDMS.Shared.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -47,7 +48,7 @@ public class MedicalRecordTests : IClassFixture<MedicalRecordApiFactory>
 
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
-        Assert.Equal("negative", payload.Data!.HivResult);
+        Assert.Equal(EnumMedicalRecordResult.Negative, payload.Data!.HivResult);
     }
 
     [Fact]
@@ -69,7 +70,7 @@ public class MedicalRecordTests : IClassFixture<MedicalRecordApiFactory>
     {
         var request = BuildRequestModel();
         request.Id = 1;
-        request.ScreeningStatus = "passed";
+        request.ScreeningStatus = EnumMedicalRecordScreeningStatus.Passed;
 
         var response = await _client.PutAsJsonAsync("/api/MedicalRecord/update", request);
 
@@ -78,7 +79,7 @@ public class MedicalRecordTests : IClassFixture<MedicalRecordApiFactory>
 
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
-        Assert.Equal("passed", payload.Data!.ScreeningStatus);
+        Assert.Equal(EnumMedicalRecordScreeningStatus.Passed, payload.Data!.ScreeningStatus);
     }
 
     [Fact]
@@ -91,7 +92,7 @@ public class MedicalRecordTests : IClassFixture<MedicalRecordApiFactory>
 
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
-        Assert.Equal("Deleting Successful.", payload.Message);
+        Assert.Equal("Deleting Successful.", payload.Data);
     }
 
     private static MedicalRecordReqModel BuildRequestModel() => new()
@@ -99,12 +100,12 @@ public class MedicalRecordTests : IClassFixture<MedicalRecordApiFactory>
         DonationId = 1,
         HospitalId = 1,
         HemoglobinLevel = 13.5m,
-        HivResult = "negative",
-        HepatitisBResult = "negative",
-        HepatitisCResult = "negative",
-        MalariaResult = "negative",
-        SyphilisResult = "negative",
-        ScreeningStatus = "pending",
+        HivResult = EnumMedicalRecordResult.Negative,
+        HepatitisBResult = EnumMedicalRecordResult.Negative,
+        HepatitisCResult = EnumMedicalRecordResult.Negative,
+        MalariaResult = EnumMedicalRecordResult.Negative,
+        SyphilisResult = EnumMedicalRecordResult.Negative,
+        ScreeningStatus = EnumMedicalRecordScreeningStatus.Pending,
         ScreeningNotes = "Initial screening",
         ScreenedBy = 100,
         ScreeningAt = DateTime.UtcNow
@@ -130,12 +131,12 @@ public class MedicalRecordApiFactory : WebApplicationFactory<Program>
                         DonationId = 1,
                         HospitalId = 1,
                         HemoglobinLevel = 13.2m,
-                        HivResult = "negative",
-                        HepatitisBResult = "negative",
-                        HepatitisCResult = "negative",
-                        MalariaResult = "negative",
-                        SyphilisResult = "negative",
-                        ScreeningStatus = "pending",
+                        HivResult = EnumMedicalRecordResult.Negative,
+                        HepatitisBResult = EnumMedicalRecordResult.Negative,
+                        HepatitisCResult = EnumMedicalRecordResult.Negative,
+                        MalariaResult = EnumMedicalRecordResult.Negative,
+                        SyphilisResult = EnumMedicalRecordResult.Negative,
+                        ScreeningStatus = EnumMedicalRecordScreeningStatus.Pending,
                         ScreeningNotes = "Initial screening",
                         ScreenedBy = 100,
                         ScreeningAt = DateTime.UtcNow,
@@ -152,12 +153,12 @@ public class MedicalRecordApiFactory : WebApplicationFactory<Program>
                     DonationId = 1,
                     HospitalId = 1,
                     HemoglobinLevel = 13.2m,
-                    HivResult = "negative",
-                    HepatitisBResult = "negative",
-                    HepatitisCResult = "negative",
-                    MalariaResult = "negative",
-                    SyphilisResult = "negative",
-                    ScreeningStatus = "pending",
+                    HivResult = EnumMedicalRecordResult.Negative,
+                    HepatitisBResult = EnumMedicalRecordResult.Negative,
+                    HepatitisCResult = EnumMedicalRecordResult.Negative,
+                    MalariaResult = EnumMedicalRecordResult.Negative,
+                    SyphilisResult = EnumMedicalRecordResult.Negative,
+                    ScreeningStatus = EnumMedicalRecordScreeningStatus.Pending,
                     ScreeningNotes = "Initial screening",
                     ScreenedBy = 100,
                     ScreeningAt = DateTime.UtcNow,

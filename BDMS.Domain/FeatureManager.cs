@@ -1,5 +1,6 @@
-﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Announcement;
+using BDMS.Domain.Features.Appointment;
 using BDMS.Domain.Features.Auth;
 using BDMS.Domain.Features.User;
 using BDMS.Domain.Features.UserAuth;
@@ -21,10 +22,12 @@ public static class FeatureManager
     private static void AddServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddTransient<UserService>();
-        builder.Services.AddTransient<AuthService>();
-        builder.Services.AddTransient<IUserAuthService,UserAuthService>();
+        builder.Services.AddTransient<IAuthService, AuthService>();
+        builder.Services.AddTransient<UserAuthService>();
+        builder.Services.AddTransient<IUserAuthService, UserAuthService>();
         builder.Services.AddTransient<TokenService>();
-        builder.Services.AddTransient<IAnnouncementService,AnnouncementService>();
+        builder.Services.AddTransient<IAnnouncementService, AnnouncementService>();
+        builder.Services.AddTransient<IAppointmentService, AppointmentService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)

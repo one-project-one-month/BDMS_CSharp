@@ -34,7 +34,7 @@ public static class FeatureManager
         builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
-        builder.Services.AddScoped<RolePermissionService>();
+        builder.Services.AddScoped<IRolePermissionService,RolePermissionService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)

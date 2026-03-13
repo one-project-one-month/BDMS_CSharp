@@ -7,6 +7,7 @@ using BDMS.Domain.Features.UserAuth;
 using BDMS.Domain.Features.Announcement;
 using BDMS.Domain.Features.Appointment;
 using BDMS.Domain.Features.BloodRequest;
+using BDMS.Domain.Features.MedicalRecord;
 using BDMS.Shared;
 using BDMS.Shared.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -31,6 +32,7 @@ public static class FeatureManager
         builder.Services.AddScoped<IPermissionService, PermissionService>();
         builder.Services.AddScoped<IDonorService, DonorService>();
         builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
+        builder.Services.AddScoped<IMedicalRecordService, MedicalRecordService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
     }

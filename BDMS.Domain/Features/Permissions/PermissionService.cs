@@ -106,7 +106,7 @@ namespace BDMS.Domain.Features.Permissions
                     return Result<PermissionReqRespModel>.NotFound("Permission not found.");
                 }
 
-                bool isUsed = await _db.RolePermissions.AnyAsync(rp => rp.RoleId == Id);
+                bool isUsed = await _db.RolePermissions.AnyAsync(rp => rp.PermissionId == Id);
 
                 if (isUsed)
                 {

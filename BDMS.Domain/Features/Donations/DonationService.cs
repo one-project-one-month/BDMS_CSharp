@@ -25,7 +25,8 @@ public class DonationService
         try
         {
             var donations = await _db.Donations
-            .ToListAsync();
+                .Where(x => x.DeletedAt == null)
+                .ToListAsync();
             if (donations.Count == 0)
             {
                 return Result<List<DonationRespModel>>.NotFound("Cannot find the donation");
@@ -95,18 +96,13 @@ public class DonationService
                 DonorId = donation.DonorId,
                 HospitalId = donation.HospitalId,
                 BloodRequestId = donation.BloodRequestId,
-                CreatedBy = donation.CreatedBy,
                 DonationCode = donation.DonationCode,
                 BloodGroup = donation.BloodGroup,
                 UnitsDonated = donation.UnitsDonated,
                 DonationDate = donation.DonationDate,
                 Status = donation.Status,
-                ApprovedBy = donation.ApprovedBy,
-                ApprovedAt = donation.ApprovedAt,
                 Remarks = donation.Remarks,
                 CreatedAt = donation.CreatedAt,
-                UpdatedAt = donation.UpdatedAt,
-                DeletedAt = donation.DeletedAt,
                 ApprovedByNavigation = donation.ApprovedByNavigation,
                 BloodInventory = donation.BloodInventory,
                 BloodRequest = donation.BloodRequest,
@@ -121,6 +117,134 @@ public class DonationService
         catch (Exception ex)
         {
             return Result<DonationRespModel>.SystemError($"Error in creating donation {ex.Message}");
+        }
+    }
+
+    public async Task<Result<DonationRespModel>> UpdateDonation(DonationUpdateReqModel reqModel)
+    {
+        try
+        {
+            var donation = await _db.Donations
+            .FirstOrDefaultAsync(x => x.Id == reqModel.Id && x.DeletedAt == null);
+
+            if (donation is null)
+            {
+                return Result<DonationRespModel>.NotFound("Cannot find the donation to be updated.");
+            }
+            donation.Id = reqModel.Id;
+            donation.DonorId = reqModel.DonorId;
+            donation.HospitalId = reqModel.HospitalId;
+            donation.BloodRequestId = reqModel.BloodRequestId;
+            donation.DonationCode = reqModel.DonationCode;
+            donation.BloodGroup = reqModel.BloodGroup;
+            donation.UnitsDonated = reqModel.UnitsDonated;
+            donation.DonationDate = reqModel.DonationDate;
+            donation.Status = reqModel.Status;
+            donation.ApprovedBy = reqModel.ApprovedBy;
+            donation.ApprovedAt = reqModel.ApprovedAt;
+            donation.Remarks = reqModel.Remarks;
+            donation.UpdatedAt = DateTime.UtcNow;
+            _db.Entry(donation).State = EntityState.Modified;
+            await _db.SaveChangesAsync();
+
+            var result = new DonationRespModel()
+            {
+                DonorId = donation.DonorId,
+                HospitalId = donation.HospitalId,
+                BloodRequestId = donation.BloodRequestId,
+                CreatedBy = donation.CreatedBy,
+                DonationCode = donation.DonationCode,
+                BloodGroup = donation.BloodGroup,
+                UnitsDonated = donation.UnitsDonated,
+                DonationDate = donation.DonationDate,
+                Status = donation.Status,
+                ApprovedBy = donation.ApprovedBy,
+                ApprovedAt = donation.ApprovedAt,
+                Remarks = donation.Remarks,
+                UpdatedAt = donation.UpdatedAt,
+                DeletedAt = donation.DeletedAt,
+                ApprovedByNavigation = donation.ApprovedByNavigation,
+                BloodInventory = donation.BloodInventory,
+                BloodRequest = donation.BloodRequest,
+                CreatedByNavigation = donation.CreatedByNavigation,
+                Donor = donation.Donor,
+                Hospital = donation.Hospital,
+                MedicalRecord = donation.MedicalRecord,
+            };
+            return Result<DonationRespModel>.Success(result, "Donation updated successfully!");
+
+        }
+        catch (Exception ex)
+        {
+            return Result<DonationRespModel>.SystemError($"Error in updating donation : {ex.Message}");
+        }
+
+    }
+
+    public async Task<Result<DonationRespModel>> GetDonationById(int donationId)
+    {
+        try
+        {
+            var donation = await _db.Donations
+            .FirstOrDefaultAsync(x => x.Id == donationId && x.DeletedAt == null);
+            if (donation is null)
+            {
+                return Result<DonationRespModel>.NotFound("Donation not found.");
+            }
+
+            var result = new DonationRespModel()
+            {
+                Id = donationId,
+                DonorId = donation.DonorId,
+                HospitalId = donation.HospitalId,
+                BloodRequestId = donation.BloodRequestId,
+                CreatedBy = donation.CreatedBy,
+                DonationCode = donation.DonationCode,
+                BloodGroup = donation.BloodGroup,
+                UnitsDonated = donation.UnitsDonated,
+                DonationDate = donation.DonationDate,
+                Status = donation.Status,
+                ApprovedBy = donation.ApprovedBy,
+                ApprovedAt = donation.ApprovedAt,
+                Remarks = donation.Remarks,
+                UpdatedAt = donation.UpdatedAt,
+                DeletedAt = donation.DeletedAt,
+                ApprovedByNavigation = donation.ApprovedByNavigation,
+                BloodInventory = donation.BloodInventory,
+                BloodRequest = donation.BloodRequest,
+                CreatedByNavigation = donation.CreatedByNavigation,
+                Donor = donation.Donor,
+                Hospital = donation.Hospital,
+                MedicalRecord = donation.MedicalRecord,
+            };
+
+            return Result<DonationRespModel>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            return Result<DonationRespModel>.SystemError($"Error deleting donation : {ex.Message}");
+        }
+    }
+
+    public async Task<Result<DonationRespModel>> DeleteDonation(int donationId)
+    {
+        try
+        {
+            var donation = await _db.Donations
+            .FirstOrDefaultAsync(x => x.Id == donationId && x.DeletedAt == null);
+            if (donation is null)
+            {
+                return Result<DonationRespModel>.NotFound("Donation not found.");
+            }
+            donation.DeletedAt = DateTime.UtcNow;
+            _db.Entry(donation).State = EntityState.Modified;
+            await _db.SaveChangesAsync();
+
+            return Result<DonationRespModel>.Success(null, "Donation deleted successfully!");
+        }
+        catch (Exception ex)
+        {
+            return Result<DonationRespModel>.SystemError($"Error deleting donation : {ex.Message}");
         }
     }
 } 

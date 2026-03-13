@@ -4,6 +4,7 @@ using BDMS.Domain.Features.Donation.Models;
 using BDMS.Domain.Features.Donations.Models;
 using BDMS.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace BDMS.Domain.Features.Donations.Handlers;
 
@@ -29,9 +30,7 @@ public class CreateDonationHandler : IRequestHandler<Commands.CreateDonationComm
             BloodGroup = reqModel.BloodGroup,
             UnitsDonated = reqModel.UnitsDonated,
             DonationDate = reqModel.DonationDate,
-            Status = reqModel.Status,
             Remarks = reqModel.Remarks,
-            CreatedAt = reqModel.CreatedAt
         };
 
         return await service.CreateDonation(donationRequest);

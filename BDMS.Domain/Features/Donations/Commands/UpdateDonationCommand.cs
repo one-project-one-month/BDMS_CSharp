@@ -10,8 +10,9 @@ using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.Donations.Commands;
 
-public class CreateDonationCommand : IRequest<Result<DonationRespModel>>
+public class UpdateDonationCommand : IRequest<Result<DonationRespModel>>
 {
+    public int Id { get; set; }
     public int DonorId { get; set; }
 
     public int HospitalId { get; set; }
@@ -38,4 +39,23 @@ public class CreateDonationCommand : IRequest<Result<DonationRespModel>>
 
     public DateTime CreatedAt { get; set; }
 
+    public DateTime UpdatedAt { get; set; }
+
+    public DateTime? DeletedAt { get; set; }
+
+    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+
+    public virtual BDMS.Database.AppDbContextModels.User? ApprovedByNavigation { get; set; }
+
+    public virtual BloodInventory? BloodInventory { get; set; }
+
+    public virtual BloodRequest? BloodRequest { get; set; }
+
+    public virtual BDMS.Database.AppDbContextModels.User CreatedByNavigation { get; set; } = null!;
+
+    public virtual Donor Donor { get; set; } = null!;
+
+    public virtual Hospital Hospital { get; set; } = null!;
+
+    public virtual MedicalRecord? MedicalRecord { get; set; }
 }

@@ -24,15 +24,5 @@ public class DonationCreateReqModel
     public int? UnitsDonated { get; set; }
 
     public DateOnly? DonationDate { get; set; }
-
-    public string Status { get; set; } = null!;
-
     public string? Remarks { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime UpdatedAt { get; set; }
-
-    public DateTime? DeletedAt { get; set; }
-
 }

@@ -37,7 +37,6 @@ public static class FeatureManager
     
     public static void AddDomain(this WebApplicationBuilder builder)
     {
-        // Configure DbContext with retry-on-failure
         builder.Services.AddDbContext<AppDbContext>(opt =>
         {
             opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
@@ -50,7 +49,6 @@ public static class FeatureManager
 
         }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
-        // Register MediatR - scan the current assembly for handlers
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
         builder.AddServices();

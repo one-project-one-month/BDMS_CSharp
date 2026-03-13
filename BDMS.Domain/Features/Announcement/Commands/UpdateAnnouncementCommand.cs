@@ -4,6 +4,6 @@ using MediatR;
 
 namespace BDMS.Domain.Features.Announcement.Commands;
 
-public class UpdateAnnouncementCommand : UpdateAnnouncementReqModel, IRequest<Result<(UpdateAnnouncementResModel Res, UpdateAnnouncementReqModel Req)>>
+public class UpdateAnnouncementCommand : UpdateAnnouncementReqModel, IRequest<Result<UpdateAnnouncementResModel>>
 {
 }

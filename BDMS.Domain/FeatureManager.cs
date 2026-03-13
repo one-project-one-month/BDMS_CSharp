@@ -1,9 +1,12 @@
 using BDMS.Database.AppDbContextModels;
-using BDMS.Domain.Features.Announcement;
-using BDMS.Domain.Features.Appointment;
+using BDMS.Domain.Features.Permissions;
+using BDMS.Domain.Features.Donor;
 using BDMS.Domain.Features.Auth;
 using BDMS.Domain.Features.User;
 using BDMS.Domain.Features.UserAuth;
+using BDMS.Domain.Features.Announcement;
+using BDMS.Domain.Features.Appointment;
+using BDMS.Domain.Features.BloodRequest;
 using BDMS.Shared;
 using BDMS.Shared.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,13 +24,15 @@ public static class FeatureManager
 {
     private static void AddServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddTransient<UserService>();
-        builder.Services.AddTransient<IAuthService, AuthService>();
-        builder.Services.AddTransient<UserAuthService>();
-        builder.Services.AddTransient<IUserAuthService, UserAuthService>();
-        builder.Services.AddTransient<TokenService>();
-        builder.Services.AddTransient<IAnnouncementService, AnnouncementService>();
-        builder.Services.AddTransient<IAppointmentService, AppointmentService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IUserAuthService, UserAuthService>();
+        builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+        builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+        builder.Services.AddScoped<IPermissionService, PermissionService>();
+        builder.Services.AddScoped<IDonorService, DonorService>();
+        builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
+        builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<TokenService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)
@@ -91,6 +96,7 @@ public static class FeatureManager
 
         builder.Services.AddAuthorizationBuilder()
             .AddPolicy("AdminOnly", policy => policy.RequireRole("admin"))
+            .AddPolicy("AdminStaff", policy => policy.RequireRole("admin", "staff"))
             .AddPolicy("StaffOnly", policy => policy.RequireRole("staff"))
             .AddPolicy("DonorOnly", policy => policy.RequireRole("donor"))
             .AddPolicy("ClientOnly", policy => policy.RequireRole("user"));

@@ -15,6 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Testing", "Testing\Testing.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Folder", "Solution Folder", "{4E1A3547-5FF9-4FF7-AD3E-982B19FEDF24}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		BDMS.sql = BDMS.sql
 		docker-compose.yml = docker-compose.yml
 		Readme.md = Readme.md

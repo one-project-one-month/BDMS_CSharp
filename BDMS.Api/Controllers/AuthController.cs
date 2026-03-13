@@ -38,7 +38,7 @@ namespace BDMS.Api.Controllers
             return Execute(result);
         }
 
-        [HttpPost("Logout")]
+        [HttpPost("logout")]
         public IActionResult Logout()
         {
             Response.Cookies.Delete(

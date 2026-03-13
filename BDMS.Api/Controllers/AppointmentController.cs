@@ -3,12 +3,14 @@ using BDMS.Domain.Features.Appointment.Models;
 using BDMS.Domain.Features.Appointment.Queries;
 using BDMS.Shared.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy="AdminStaff")]
     public class AppointmentController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -18,7 +20,7 @@ namespace BDMS.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("List")]
+        [HttpGet("list")]
         public async Task<IActionResult> GetAllAppointmentList(CancellationToken ct)
         {
             var query = new GetAllAppointmentQuery();

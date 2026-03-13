@@ -2,7 +2,6 @@ using BDMS.Domain.Features.UserAuth.Commands;
 using BDMS.Domain.Features.UserAuth.Models;
 using BDMS.Shared;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers

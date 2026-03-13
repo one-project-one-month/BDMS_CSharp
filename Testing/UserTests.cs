@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using BDMS.Domain.Features.User.Commands;
 using BDMS.Domain.Features.User.Models;
 using BDMS.Domain.Features.User.Queries;
 using BDMS.Shared;
@@ -13,11 +14,11 @@ using Xunit;
 
 namespace Testing;
 
-public class UserControllerIntegrationTests : IClassFixture<UserApiFactory>
+public class UserTests : IClassFixture<UserApiFactory>
 {
     private readonly HttpClient _client;
 
-    public UserControllerIntegrationTests(UserApiFactory factory)
+    public UserTests(UserApiFactory factory)
     {
         _client = factory.CreateClient();
     }
@@ -39,6 +40,21 @@ public class UserControllerIntegrationTests : IClassFixture<UserApiFactory>
             Assert.Equal("USR001", payload.Data[0].UserId);
         }
     }
+
+    [Fact]
+    public async Task UpdateUser_ReturnsOkWithUpdatedPhoneNumber()
+    {
+        var response = await _client.PutAsync("/api/User/Update?UserId=USR001&PhoneNo=09111222333", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<Result<UserRespModel>>();
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsSuccess);
+        Assert.NotNull(payload.Data);
+        Assert.Equal("USR001", payload.Data!.UserId);
+        Assert.Equal("09111222333", payload.Data.PhoneNo);
+    }
 }
 
 public class UserApiFactory : WebApplicationFactory<Program>
@@ -56,6 +72,17 @@ public class UserApiFactory : WebApplicationFactory<Program>
                 [
                     new() { UserId = "USR001", Username = "test.user", PhoneNo = "0991234567" }
                 ]));
+
+            mediator
+                .Setup(m => m.Send(It.IsAny<UpdateUserCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((UpdateUserCommand command, CancellationToken _) =>
+                    Result<UserRespModel>.Success(new UserRespModel
+                    {
+                        UserId = command.UserId,
+                        PhoneNo = command.PhoneNo,
+                        Username = "test.user",
+                        Email = "test.user@example.com"
+                    }));
 
             services.AddSingleton(mediator.Object);
         });

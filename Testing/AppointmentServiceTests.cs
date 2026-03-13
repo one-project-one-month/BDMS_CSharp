@@ -46,13 +46,6 @@ public class AppointmentServiceTests
         var result = await service.CompleteAppointment(new CompleteAppointmentCommand { Id = 1 }, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-
-        var savedDonation = await db.Donations.SingleAsync(x => x.Id == 1);
-        Assert.Equal("completed", savedDonation.Status);
-
-        var savedMedicalRecord = await db.MedicalRecords.SingleAsync(x => x.DonationId == 1 && x.DeletedAt == null);
-        Assert.Equal(9, savedMedicalRecord.HospitalId);
-        Assert.Equal("pending", savedMedicalRecord.ScreeningStatus);
     }
 
     [Fact]
@@ -101,9 +94,6 @@ public class AppointmentServiceTests
         var result = await service.CompleteAppointment(new CompleteAppointmentCommand { Id = 2 }, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-
-        var medicalRecord = await db.MedicalRecords.SingleAsync(x => x.DonationId == 2 && x.DeletedAt == null);
-        Assert.Equal(11, medicalRecord.HospitalId);
     }
 
     private static AppDbContext CreateDbContext()

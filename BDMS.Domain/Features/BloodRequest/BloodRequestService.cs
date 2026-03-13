@@ -183,7 +183,8 @@ public class BloodRequestService : IBloodRequestService
 
             if (command.Status == EnumBloodRequestStatus.Approved)
             {
-                await EnsureAppointmentStartedForApprovedRequest(entity, ct);
+                // TODO : To ask appointment process will start? 
+                // await EnsureAppointmentStartedForApprovedRequest(entity, ct);
             }
 
             await _db.SaveChangesAsync(ct);

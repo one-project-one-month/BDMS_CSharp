@@ -206,4 +206,40 @@ public class MedicalRecordService : IMedicalRecordService
         UpdatedAt = record.UpdatedAt,
         DeletedAt = record.DeletedAt
     };
+
+    // TODO : After donation is success, medical records released
+    //if (existingAppointment.DonationId.HasValue)
+    //        {
+    //            var donation = await _db.Donations
+    //                .FirstOrDefaultAsync(x => x.Id == existingAppointment.DonationId.Value && x.DeletedAt == null, ct);
+
+    //            if (donation is null)
+    //                return Result<AppointmentRespModel>.NotFound("Donation not found for this appointment");
+
+    //            donation.Status = "completed";
+    //            donation.UpdatedAt = DateTime.UtcNow;
+
+    //            var medicalRecord = await _db.MedicalRecords
+    //                .FirstOrDefaultAsync(x => x.DonationId == donation.Id && x.DeletedAt == null, ct);
+
+    //            if (medicalRecord is null)
+    //            {
+    //                medicalRecord = new BDMS.Database.AppDbContextModels.MedicalRecord
+    //                {
+    //    DonationId = donation.Id,
+    //                    HospitalId = donation.HospitalId,
+    //                    ScreeningStatus = "pending",
+    //                    ScreeningNotes = "Auto-created after donation completion.",
+    //                    CreatedAt = DateTime.UtcNow,
+    //                    UpdatedAt = DateTime.UtcNow
+    //};
+
+    //_db.MedicalRecords.Add(medicalRecord);
+    //            }
+    //            else
+    //            {
+    //                medicalRecord.HospitalId = donation.HospitalId;
+    //                medicalRecord.UpdatedAt = DateTime.UtcNow;
+    //            }
+    //        }
 }

@@ -92,7 +92,7 @@ public class MedicalRecordTests : IClassFixture<MedicalRecordApiFactory>
 
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
-        Assert.Equal("Deleting Successful.", payload.Data);
+        Assert.Equal("Deleting Successful.", payload.Message);
     }
 
     private static MedicalRecordReqModel BuildRequestModel() => new()

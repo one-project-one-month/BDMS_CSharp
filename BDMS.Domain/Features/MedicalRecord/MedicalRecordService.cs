@@ -2,6 +2,7 @@ using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.MedicalRecord.Commands;
 using BDMS.Domain.Features.MedicalRecord.Models;
 using BDMS.Shared;
+using BDMS.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace BDMS.Domain.Features.MedicalRecord;
@@ -9,9 +10,6 @@ namespace BDMS.Domain.Features.MedicalRecord;
 public class MedicalRecordService : IMedicalRecordService
 {
     private readonly AppDbContext _db;
-    private static readonly string[] AllowedResults = ["positive", "negative", "inconclusive"];
-    private static readonly string[] AllowedScreenStatuses = ["pending", "failed", "passed"];
-
     public MedicalRecordService(AppDbContext db)
     {
         _db = db;
@@ -54,10 +52,10 @@ public class MedicalRecordService : IMedicalRecordService
 
     public async Task<Result<MedicalRecordRespModel>> Create(CreateMedicalRecordCommand command, CancellationToken ct)
     {
-        var validation = Validate(command.HivResult, command.HepatitisBResult, command.HepatitisCResult,
+        var enumValidation = ValidateEnums(command.HivResult, command.HepatitisBResult, command.HepatitisCResult,
             command.MalariaResult, command.SyphilisResult, command.ScreeningStatus);
-        if (validation != null)
-            return Result<MedicalRecordRespModel>.ValidationError(validation);
+        if (enumValidation != null)
+            return Result<MedicalRecordRespModel>.ValidationError(enumValidation);
 
         try
         {
@@ -73,12 +71,12 @@ public class MedicalRecordService : IMedicalRecordService
                 DonationId = command.DonationId,
                 HospitalId = donation.HospitalId,
                 HemoglobinLevel = command.HemoglobinLevel,
-                HivResult = Normalize(command.HivResult),
-                HepatitisBResult = Normalize(command.HepatitisBResult),
-                HepatitisCResult = Normalize(command.HepatitisCResult),
-                MalariaResult = Normalize(command.MalariaResult),
-                SyphilisResult = Normalize(command.SyphilisResult),
-                ScreeningStatus = Normalize(command.ScreeningStatus),
+                HivResult = command.HivResult.ToDatabaseValue(),
+                HepatitisBResult = command.HepatitisBResult.ToDatabaseValue(),
+                HepatitisCResult = command.HepatitisCResult.ToDatabaseValue(),
+                MalariaResult = command.MalariaResult.ToDatabaseValue(),
+                SyphilisResult = command.SyphilisResult.ToDatabaseValue(),
+                ScreeningStatus = command.ScreeningStatus.ToDatabaseValue(),
                 ScreeningNotes = command.ScreeningNotes,
                 ScreenedBy = command.ScreenedBy,
                 ScreeningAt = command.ScreeningAt,
@@ -99,10 +97,10 @@ public class MedicalRecordService : IMedicalRecordService
 
     public async Task<Result<MedicalRecordRespModel>> Update(UpdateMedicalRecordCommand command, CancellationToken ct)
     {
-        var validation = Validate(command.HivResult, command.HepatitisBResult, command.HepatitisCResult,
+        var enumValidation = ValidateEnums(command.HivResult, command.HepatitisBResult, command.HepatitisCResult,
             command.MalariaResult, command.SyphilisResult, command.ScreeningStatus);
-        if (validation != null)
-            return Result<MedicalRecordRespModel>.ValidationError(validation);
+        if (enumValidation != null)
+            return Result<MedicalRecordRespModel>.ValidationError(enumValidation);
 
         try
         {
@@ -122,12 +120,12 @@ public class MedicalRecordService : IMedicalRecordService
             record.DonationId = command.DonationId;
             record.HospitalId = donation.HospitalId;
             record.HemoglobinLevel = command.HemoglobinLevel;
-            record.HivResult = Normalize(command.HivResult);
-            record.HepatitisBResult = Normalize(command.HepatitisBResult);
-            record.HepatitisCResult = Normalize(command.HepatitisCResult);
-            record.MalariaResult = Normalize(command.MalariaResult);
-            record.SyphilisResult = Normalize(command.SyphilisResult);
-            record.ScreeningStatus = Normalize(command.ScreeningStatus);
+            record.HivResult = command.HivResult.ToDatabaseValue();
+            record.HepatitisBResult = command.HepatitisBResult.ToDatabaseValue();
+            record.HepatitisCResult = command.HepatitisCResult.ToDatabaseValue();
+            record.MalariaResult = command.MalariaResult.ToDatabaseValue();
+            record.SyphilisResult = command.SyphilisResult.ToDatabaseValue();
+            record.ScreeningStatus = command.ScreeningStatus.ToDatabaseValue();
             record.ScreeningNotes = command.ScreeningNotes;
             record.ScreenedBy = command.ScreenedBy;
             record.ScreeningAt = command.ScreeningAt;
@@ -165,23 +163,29 @@ public class MedicalRecordService : IMedicalRecordService
         }
     }
 
-    private static string? Validate(string? hiv, string? hepB, string? hepC, string? malaria, string? syphilis, string? screeningStatus)
+    private static string? ValidateEnums(
+        EnumMedicalRecordResult hiv,
+        EnumMedicalRecordResult hepatitisB,
+        EnumMedicalRecordResult hepatitisC,
+        EnumMedicalRecordResult malaria,
+        EnumMedicalRecordResult syphilis,
+        EnumMedicalRecordScreeningStatus screeningStatus)
     {
-        if (!IsValueAllowed(hiv, AllowedResults)) return "Invalid hiv result.";
-        if (!IsValueAllowed(hepB, AllowedResults)) return "Invalid hepatitis b result.";
-        if (!IsValueAllowed(hepC, AllowedResults)) return "Invalid hepatitis c result.";
-        if (!IsValueAllowed(malaria, AllowedResults)) return "Invalid malaria result.";
-        if (!IsValueAllowed(syphilis, AllowedResults)) return "Invalid syphilis result.";
-        if (!IsValueAllowed(screeningStatus, AllowedScreenStatuses)) return "Invalid screening status.";
+        if (!IsDefinedAndProvided(hiv)) return "Invalid hiv result.";
+        if (!IsDefinedAndProvided(hepatitisB)) return "Invalid hepatitis b result.";
+        if (!IsDefinedAndProvided(hepatitisC)) return "Invalid hepatitis c result.";
+        if (!IsDefinedAndProvided(malaria)) return "Invalid malaria result.";
+        if (!IsDefinedAndProvided(syphilis)) return "Invalid syphilis result.";
+        if (!IsDefinedAndProvided(screeningStatus)) return "Invalid screening status.";
 
         return null;
     }
 
-    private static bool IsValueAllowed(string? value, string[] allowed)
-        => string.IsNullOrWhiteSpace(value) || allowed.Contains(value.Trim(), StringComparer.OrdinalIgnoreCase);
+    private static bool IsDefinedAndProvided(EnumMedicalRecordResult value)
+        => Enum.IsDefined(value) && value != EnumMedicalRecordResult.None;
 
-    private static string? Normalize(string? value)
-        => string.IsNullOrWhiteSpace(value) ? null : value.Trim().ToLowerInvariant();
+    private static bool IsDefinedAndProvided(EnumMedicalRecordScreeningStatus value)
+        => Enum.IsDefined(value) && value != EnumMedicalRecordScreeningStatus.None;
 
     private static MedicalRecordRespModel ToResponse(Database.AppDbContextModels.MedicalRecord record) => new()
     {
@@ -189,12 +193,12 @@ public class MedicalRecordService : IMedicalRecordService
         DonationId = record.DonationId,
         HospitalId = record.HospitalId,
         HemoglobinLevel = record.HemoglobinLevel,
-        HivResult = record.HivResult,
-        HepatitisBResult = record.HepatitisBResult,
-        HepatitisCResult = record.HepatitisCResult,
-        MalariaResult = record.MalariaResult,
-        SyphilisResult = record.SyphilisResult,
-        ScreeningStatus = record.ScreeningStatus,
+        HivResult = record.HivResult.ToEnumOrDefault(EnumMedicalRecordResult.None),
+        HepatitisBResult = record.HepatitisBResult.ToEnumOrDefault(EnumMedicalRecordResult.None),
+        HepatitisCResult = record.HepatitisCResult.ToEnumOrDefault(EnumMedicalRecordResult.None),
+        MalariaResult = record.MalariaResult.ToEnumOrDefault(EnumMedicalRecordResult.None),
+        SyphilisResult = record.SyphilisResult.ToEnumOrDefault(EnumMedicalRecordResult.None),
+        ScreeningStatus = record.ScreeningStatus.ToEnumOrDefault(EnumMedicalRecordScreeningStatus.None),
         ScreeningNotes = record.ScreeningNotes,
         ScreenedBy = record.ScreenedBy,
         ScreeningAt = record.ScreeningAt,

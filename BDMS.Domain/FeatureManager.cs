@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using BDMS.Domain.Features.RolePermission;
 using BDMS.Domain.Features.Roles;
 
 namespace BDMS.Domain;
@@ -37,6 +38,7 @@ public static class FeatureManager
         builder.Services.AddScoped<IMedicalRecordService, MedicalRecordService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
+        builder.Services.AddScoped<IRolePermissionService,RolePermissionService>();
         builder.Services.AddScoped<RoleService>();
         builder.Services.AddTransient<DonationService>();
     }

@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Text;
 using BDMS.Domain.Features.RolePermission;
 using BDMS.Domain.Features.Roles;
+using BDMS.Domain.Features.Certificate;
 
 namespace BDMS.Domain;
 
@@ -41,6 +42,8 @@ public static class FeatureManager
         builder.Services.AddScoped<IUserAuthService, UserAuthService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
+        builder.Services.AddScoped<RoleService>();
+        builder.Services.AddScoped<ICertificateService, CertificateService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)

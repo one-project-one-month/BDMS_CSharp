@@ -39,7 +39,7 @@ public static class FeatureManager
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
         builder.Services.AddScoped<IRolePermissionService,RolePermissionService>();
-        builder.Services.AddScoped<RoleService>();
+        builder.Services.AddScoped<IRoleService, RoleService>();
         builder.Services.AddTransient<DonationService>();
     }
     

@@ -13,9 +13,9 @@ namespace BDMS.Domain.Features.Roles.Handlers
 {
     public class CreateRoleHandler : IRequestHandler<Commands.CreateRoleCommand, Result<RolesReqRespModel>>
     {
-        private readonly RoleService _roleService;
+        private readonly IRoleService _roleService;
 
-        public CreateRoleHandler(RoleService roleService)
+        public CreateRoleHandler(IRoleService roleService)
         {
             this._roleService = roleService;
         }

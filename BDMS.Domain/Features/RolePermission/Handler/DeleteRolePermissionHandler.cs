@@ -14,7 +14,7 @@ namespace BDMS.Domain.Features.RolePermission.Handler
     {
         private readonly IRolePermissionService _rolePermissionService;
 
-        public DeleteRolePermissionHandler(RolePermissionService rolePermissionService)
+        public DeleteRolePermissionHandler(IRolePermissionService rolePermissionService)
         {
             _rolePermissionService = rolePermissionService;
         }

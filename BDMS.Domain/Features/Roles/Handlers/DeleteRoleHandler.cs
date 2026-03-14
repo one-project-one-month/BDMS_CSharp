@@ -12,8 +12,8 @@ namespace BDMS.Domain.Features.Roles.Handlers
 {
     public class DeleteRoleHandler : IRequestHandler<Commands.DeleteRoleCommand, Result<RolesReqRespModel>>
     {
-        private readonly RoleService _roleService;
-        public DeleteRoleHandler(RoleService roleService ) 
+        private readonly IRoleService _roleService;
+        public DeleteRoleHandler(IRoleService roleService ) 
         {
             this._roleService = roleService;
         }

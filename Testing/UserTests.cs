@@ -108,7 +108,13 @@ public class UserTests : IClassFixture<UserApiFactory>
     [Fact]
     public async Task GetUserByParameter_ReturnsOkWithUserData()
     {
-        var response = await _client.GetAsync("/api/User/UserByParameter?UserId=1&Username=test.user");
+        var request = new UserReqModel
+        {
+            UserId = 5,
+            Username = "new.user",
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/User/userbyparameter", request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -116,8 +122,8 @@ public class UserTests : IClassFixture<UserApiFactory>
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
         Assert.NotNull(payload.Data);
-        Assert.Equal(1, payload.Data!.UserId);
-        Assert.Equal("test.user", payload.Data.Username);
+        Assert.Equal(5, payload.Data!.UserId);
+        Assert.Equal("new.user", payload.Data.Username);
     }
 }
 

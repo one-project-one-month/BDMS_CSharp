@@ -94,7 +94,7 @@ public class CertificateApiFactory : WebApplicationFactory<Program>
             {
                 options.DefaultAuthenticateScheme = "Test";
                 options.DefaultChallengeScheme = "Test";
-            }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", _ => { });
+            }).AddScheme<AuthenticationSchemeOptions, CertificateTestAuthHandler>("Test", _ => { });
 
             var mediator = new Mock<IMediator>();
             mediator
@@ -144,9 +144,9 @@ public class CertificateApiFactory : WebApplicationFactory<Program>
     }
 }
 
-public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public class CertificateTestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
-    public TestAuthHandler(
+    public CertificateTestAuthHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder)

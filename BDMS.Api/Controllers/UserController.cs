@@ -1,11 +1,7 @@
-using BDMS.Domain.Features.Roles.Commands;
-using BDMS.Domain.Features.Roles.Models;
 using BDMS.Domain.Features.User.Commands;
 using BDMS.Domain.Features.User.Models;
 using BDMS.Domain.Features.User.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
@@ -84,7 +80,7 @@ namespace BDMS.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("UserByParameter")]
+        [HttpPost("userbyparameter")]
         public async Task<IActionResult> GetUserByParameter(UserReqModel model)
         {
             var command = new GetUserByParameterCommand { UserName = model.Username, UserId = model.UserId };

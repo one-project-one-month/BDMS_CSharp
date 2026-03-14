@@ -37,7 +37,7 @@ public class UserTests : IClassFixture<UserApiFactory>
         if (payload.Data is not null)
         {
             Assert.Single(payload.Data);
-            Assert.Equal("USR001", payload.Data[0].UserId);
+            Assert.Equal(1, payload.Data[0].UserId);
         }
     }
 
@@ -52,8 +52,8 @@ public class UserTests : IClassFixture<UserApiFactory>
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
         Assert.NotNull(payload.Data);
-        Assert.Equal("USR001", payload.Data!.UserId);
-        Assert.Equal("09111222333", payload.Data.PhoneNo);
+        Assert.Equal(1, payload.Data!.UserId);
+        Assert.Equal("test.user@example.com", payload.Data.Email);
     }
 }
 
@@ -70,7 +70,7 @@ public class UserApiFactory : WebApplicationFactory<Program>
                 .Setup(m => m.Send(It.IsAny<GetAllUserQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<List<UserRespModel>>.Success(
                 [
-                    new() { UserId = "USR001", Username = "test.user", PhoneNo = "0991234567" }
+                    new() { UserId = 1, Username = "test.user", Email = "test.user@example.com" }
                 ]));
 
             mediator
@@ -79,7 +79,6 @@ public class UserApiFactory : WebApplicationFactory<Program>
                     Result<UserRespModel>.Success(new UserRespModel
                     {
                         UserId = command.UserId,
-                        PhoneNo = command.PhoneNo,
                         Username = "test.user",
                         Email = "test.user@example.com"
                     }));

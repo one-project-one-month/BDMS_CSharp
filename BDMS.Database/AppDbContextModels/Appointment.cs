@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BDMS.Database.AppDbContextModels;
+﻿namespace BDMS.Database.AppDbContextModels;
 
 public partial class Appointment
 {

@@ -1,4 +1,5 @@
 using BDMS.Database.AppDbContextModels;
+using BDMS.Domain.Features.Donation;
 using BDMS.Domain.Features.Permissions;
 using BDMS.Domain.Features.Donor;
 using BDMS.Domain.Features.Auth;
@@ -18,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using BDMS.Domain.Features.RolePermission;
 using BDMS.Domain.Features.Roles;
 using BDMS.Domain.Features.Certificate;
 
@@ -27,14 +29,17 @@ public static class FeatureManager
 {
     private static void AddServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddScoped<IUserAuthService, UserAuthService>();
-        builder.Services.AddScoped<IAppointmentService, AppointmentService>();
         builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
-        builder.Services.AddScoped<IPermissionService, PermissionService>();
-        builder.Services.AddScoped<IDonorService, DonorService>();
+        builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
+        builder.Services.AddScoped<IDonationService, DonationService>();
+        builder.Services.AddScoped<IDonorService, DonorService>();
         builder.Services.AddScoped<IMedicalRecordService, MedicalRecordService>();
+        builder.Services.AddScoped<IPermissionService, PermissionService>();
+        builder.Services.AddScoped<IRoleService, RoleService>();
+        builder.Services.AddScoped<IRolePermissionService,RolePermissionService>();
+        builder.Services.AddScoped<IUserAuthService, UserAuthService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
         builder.Services.AddScoped<RoleService>();

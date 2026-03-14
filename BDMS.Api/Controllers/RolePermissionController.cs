@@ -42,10 +42,10 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPut("edit")]
-        public async Task<IActionResult> UpdateRolePermission(RolePermissionReqRespModel oldModel, RolePermissionReqRespModel newModel)
+        public async Task<IActionResult> UpdateRolePermission([FromBody] UpdateRolePermissionRequest model)
         {
             var command = new UpdateRolePermissionCommand 
-            { oldRoleId = oldModel.RoleId, oldPermissionId = oldModel.PermissionId, newRoleId = newModel.RoleId, newPermissionId = newModel.PermissionId };
+            { oldRoleId = model.OldModel.RoleId, oldPermissionId = model.OldModel.PermissionId, newRoleId = model.NewModel.RoleId, newPermissionId = model.NewModel.PermissionId };
             var result = await mediator.Send(command);
             if (!result.IsSuccess)
             {
@@ -66,5 +66,11 @@ namespace BDMS.Api.Controllers
             return Ok(result);
         }
 
+    }
+
+    public class UpdateRolePermissionRequest
+    {
+        public RolePermissionReqRespModel OldModel { get; set; } = new RolePermissionReqRespModel();
+        public RolePermissionReqRespModel NewModel { get; set; } = new RolePermissionReqRespModel();
     }
 }

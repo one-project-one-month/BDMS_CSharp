@@ -12,8 +12,8 @@ namespace BDMS.Domain.Features.RolePermission.Handler
 {
     public class GetAllRolePermissionHandler : IRequestHandler<Query.GetAllRolePermission, Result<List<RolePermissionReqRespModel>>>
     {
-        private readonly RolePermissionService _rolePermissionService;
-        public GetAllRolePermissionHandler(RolePermissionService service) 
+        private readonly IRolePermissionService _rolePermissionService;
+        public GetAllRolePermissionHandler(IRolePermissionService service) 
         {
             _rolePermissionService = service;
         }

@@ -13,9 +13,9 @@ namespace BDMS.Domain.Features.Roles.Handlers
 {
     public class UpdateRoleHandler : IRequestHandler<Commands.UpdateRoleCommand, Result<RolesReqRespModel>>
     {
-        private readonly RoleService _roleService;
+        private readonly IRoleService _roleService;
 
-        public UpdateRoleHandler(RoleService roleService)
+        public UpdateRoleHandler(IRoleService roleService)
         {
             _roleService = roleService;
         }

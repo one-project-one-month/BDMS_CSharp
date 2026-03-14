@@ -12,8 +12,8 @@ namespace BDMS.Domain.Features.RolePermission.Handler
 {
     public class UpdateRolePermissionHandler:IRequestHandler<Command.UpdateRolePermissionCommand, Result<RolePermissionReqRespModel>>
     {
-        private readonly RolePermissionService _rolePermissionService;
-        public UpdateRolePermissionHandler(RolePermissionService rolePermissionService)
+        private readonly IRolePermissionService _rolePermissionService;
+        public UpdateRolePermissionHandler(IRolePermissionService rolePermissionService)
         {
             _rolePermissionService = rolePermissionService;
         }

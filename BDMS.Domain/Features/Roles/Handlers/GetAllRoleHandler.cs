@@ -12,8 +12,8 @@ namespace BDMS.Domain.Features.Roles.Handlers
 {
     public class GetAllRoleHandler:IRequestHandler<Queries.GetAllRoles, Result<List<RolesReqRespModel>>>
     {
-        private readonly RoleService _roleService;
-        public GetAllRoleHandler(RoleService roleService)
+        private readonly IRoleService _roleService;
+        public GetAllRoleHandler(IRoleService roleService)
         {
             _roleService = roleService;
         }

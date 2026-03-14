@@ -28,19 +28,19 @@ public static class FeatureManager
 {
     private static void AddServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddScoped<IUserAuthService, UserAuthService>();
-        builder.Services.AddScoped<IAppointmentService, AppointmentService>();
         builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
-        builder.Services.AddScoped<IPermissionService, PermissionService>();
-        builder.Services.AddScoped<IDonorService, DonorService>();
+        builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
+        builder.Services.AddScoped<IDonationService, DonationService>();
+        builder.Services.AddScoped<IDonorService, DonorService>();
         builder.Services.AddScoped<IMedicalRecordService, MedicalRecordService>();
+        builder.Services.AddScoped<IPermissionService, PermissionService>();
+        builder.Services.AddScoped<IRoleService, RoleService>();
+        builder.Services.AddScoped<IRolePermissionService,RolePermissionService>();
+        builder.Services.AddScoped<IUserAuthService, UserAuthService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
-        builder.Services.AddScoped<IRolePermissionService,RolePermissionService>();
-        builder.Services.AddScoped<IRoleService, RoleService>();
-        builder.Services.AddTransient<DonationService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)

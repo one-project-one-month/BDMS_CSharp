@@ -1,9 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using M = BDMS.Database.AppDbContextModels;
 
 namespace BDMS.Domain.Features.Donor.Models;
 
@@ -39,7 +34,7 @@ public class DonorRespModel
 
     public DateTime? DeletedAt { get; set; }
 
-    public virtual ICollection<Donation> Donations { get; set; } = new List<Donation>();
+    public virtual ICollection<M.Donation> Donations { get; set; } = new List<M.Donation>();
 
-    public virtual BDMS.Database.AppDbContextModels.User User { get; set; } = null!;
+    public virtual M.User User { get; set; } = null!;
 }

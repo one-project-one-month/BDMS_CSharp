@@ -14,13 +14,13 @@ public class CreateDonorCommand : IRequest<Result<DonorRespModel>>
 {
     public int UserId { get; set; }
 
-    public string NicNo { get; set; }
+    public string NicNo { get; set; } = string.Empty;
 
     public DateOnly DateOfBirth { get; set; }
 
-    public string Gender { get; set; }
+    public string Gender { get; set; } = string.Empty;
 
-    public string BloodGroup { get; set; }
+    public string BloodGroup { get; set; } = string.Empty;
 
     public DateOnly? LastDonationDate { get; set; }
 

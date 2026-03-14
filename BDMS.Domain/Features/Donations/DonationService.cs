@@ -2,23 +2,17 @@
 using BDMS.Domain.Features.Donation.Models;
 using BDMS.Domain.Features.Donations.Models;
 using BDMS.Shared;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.Donation;
 
-public class DonationService
+public class DonationService : IDonationService
 {
     private readonly AppDbContext _db;
     public DonationService(AppDbContext db)
-        {
-            _db = db;
-        }
+    {
+        _db = db;
+    }
 
     public async Task<Result<List<DonationRespModel>>> GetAllDonations()
     {
@@ -240,11 +234,11 @@ public class DonationService
             _db.Entry(donation).State = EntityState.Modified;
             await _db.SaveChangesAsync();
 
-            return Result<DonationRespModel>.Success(null, "Donation deleted successfully!");
+            return Result<DonationRespModel>.Success(new(), "Donation deleted successfully!");
         }
         catch (Exception ex)
         {
             return Result<DonationRespModel>.SystemError($"Error deleting donation : {ex.Message}");
         }
     }
-} 
+}

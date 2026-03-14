@@ -1,9 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using M = BDMS.Database.AppDbContextModels;
 
 namespace BDMS.Domain.Features.Donation.Models;
 
@@ -41,19 +36,19 @@ public class DonationRespModel
 
     public DateTime? DeletedAt { get; set; }
 
-    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    public virtual ICollection<M.Appointment> Appointments { get; set; } = new List<M.Appointment>();
 
-    public virtual BDMS.Database.AppDbContextModels.User? ApprovedByNavigation { get; set; }
+    public virtual M.User? ApprovedByNavigation { get; set; }
 
-    public virtual BloodInventory? BloodInventory { get; set; }
+    public virtual M.BloodInventory? BloodInventory { get; set; }
 
-    public virtual BloodRequest? BloodRequest { get; set; }
+    public virtual M.BloodRequest? BloodRequest { get; set; }
 
-    public virtual BDMS.Database.AppDbContextModels.User CreatedByNavigation { get; set; } = null!;
+    public virtual M.User CreatedByNavigation { get; set; } = null!;
 
-    public virtual Donor Donor { get; set; } = null!;
+    public virtual M.Donor Donor { get; set; } = null!;
 
-    public virtual Hospital Hospital { get; set; } = null!;
+    public virtual M.Hospital Hospital { get; set; } = null!;
 
-    public virtual MedicalRecord? MedicalRecord { get; set; }
+    public virtual M.MedicalRecord? MedicalRecord { get; set; }
 }

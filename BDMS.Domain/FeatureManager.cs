@@ -1,4 +1,5 @@
 using BDMS.Database.AppDbContextModels;
+using BDMS.Domain.Features.Donation;
 using BDMS.Domain.Features.Permissions;
 using BDMS.Domain.Features.Donor;
 using BDMS.Domain.Features.Auth;
@@ -37,6 +38,7 @@ public static class FeatureManager
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
         builder.Services.AddScoped<RoleService>();
+        builder.Services.AddTransient<DonationService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)

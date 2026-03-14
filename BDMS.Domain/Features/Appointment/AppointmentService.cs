@@ -282,7 +282,7 @@ public class AppointmentService : IAppointmentService
         {
             var existingAppointment = await _db.Appointments
                 .FirstOrDefaultAsync(x => x.Id == request.Id && x.DeletedAt == null, ct);
-            
+
             if (existingAppointment is null)
                 return Result<AppointmentRespModel>.NotFound("Appointment not found");
 
@@ -291,7 +291,7 @@ public class AppointmentService : IAppointmentService
                 return Result<AppointmentRespModel>.ValidationError("Only confirmed appointments can be completed");
 
             existingAppointment.Status = EnumAppointmentStatus.Completed.ToString().ToLowerInvariant();
-            
+
             await _db.SaveChangesAsync(ct);
 
             var response = new AppointmentRespModel()
@@ -305,7 +305,7 @@ public class AppointmentService : IAppointmentService
                 Status = existingAppointment.Status.ToEnumOrDefault(EnumAppointmentStatus.None),
                 Remarks = existingAppointment.Remarks,
             };
-            
+
             return Result<AppointmentRespModel>.Success(response, "Appointment completed");
         }
         catch (Exception ex)

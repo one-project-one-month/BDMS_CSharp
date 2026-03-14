@@ -26,25 +26,31 @@ public class UserTests : IClassFixture<UserApiFactory>
     [Fact]
     public async Task GetAllUserList_ReturnsOkWithUserData()
     {
-        var response = await _client.GetAsync("/api/User/List");
+        var response = await _client.GetAsync("/api/User/list");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var payload = await response.Content.ReadFromJsonAsync<Result<List<UserRespModel>>>();
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
-
-        if (payload.Data is not null)
-        {
-            Assert.Single(payload.Data);
-            Assert.Equal(1, payload.Data[0].UserId);
-        }
+        Assert.NotNull(payload.Data);
+        Assert.Single(payload.Data!);
+        Assert.Equal(1, payload.Data![0].UserId);
     }
 
     [Fact]
-    public async Task UpdateUser_ReturnsOkWithUpdatedPhoneNumber()
+    public async Task UpdateUser_ReturnsOkWithUpdatedUser()
     {
-        var response = await _client.PutAsync("/api/User/Update?UserId=USR001&PhoneNo=09111222333", null);
+        var request = new UserReqModel
+        {
+            UserId = 1,
+            Username = "updated.user",
+            Email = "updated.user@example.com",
+            UserRoleId = 2,
+            UserHospitalId = 3
+        };
+
+        var response = await _client.PutAsJsonAsync("/api/User/update", request);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -53,7 +59,65 @@ public class UserTests : IClassFixture<UserApiFactory>
         Assert.True(payload!.IsSuccess);
         Assert.NotNull(payload.Data);
         Assert.Equal(1, payload.Data!.UserId);
-        Assert.Equal("test.user@example.com", payload.Data.Email);
+        Assert.Equal("updated.user", payload.Data.Username);
+        Assert.Equal("updated.user@example.com", payload.Data.Email);
+    }
+
+    [Fact]
+    public async Task CreateUser_ReturnsOkWithCreatedUser()
+    {
+        var request = new UserReqModel
+        {
+            UserId = 5,
+            Username = "new.user",
+            Email = "new.user@example.com",
+            UserRoleId = 1,
+            UserHospitalId = 2
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/User/create", request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<Result<UserRespModel>>();
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsSuccess);
+        Assert.NotNull(payload.Data);
+        Assert.Equal(5, payload.Data!.UserId);
+        Assert.Equal("new.user", payload.Data.Username);
+    }
+
+    [Fact]
+    public async Task DeleteUser_ReturnsOkWithDeleteMessage()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Delete, "/api/User/delete")
+        {
+            Content = JsonContent.Create(new UserReqModel { UserId = 1, Username = "test.user" })
+        };
+
+        var response = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<Result<UserRespModel>>();
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsSuccess);
+        Assert.Equal("Deleting Successful.", payload.Message);
+    }
+
+    [Fact]
+    public async Task GetUserByParameter_ReturnsOkWithUserData()
+    {
+        var response = await _client.GetAsync("/api/User/UserByParameter?UserId=1&Username=test.user");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<Result<UserRespModel>>();
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsSuccess);
+        Assert.NotNull(payload.Data);
+        Assert.Equal(1, payload.Data!.UserId);
+        Assert.Equal("test.user", payload.Data.Username);
     }
 }
 
@@ -70,7 +134,7 @@ public class UserApiFactory : WebApplicationFactory<Program>
                 .Setup(m => m.Send(It.IsAny<GetAllUserQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<List<UserRespModel>>.Success(
                 [
-                    new() { UserId = 1, Username = "test.user", Email = "test.user@example.com" }
+                    new() { UserId = 1, Username = "test.user", Email = "test.user@example.com", UserRoleId = 2, UserHospitalId = 3 }
                 ]));
 
             mediator
@@ -79,8 +143,26 @@ public class UserApiFactory : WebApplicationFactory<Program>
                     Result<UserRespModel>.Success(new UserRespModel
                     {
                         UserId = command.UserId,
-                        Username = "test.user",
-                        Email = "test.user@example.com"
+                        Username = command.UserName,
+                        Email = command.Email,
+                        UserRoleId = command.UserRoleId,
+                        UserHospitalId = command.hospital_id
+                    }));
+
+            mediator
+                .Setup(m => m.Send(It.IsAny<DeleteUserByParameterCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Result<UserRespModel>.DeleteSuccess());
+
+            mediator
+                .Setup(m => m.Send(It.IsAny<GetUserByParameterCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((GetUserByParameterCommand command, CancellationToken _) =>
+                    Result<UserRespModel>.Success(new UserRespModel
+                    {
+                        UserId = command.UserId,
+                        Username = command.UserName,
+                        Email = "test.user@example.com",
+                        UserRoleId = 2,
+                        UserHospitalId = 3
                     }));
 
             services.AddSingleton(mediator.Object);

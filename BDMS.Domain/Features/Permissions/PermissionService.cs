@@ -122,7 +122,7 @@ namespace BDMS.Domain.Features.Permissions
             }
             catch 
             {
-                return Result<PermissionReqRespModel>.SystemError("Error retrieving permission.");
+                return Result<PermissionReqRespModel>.SystemError("Error deleting permission.");
             }
         }
     }

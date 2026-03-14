@@ -1,4 +1,5 @@
 using BDMS.Database.AppDbContextModels;
+using BDMS.Domain.Features.Donation;
 using BDMS.Domain.Features.Permissions;
 using BDMS.Domain.Features.Donor;
 using BDMS.Domain.Features.Auth;
@@ -7,6 +8,7 @@ using BDMS.Domain.Features.UserAuth;
 using BDMS.Domain.Features.Announcement;
 using BDMS.Domain.Features.Appointment;
 using BDMS.Domain.Features.BloodRequest;
+using BDMS.Domain.Features.MedicalRecord;
 using BDMS.Shared;
 using BDMS.Shared.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +20,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 using BDMS.Domain.Features.RolePermission;
+using BDMS.Domain.Features.Roles;
 
 namespace BDMS.Domain;
 
@@ -32,14 +35,16 @@ public static class FeatureManager
         builder.Services.AddScoped<IPermissionService, PermissionService>();
         builder.Services.AddScoped<IDonorService, DonorService>();
         builder.Services.AddScoped<IBloodRequestService, BloodRequestService>();
+        builder.Services.AddScoped<IMedicalRecordService, MedicalRecordService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<TokenService>();
         builder.Services.AddScoped<IRolePermissionService,RolePermissionService>();
+        builder.Services.AddScoped<RoleService>();
+        builder.Services.AddTransient<DonationService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)
     {
-        // Configure DbContext with retry-on-failure
         builder.Services.AddDbContext<AppDbContext>(opt =>
         {
             opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
@@ -52,7 +57,6 @@ public static class FeatureManager
 
         }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
-        // Register MediatR - scan the current assembly for handlers
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
         builder.AddServices();

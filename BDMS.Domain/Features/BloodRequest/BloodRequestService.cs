@@ -180,6 +180,13 @@ public class BloodRequestService : IBloodRequestService
 
             entity.Status = command.Status.ToDatabaseValue();
             entity.UpdatedAt = DateTime.UtcNow;
+
+            if (command.Status == EnumBloodRequestStatus.Approved)
+            {
+                // TODO : To ask appointment process will start? 
+                // await EnsureAppointmentStartedForApprovedRequest(entity, ct);
+            }
+
             await _db.SaveChangesAsync(ct);
 
             return Result<BloodRequestRespModel>.Success(ToResponse(entity), "Blood request status updated successfully.");
@@ -192,6 +199,34 @@ public class BloodRequestService : IBloodRequestService
 
     private static bool IsUrgencyValid(string urgency)
         => AllowedUrgencies.Contains((urgency ?? string.Empty).Trim().ToLowerInvariant());
+
+    private async Task EnsureAppointmentStartedForApprovedRequest(Database.AppDbContextModels.BloodRequest request, CancellationToken ct)
+    {
+        if (!request.RequiredDate.HasValue)
+            return;
+
+        var hasOpenAppointment = await _db.Appointments
+            .AnyAsync(x =>
+                x.BloodRequestId == request.Id &&
+                x.DeletedAt == null &&
+                !string.Equals(x.Status, EnumAppointmentStatus.Cancelled.ToString(), StringComparison.OrdinalIgnoreCase), ct);
+
+        if (hasOpenAppointment)
+            return;
+
+        var appointment = new Database.AppDbContextModels.Appointment
+        {
+            UserId = request.UserId,
+            HospitalId = request.HospitalId,
+            BloodRequestId = request.Id,
+            AppointmentDate = request.RequiredDate.Value,
+            AppointmentTime = new TimeOnly(9, 0),
+            Status = EnumAppointmentStatus.Scheduled.ToString().ToLowerInvariant(),
+            Remarks = "Auto-created when blood request was approved"
+        };
+
+        await _db.Appointments.AddAsync(appointment, ct);
+    }
 
     private static BloodRequestRespModel ToResponse(Database.AppDbContextModels.BloodRequest request)
     {

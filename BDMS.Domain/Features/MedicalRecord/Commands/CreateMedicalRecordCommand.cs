@@ -1,0 +1,22 @@
+using BDMS.Domain.Features.MedicalRecord.Models;
+using BDMS.Shared;
+using BDMS.Shared.Enums;
+using MediatR;
+
+namespace BDMS.Domain.Features.MedicalRecord.Commands;
+
+public class CreateMedicalRecordCommand : IRequest<Result<MedicalRecordRespModel>>
+{
+    public int DonationId { get; set; }
+    public int HospitalId { get; set; }
+    public decimal? HemoglobinLevel { get; set; }
+    public EnumMedicalRecordResult HivResult { get; set; }
+    public EnumMedicalRecordResult HepatitisBResult { get; set; }
+    public EnumMedicalRecordResult HepatitisCResult { get; set; }
+    public EnumMedicalRecordResult MalariaResult { get; set; }
+    public EnumMedicalRecordResult SyphilisResult { get; set; }
+    public EnumMedicalRecordScreeningStatus ScreeningStatus { get; set; }
+    public string? ScreeningNotes { get; set; }
+    public int? ScreenedBy { get; set; }
+    public DateTime? ScreeningAt { get; set; }
+}

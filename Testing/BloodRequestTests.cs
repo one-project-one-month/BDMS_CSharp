@@ -52,6 +52,38 @@ public class BloodRequestTests : IClassFixture<BloodRequestApiFactory>
     }
 
     [Fact]
+    public async Task GetBloodRequestById_ReturnsOkWithData()
+    {
+        var response = await _client.GetAsync("/api/BloodRequest/1");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<Result<BloodRequestRespModel>>();
+
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsSuccess);
+        Assert.NotNull(payload.Data);
+        Assert.Equal("John Doe", payload.Data!.PatientName);
+    }
+
+    [Fact]
+    public async Task UpdateBloodRequest_ReturnsOkWithUpdatedData()
+    {
+        var request = BuildRequestModel();
+        request.Id = 1;
+        request.PatientName = "Jane Doe";
+
+        var response = await _client.PutAsJsonAsync("/api/BloodRequest/update", request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<Result<BloodRequestRespModel>>();
+
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsSuccess);
+        Assert.NotNull(payload.Data);
+        Assert.Equal("Jane Doe", payload.Data!.PatientName);
+    }
+
+    [Fact]
     public async Task UpdateBloodRequestStatus_WithDonor_ReturnsOkWithApprovedStatus()
     {
         var response = await _client.PatchAsJsonAsync("/api/BloodRequest/1/Status", new UpdateBloodRequestStatusReqModel
@@ -67,6 +99,22 @@ public class BloodRequestTests : IClassFixture<BloodRequestApiFactory>
         Assert.True(payload!.IsSuccess);
         Assert.Equal(EnumBloodRequestStatus.Approved, payload.Data!.Status);
         Assert.Equal(100, payload.Data.ApprovedBy);
+    }
+
+    [Fact]
+    public async Task DeleteBloodRequest_AfterCreate_ReturnsOkWithDeleteMessage()
+    {
+        var createResponse = await _client.PostAsJsonAsync("/api/BloodRequest/create", BuildRequestModel());
+        Assert.Equal(HttpStatusCode.OK, createResponse.StatusCode);
+
+        var response = await _client.DeleteAsync("/api/BloodRequest/1");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<Result<string>>();
+
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsSuccess);
+        Assert.Equal("Deleting Successful.", payload.Data);
     }
 
     private static BloodRequestReqModel BuildRequestModel() => new()

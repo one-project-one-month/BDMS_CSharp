@@ -1,4 +1,3 @@
-﻿using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Donation;
 using BDMS.Domain.Features.Donation.Models;
 using BDMS.Shared;
@@ -8,16 +7,15 @@ namespace BDMS.Domain.Features.Donations.Handlers;
 
 public class DeleteDonationHandler : IRequestHandler<Commands.DeleteDonationCommand, Result<DonationRespModel>>
 {
-    private readonly AppDbContext _db;
+    private readonly IDonationService _donationService;
 
-    public DeleteDonationHandler(AppDbContext db)
+    public DeleteDonationHandler(IDonationService donationService)
     {
-        _db = db;
+        _donationService = donationService;
     }
 
     public async Task<Result<DonationRespModel>> Handle(Commands.DeleteDonationCommand reqModel, CancellationToken cancellationToken)
     {
-        var service = new DonationService(_db);
-        return await service.DeleteDonation(reqModel.Id);
+        return await _donationService.DeleteDonation(reqModel.Id);
     }
 }

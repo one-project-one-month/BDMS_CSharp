@@ -1,29 +1,21 @@
-﻿using BDMS.Database.AppDbContextModels;
-using BDMS.Domain.Features.Donation;
+﻿using BDMS.Domain.Features.Donation;
 using BDMS.Domain.Features.Donation.Models;
 using BDMS.Shared;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.Donations.Handlers;
 
 public class UpdateDonationHandler : IRequestHandler<Commands.UpdateDonationCommand, Result<DonationRespModel>>
 {
-    private readonly AppDbContext _db;
+    private readonly IDonationService _donationService;
 
-    public UpdateDonationHandler(AppDbContext db)
+    public UpdateDonationHandler(IDonationService donationService)
     {
-        _db = db;
+        _donationService = donationService;
     }
 
     public async Task<Result<DonationRespModel>> Handle(Commands.UpdateDonationCommand reqModel, CancellationToken cancellationToken)
     {
-        var service = new DonationService(_db);
-
         var donationRequest = new DonationUpdateReqModel()
         {
             Id = reqModel.Id,
@@ -39,7 +31,6 @@ public class UpdateDonationHandler : IRequestHandler<Commands.UpdateDonationComm
             ApprovedAt = reqModel.ApprovedAt,
             Remarks = reqModel.Remarks
         };
-        return await service.UpdateDonation(donationRequest);
+        return await _donationService.UpdateDonation(donationRequest);
     }
 }
-

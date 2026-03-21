@@ -79,6 +79,27 @@ public class BloodRequestServiceTests
         Assert.Equal(new DateOnly(2026, 3, 20), appointment.AppointmentDate);
     }
 
+    [Fact]
+    public async Task UpdateStatus_Approve_WithCancelledAppointmentDifferentCasing_CreatesNewAppointment()
+    {
+        await using var db = CreateDbContext();
+        SeedBloodRequest(db, status: "pending", requiredDate: new DateOnly(2026, 3, 20));
+        SeedDonor(db, donorId: 7, userId: 100, bloodGroup: "A+");
+        SeedAppointment(db, bloodRequestId: 1, status: "CANCELLED");
+
+        var service = CreateService(db);
+        var result = await service.UpdateStatus(new UpdateBloodRequestStatusCommand
+        {
+            Id = 1,
+            Status = EnumBloodRequestStatus.Approved,
+            DonorId = 7
+        }, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(2, await db.Appointments.CountAsync());
+        Assert.Equal(1, await db.Appointments.CountAsync(x => x.Status == "scheduled"));
+    }
+
     private static BloodRequestService CreateService(AppDbContext db)
     {
         var bloodInventoryService = new Mock<IBloodInventoryService>();
@@ -124,6 +145,23 @@ public class BloodRequestServiceTests
             Gender = "male",
             BloodGroup = bloodGroup,
             IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
+        db.SaveChanges();
+    }
+
+    private static void SeedAppointment(AppDbContext db, int bloodRequestId, string status)
+    {
+        db.Appointments.Add(new Appointment
+        {
+            Id = 100,
+            UserId = 10,
+            HospitalId = 2,
+            BloodRequestId = bloodRequestId,
+            AppointmentDate = new DateOnly(2026, 3, 19),
+            AppointmentTime = new TimeOnly(8, 30),
+            Status = status,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         });

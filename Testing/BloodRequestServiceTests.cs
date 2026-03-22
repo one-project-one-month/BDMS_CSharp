@@ -17,14 +17,12 @@ public class BloodRequestServiceTests
         await using var db = CreateDbContext();
         SeedHospital(db, hospitalId: 2, name: "City Hospital");
 
-        var todayPart = DateTime.UtcNow.ToString("yy/MM/dd");
-
         db.BloodRequests.Add(new BloodRequest
         {
             Id = 1,
             UserId = 10,
             HospitalId = 2,
-            BloodRequestCode = $"CITYHOSPITAL-A+-{todayPart}:01",
+            BloodRequestCode = "CITYHOSPITAL_A+_01",
             PatientName = "Seed Patient",
             BloodGroup = "A+",
             UnitsRequired = 1,
@@ -50,8 +48,45 @@ public class BloodRequestServiceTests
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
-        Assert.EndsWith(":02", result.Data!.BloodRequestCode);
-        Assert.StartsWith($"CITYHOSPITAL-A+-{todayPart}:", result.Data.BloodRequestCode);
+        Assert.Equal("CITYHOSPITAL_A+_02", result.Data!.BloodRequestCode);
+    }
+
+    [Fact]
+    public async Task Create_WhenCalledConcurrently_GeneratesUniqueSequentialCodes()
+    {
+        var dbName = Guid.NewGuid().ToString();
+        await using (var setupDb = CreateDbContext(dbName))
+        {
+            SeedHospital(setupDb, hospitalId: 2, name: "City Hospital");
+        }
+
+        async Task<string?> CreateRequestAsync(int userId, string patientName)
+        {
+            await using var db = CreateDbContext(dbName);
+            var service = CreateService(db);
+            var result = await service.Create(new CreateBloodRequestCommand
+            {
+                UserId = userId,
+                HospitalId = 2,
+                PatientName = patientName,
+                BloodGroup = "A+",
+                UnitsRequired = 1,
+                Urgency = EnumBloodRequestUrgency.High,
+                RequiredDate = new DateOnly(2026, 3, 25),
+                Reason = "Concurrent creation test"
+            }, CancellationToken.None);
+
+            Assert.True(result.IsSuccess);
+            return result.Data?.BloodRequestCode;
+        }
+
+        var createdCodes = await Task.WhenAll(
+            CreateRequestAsync(100, "Concurrent Patient 1"),
+            CreateRequestAsync(101, "Concurrent Patient 2"));
+
+        Assert.Equal(2, createdCodes.Distinct().Count());
+        Assert.Contains(createdCodes, code => code == "CITYHOSPITAL_A+_01");
+        Assert.Contains(createdCodes, code => code == "CITYHOSPITAL_A+_02");
     }
 
     [Fact]
@@ -96,7 +131,7 @@ public class BloodRequestServiceTests
     public async Task Update_KeepsBloodRequestCodeImmutable()
     {
         await using var db = CreateDbContext();
-        SeedBloodRequest(db, status: "pending", requiredDate: new DateOnly(2026, 2, 10), code: "CITYHOSPITAL-A+-26/03/22:01");
+        SeedBloodRequest(db, status: "pending", requiredDate: new DateOnly(2026, 2, 10), code: "CITYHOSPITAL_A+_01");
 
         var service = CreateService(db);
         var result = await service.Update(new UpdateBloodRequestCommand
@@ -114,10 +149,10 @@ public class BloodRequestServiceTests
         }, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal("CITYHOSPITAL-A+-26/03/22:01", result.Data!.BloodRequestCode);
+        Assert.Equal("CITYHOSPITAL_A+_01", result.Data!.BloodRequestCode);
 
         var saved = await db.BloodRequests.SingleAsync(x => x.Id == 1);
-        Assert.Equal("CITYHOSPITAL-A+-26/03/22:01", saved.BloodRequestCode);
+        Assert.Equal("CITYHOSPITAL_A+_01", saved.BloodRequestCode);
     }
 
     //[Fact]

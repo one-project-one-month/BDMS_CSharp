@@ -85,7 +85,7 @@ public class BloodRequestService : IBloodRequestService
             if (string.IsNullOrWhiteSpace(hospitalName))
                 return Result<BloodRequestRespModel>.ValidationError("Invalid hospital.");
 
-            var generatedCode = await GenerateBloodRequestCode(command.HospitalId, hospitalName, bloodGroup.ToDatabaseValue(), now, ct);
+            var generatedCode = await GenerateBloodRequestCode(command.HospitalId, hospitalName, bloodGroup.ToDatabaseValue(), ct);
 
             var entity = new Database.AppDbContextModels.BloodRequest
             {
@@ -265,12 +265,11 @@ public class BloodRequestService : IBloodRequestService
         return new LockReleaser(hospitalLock);
     }
 
-    private async Task<string> GenerateBloodRequestCode(int hospitalId, string hospitalName, string bloodGroup, DateTime createdAtUtc, CancellationToken ct)
+    private async Task<string> GenerateBloodRequestCode(int hospitalId, string hospitalName, string bloodGroup, CancellationToken ct)
     {
         var hospitalCode = NormalizeCodeSegment(hospitalName);
         var bloodTypeCode = NormalizeCodeSegment(bloodGroup);
-        var datePart = createdAtUtc.ToString("yy/MM/dd", CultureInfo.InvariantCulture);
-        var prefix = $"{hospitalCode}-{bloodTypeCode}-{datePart}:";
+        var prefix = $"{hospitalCode}_{bloodTypeCode}_";
 
         var existingCodes = await _db.BloodRequests
             .Where(x => x.DeletedAt == null

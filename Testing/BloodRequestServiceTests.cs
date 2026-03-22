@@ -11,6 +11,77 @@ namespace Testing;
 
 public class BloodRequestServiceTests
 {
+    [Fact]
+    public async Task Create_GeneratesNextBloodRequestCodeSeries()
+    {
+        await using var db = CreateDbContext();
+        SeedHospital(db, hospitalId: 2, name: "City Hospital");
+
+        var todayPart = DateTime.UtcNow.ToString("yy/MM/dd");
+
+        db.BloodRequests.Add(new BloodRequest
+        {
+            Id = 1,
+            UserId = 10,
+            HospitalId = 2,
+            BloodRequestCode = $"CITYHOSPITAL-A+-{todayPart}:01",
+            PatientName = "Seed Patient",
+            BloodGroup = "A+",
+            UnitsRequired = 1,
+            Urgency = "high",
+            Status = "pending",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
+        await db.SaveChangesAsync();
+
+        var service = CreateService(db);
+        var result = await service.Create(new CreateBloodRequestCommand
+        {
+            UserId = 11,
+            HospitalId = 2,
+            PatientName = "New Patient",
+            BloodGroup = "A+",
+            UnitsRequired = 2,
+            Urgency = EnumBloodRequestUrgency.High,
+            RequiredDate = new DateOnly(2026, 3, 25),
+            Reason = "Emergency"
+        }, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.EndsWith(":02", result.Data!.BloodRequestCode);
+        Assert.StartsWith($"CITYHOSPITAL-A+-{todayPart}:", result.Data.BloodRequestCode);
+    }
+
+    [Fact]
+    public async Task Update_KeepsBloodRequestCodeImmutable()
+    {
+        await using var db = CreateDbContext();
+        SeedBloodRequest(db, status: "pending", requiredDate: new DateOnly(2026, 2, 10), code: "CITYHOSPITAL-A+-26/03/22:01");
+
+        var service = CreateService(db);
+        var result = await service.Update(new UpdateBloodRequestCommand
+        {
+            Id = 1,
+            UserId = 99,
+            HospitalId = 2,
+            PatientName = "Updated Patient",
+            BloodGroup = "A+",
+            UnitsRequired = 3,
+            ContactPhone = "0111111111",
+            Urgency = EnumBloodRequestUrgency.Medium,
+            RequiredDate = new DateOnly(2026, 2, 12),
+            Reason = "Updated reason"
+        }, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("CITYHOSPITAL-A+-26/03/22:01", result.Data!.BloodRequestCode);
+
+        var saved = await db.BloodRequests.SingleAsync(x => x.Id == 1);
+        Assert.Equal("CITYHOSPITAL-A+-26/03/22:01", saved.BloodRequestCode);
+    }
+
     //[Fact]
     //public async Task Update_NonPendingRequest_ReturnsValidationError()
     //{
@@ -94,19 +165,34 @@ public class BloodRequestServiceTests
         return new AppDbContext(options);
     }
 
-    private static void SeedBloodRequest(AppDbContext db, string status, DateOnly? requiredDate)
+    private static void SeedBloodRequest(AppDbContext db, string status, DateOnly? requiredDate, string? code = null)
     {
         db.BloodRequests.Add(new BloodRequest
         {
             Id = 1,
             UserId = 10,
             HospitalId = 2,
+            BloodRequestCode = code,
             PatientName = "John Doe",
             BloodGroup = "A+",
             UnitsRequired = 2,
             Urgency = "high",
             RequiredDate = requiredDate,
             Status = status,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
+        db.SaveChanges();
+    }
+
+    private static void SeedHospital(AppDbContext db, int hospitalId, string name)
+    {
+        db.Hospitals.Add(new Hospital
+        {
+            Id = hospitalId,
+            Name = name,
+            IsActive = true,
+            IsVerified = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         });

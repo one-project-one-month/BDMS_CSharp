@@ -156,10 +156,10 @@ public class BloodRequestServiceTests
         return new BloodRequestService(db);
     }
 
-    private static AppDbContext CreateDbContext()
+    private static AppDbContext CreateDbContext(string? dbName = null)
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(dbName ?? Guid.NewGuid().ToString())
             .Options;
 
         return new AppDbContext(options);

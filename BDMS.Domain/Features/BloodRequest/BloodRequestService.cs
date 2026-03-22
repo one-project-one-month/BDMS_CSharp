@@ -4,11 +4,25 @@ using BDMS.Domain.Features.BloodRequest.Models;
 using BDMS.Shared;
 using BDMS.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
+using System.Globalization;
 
 namespace BDMS.Domain.Features.BloodRequest;
 
 public class BloodRequestService : IBloodRequestService
 {
+    private static readonly ConcurrentDictionary<int, SemaphoreSlim> HospitalCodeLocks = new();
+    private sealed class LockReleaser : IAsyncDisposable
+    {
+        private readonly SemaphoreSlim _semaphore;
+        public LockReleaser(SemaphoreSlim semaphore) => _semaphore = semaphore;
+        public ValueTask DisposeAsync()
+        {
+            _semaphore.Release();
+            return ValueTask.CompletedTask;
+        }
+    }
+
     private readonly AppDbContext _db;
 
     public BloodRequestService(AppDbContext db)
@@ -58,26 +72,41 @@ public class BloodRequestService : IBloodRequestService
         if (!IsUrgencyValid(command.Urgency))
             return Result<BloodRequestRespModel>.ValidationError("Invalid urgency. Allowed values: low, medium, high, critical.");
 
-        var entity = new Database.AppDbContextModels.BloodRequest
-        {
-            UserId = command.UserId,
-            HospitalId = command.HospitalId,
-            PatientName = command.PatientName,
-            BloodGroup = bloodGroup.ToDatabaseValue(),
-            UnitsRequired = command.UnitsRequired <= 0 ? 1 : command.UnitsRequired,
-            ContactPhone = command.ContactPhone,
-            Urgency = command.Urgency.ToDatabaseValue(),
-            RequiredDate = command.RequiredDate,
-            Status = EnumBloodRequestStatus.Pending.ToDatabaseValue(),
-            Reason = command.Reason,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
         try
         {
+            await using var lockReleaser = await AcquireHospitalLockAsync(command.HospitalId, ct);
+
+            var now = DateTime.UtcNow;
+            var hospitalName = await _db.Hospitals
+                .Where(h => h.Id == command.HospitalId && h.DeletedAt == null)
+                .Select(h => h.Name)
+                .FirstOrDefaultAsync(ct);
+
+            if (string.IsNullOrWhiteSpace(hospitalName))
+                return Result<BloodRequestRespModel>.ValidationError("Invalid hospital.");
+
+            var generatedCode = await GenerateBloodRequestCode(command.HospitalId, hospitalName, bloodGroup.ToDatabaseValue(), now, ct);
+
+            var entity = new Database.AppDbContextModels.BloodRequest
+            {
+                UserId = command.UserId,
+                HospitalId = command.HospitalId,
+                BloodRequestCode = generatedCode,
+                PatientName = command.PatientName,
+                BloodGroup = bloodGroup.ToDatabaseValue(),
+                UnitsRequired = command.UnitsRequired <= 0 ? 1 : command.UnitsRequired,
+                ContactPhone = command.ContactPhone,
+                Urgency = command.Urgency.ToDatabaseValue(),
+                RequiredDate = command.RequiredDate,
+                Status = EnumBloodRequestStatus.Pending.ToDatabaseValue(),
+                Reason = command.Reason,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
             await _db.BloodRequests.AddAsync(entity, ct);
             await _db.SaveChangesAsync(ct);
+
             return Result<BloodRequestRespModel>.Success(ToResponse(entity), "Blood request created successfully.");
         }
         catch (Exception ex)
@@ -101,6 +130,8 @@ public class BloodRequestService : IBloodRequestService
             if (entity == null)
                 return Result<BloodRequestRespModel>.NotFound("Blood request not found.");
 
+            var immutableCode = entity.BloodRequestCode;
+
             //var currentStatus = entity.Status.ToEnumOrDefault(EnumBloodRequestStatus.None);
             //if (currentStatus != EnumBloodRequestStatus.Pending)
             //    return Result<BloodRequestRespModel>.ValidationError("Only pending blood requests can be updated. Use update status endpoint to change request status.");
@@ -114,6 +145,7 @@ public class BloodRequestService : IBloodRequestService
             entity.Urgency = command.Urgency.ToDatabaseValue();
             entity.RequiredDate = command.RequiredDate;
             entity.Reason = command.Reason;
+            entity.BloodRequestCode = immutableCode;
             entity.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync(ct);
@@ -225,6 +257,48 @@ public class BloodRequestService : IBloodRequestService
 
     private static bool IsUrgencyValid(EnumBloodRequestUrgency urgency)
         => urgency != EnumBloodRequestUrgency.None;
+
+    private static async Task<IAsyncDisposable> AcquireHospitalLockAsync(int hospitalId, CancellationToken ct)
+    {
+        var hospitalLock = HospitalCodeLocks.GetOrAdd(hospitalId, _ => new SemaphoreSlim(1, 1));
+        await hospitalLock.WaitAsync(ct);
+        return new LockReleaser(hospitalLock);
+    }
+
+    private async Task<string> GenerateBloodRequestCode(int hospitalId, string hospitalName, string bloodGroup, DateTime createdAtUtc, CancellationToken ct)
+    {
+        var hospitalCode = NormalizeCodeSegment(hospitalName);
+        var bloodTypeCode = NormalizeCodeSegment(bloodGroup);
+        var datePart = createdAtUtc.ToString("yy/MM/dd", CultureInfo.InvariantCulture);
+        var prefix = $"{hospitalCode}-{bloodTypeCode}-{datePart}:";
+
+        var existingCodes = await _db.BloodRequests
+            .Where(x => x.DeletedAt == null
+                && x.HospitalId == hospitalId
+                && x.BloodGroup == bloodGroup
+                && x.BloodRequestCode != null
+                && x.BloodRequestCode.StartsWith(prefix))
+            .Select(x => x.BloodRequestCode!)
+            .ToListAsync(ct);
+
+        var maxSequence = 0;
+        foreach (var code in existingCodes)
+        {
+            var suffix = code[prefix.Length..];
+            if (int.TryParse(suffix, NumberStyles.None, CultureInfo.InvariantCulture, out var seq) && seq > maxSequence)
+                maxSequence = seq;
+        }
+
+        return $"{prefix}{(maxSequence + 1):D2}";
+    }
+
+    private static string NormalizeCodeSegment(string value)
+    {
+        var compact = value.Trim().Replace(" ", string.Empty);
+        return string.IsNullOrWhiteSpace(compact)
+            ? "UNKNOWN"
+            : compact.ToUpperInvariant();
+    }
 
     private async Task EnsureAppointmentStartedForApprovedRequest(Database.AppDbContextModels.BloodRequest request, CancellationToken ct)
     {

@@ -1,9 +1,11 @@
 ﻿using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.BloodInventory;
 using BDMS.Domain.Features.Donation.Models;
+using BDMS.Domain.Features.Donations.Commands;
 using BDMS.Domain.Features.Donations.Models;
 using BDMS.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace BDMS.Domain.Features.Donation;
 
@@ -252,4 +254,64 @@ public class DonationService : IDonationService
             return Result<DonationRespModel>.SystemError($"Error deleting donation : {ex.Message}");
         }
     }
+
+    public async Task<Result<DonationRespModel>> UpdateDonationStatus(UpdateDonationStatusCommand reqModel)
+    {
+        try
+        {
+            var donation = await _db.Donations
+            .FirstOrDefaultAsync(x => x.Id == reqModel.Id && x.DeletedAt == null);
+
+            if (donation is null)
+            {
+                return Result<DonationRespModel>.NotFound("Cannot find the donation to be updated.");
+            }
+            if(!string.IsNullOrEmpty(reqModel.Status))
+            {
+                donation.Status = reqModel.Status;
+                _db.Entry(donation).State = EntityState.Modified;
+                await _db.SaveChangesAsync();
+            }
+
+            var previousStatus = donation.Status;
+
+            if (!string.Equals(previousStatus, "completed", StringComparison.OrdinalIgnoreCase)
+               && string.Equals(reqModel.Status, "completed", StringComparison.OrdinalIgnoreCase))
+            {
+                await _inventoryService.AddtoInventory(donation.Id, CancellationToken.None);
+            }
+
+            var result = new DonationRespModel()
+            {
+                DonorId = donation.DonorId,
+                HospitalId = donation.HospitalId,
+                BloodRequestId = donation.BloodRequestId,
+                CreatedBy = donation.CreatedBy,
+                DonationCode = donation.DonationCode,
+                BloodGroup = donation.BloodGroup,
+                UnitsDonated = donation.UnitsDonated,
+                DonationDate = donation.DonationDate,
+                Status = donation.Status,
+                ApprovedBy = donation.ApprovedBy,
+                ApprovedAt = donation.ApprovedAt,
+                Remarks = donation.Remarks,
+                UpdatedAt = donation.UpdatedAt,
+                DeletedAt = donation.DeletedAt,
+                ApprovedByNavigation = donation.ApprovedByNavigation,
+                BloodInventory = donation.BloodInventory,
+                BloodRequest = donation.BloodRequest,
+                CreatedByNavigation = donation.CreatedByNavigation,
+                Donor = donation.Donor,
+                Hospital = donation.Hospital,
+                MedicalRecord = donation.MedicalRecord,
+            };
+            return Result<DonationRespModel>.Success(result, "Donation Status updated successfully!");
+
+        }
+        catch (Exception ex)
+        {
+            return Result<DonationRespModel>.SystemError($"Error in updating donation status: {ex.Message}");
+        }
+    }
 }
+

@@ -111,7 +111,7 @@ public static class FeatureManager
         builder.Services.AddAuthorizationBuilder()
             .AddPolicy("AdminOnly", policy => policy.RequireRole("admin"))
             .AddPolicy("StaffOnly", policy => policy.RequireRole("staff"))
-            .AddPolicy("DonorOnly", policy => policy.RequireRole("donor"))
+            .AddPolicy("DonarOnly", policy => policy.RequireRole("donor"))
             .AddPolicy("ClientOnly", policy => policy.RequireRole("user"));
 
         builder.Services.AddHttpContextAccessor();

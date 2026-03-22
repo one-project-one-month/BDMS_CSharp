@@ -18,28 +18,37 @@ public class AppointmentService : IAppointmentService
         _db = db;
     }
 
-    public async Task<Result<List<AppointmentRespModel>>> GetAllAppointments(CancellationToken ct)
+    public async Task<Result<List<AppointmentRespModel>>> GetAllAppointments(int? hospitalId, DateOnly? appointmentDate, CancellationToken ct)
     {
         try
         {
-            var result = await _db.Appointments
-                .Where(x => x.DeletedAt == null)
-                .AsNoTracking()
-                .ToListAsync(ct);
+            var query = _db.Appointments.Where(x => x.DeletedAt == null);
 
-            var data = result.Select(x => new AppointmentRespModel()
+            if (hospitalId.HasValue)
             {
-                UserId = x.UserId,
-                HospitalId = x.HospitalId,
-                DonationId = x.DonationId,
-                BloodRequestId = x.BloodRequestId,
-                AppointmentDate = x.AppointmentDate,
-                AppointmentTime = x.AppointmentTime,
-                Status = x.Status.ToEnumOrDefault(EnumAppointmentStatus.None),
-                Remarks = x.Remarks,
-            }).ToList();
+                query = query.Where(x => x.HospitalId == hospitalId.Value);
+            }
+
+            if (appointmentDate.HasValue)
+            {
+                query = query.Where(x => x.AppointmentDate == appointmentDate.Value);
+            }
             
-            return Result<List<AppointmentRespModel>>.Success(data, "Success");
+            var result = await query
+                .AsNoTracking()
+                .Select(x => new AppointmentRespModel()
+                {
+                    UserId = x.UserId,
+                    HospitalId = x.HospitalId,
+                    DonationId = x.DonationId,
+                    BloodRequestId = x.BloodRequestId,
+                    AppointmentDate = x.AppointmentDate,
+                    AppointmentTime = x.AppointmentTime,
+                    Status = x.Status.ToEnumOrDefault(EnumAppointmentStatus.None),
+                    Remarks = x.Remarks,
+                }).ToListAsync(ct);
+            
+            return Result<List<AppointmentRespModel>>.Success(result, "Success");
         }
         catch (Exception ex)
         {

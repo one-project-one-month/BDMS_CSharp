@@ -17,6 +17,6 @@ public class GetAllAppointmentHandler : IRequestHandler<GetAllAppointmentQuery, 
 
     public async Task<Result<List<AppointmentRespModel>>> Handle(GetAllAppointmentQuery request, CancellationToken ct)
     {
-        return await _appointmentService.GetAllAppointments(ct);
+        return await _appointmentService.GetAllAppointments(request.HospitalId, request.AppointmentDate, ct);
     }
 }

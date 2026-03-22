@@ -21,9 +21,20 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("list")]
-        public async Task<IActionResult> GetAllAppointmentList(CancellationToken ct)
+        public async Task<IActionResult> GetAllAppointmentList(
+            [FromQuery] int? hospitalId, [FromQuery] string? appointmentDate, CancellationToken ct)
         {
-            var query = new GetAllAppointmentQuery();
+            DateOnly? parsedAppointmentDate = null;
+            
+            if (!string.IsNullOrWhiteSpace(appointmentDate))
+            {
+                if (!DateOnly.TryParse(appointmentDate, out var date))
+                    return BadRequest("Invalid appointmentDate. Use yyyy-MM-dd.");
+
+                parsedAppointmentDate = date;
+            }
+            
+            var query = new GetAllAppointmentQuery() { HospitalId = hospitalId, AppointmentDate = parsedAppointmentDate };
             var result = await _mediator.Send(query, ct);
             
             if (!result.IsSuccess)

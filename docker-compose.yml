@@ -1,0 +1,14 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: bdms-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "BDMS@2026"
+    ports:
+      - "1433:1433"
+    volumes:
+      - bdms_sql_data:/var/opt/mssql
+
+volumes:
+  bdms_sql_data:

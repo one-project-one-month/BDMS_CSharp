@@ -1,6 +1,14 @@
 @BDMS.Api_HostAddress = http://localhost:5017
+@BDMS.Api_HostAddress = https://localhost:7292
+@contentType = application/json
 
 GET {{BDMS.Api_HostAddress}}/weatherforecast/
 Accept: application/json
+### Get all roles
+GET {{BDMS.Api_HostAddress}}/api/Role/list
+Accept: {{contentType}}
 
 ###
+### Get all permissions
+GET {{BDMS.Api_HostAddress}}/api/Permission/list
+Accept: {{contentType}}

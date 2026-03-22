@@ -8,9 +8,11 @@ namespace BDMS.Domain.Features.User.Models
 {
     public class UserReqModel
     {
-        public string UserId { get; set; } = null!;
-
+        public int UserId { get; set; }
         public string? Username { get; set; }
+        public int UserRoleId { get; set; }
+        public int UserHospitalId { get; set; }
+        public string? Email { get; set; }
     }
 }
 

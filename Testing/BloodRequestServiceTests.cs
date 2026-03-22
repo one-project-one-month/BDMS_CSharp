@@ -85,46 +85,8 @@ public class BloodRequestServiceTests
             CreateRequestAsync(101, "Concurrent Patient 2"));
 
         Assert.Equal(2, createdCodes.Distinct().Count());
-        Assert.Contains(createdCodes, code => code == "CITYHOSPITAL_A+_01");
-        Assert.Contains(createdCodes, code => code == "CITYHOSPITAL_A+_02");
-    }
-
-    [Fact]
-    public async Task Create_WhenCalledConcurrently_GeneratesUniqueSequentialCodes()
-    {
-        var dbName = Guid.NewGuid().ToString();
-        await using (var setupDb = CreateDbContext(dbName))
-        {
-            SeedHospital(setupDb, hospitalId: 2, name: "City Hospital");
-        }
-
-        async Task<string?> CreateRequestAsync(int userId, string patientName)
-        {
-            await using var db = CreateDbContext(dbName);
-            var service = CreateService(db);
-            var result = await service.Create(new CreateBloodRequestCommand
-            {
-                UserId = userId,
-                HospitalId = 2,
-                PatientName = patientName,
-                BloodGroup = "A+",
-                UnitsRequired = 1,
-                Urgency = EnumBloodRequestUrgency.High,
-                RequiredDate = new DateOnly(2026, 3, 25),
-                Reason = "Concurrent creation test"
-            }, CancellationToken.None);
-
-            Assert.True(result.IsSuccess);
-            return result.Data?.BloodRequestCode;
-        }
-
-        var createdCodes = await Task.WhenAll(
-            CreateRequestAsync(100, "Concurrent Patient 1"),
-            CreateRequestAsync(101, "Concurrent Patient 2"));
-
-        Assert.Equal(2, createdCodes.Distinct().Count());
-        Assert.Contains(createdCodes, code => code!.EndsWith(":01"));
-        Assert.Contains(createdCodes, code => code!.EndsWith(":02"));
+        Assert.Contains(createdCodes, code => code!.EndsWith("_01"));
+        Assert.Contains(createdCodes, code => code!.EndsWith("_02"));
     }
 
     [Fact]

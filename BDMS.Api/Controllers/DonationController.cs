@@ -15,7 +15,7 @@ namespace BDMS.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy = "AdminOnly")]
+//[Authorize(Policy = "AdminOnly")]
 
 public class DonationController : ControllerBase
 {
@@ -99,6 +99,23 @@ public class DonationController : ControllerBase
             ApprovedBy = reqModel.ApprovedBy,
             ApprovedAt = reqModel.ApprovedAt,
             Remarks = reqModel.Remarks
+        };
+
+        var result = await _mediator.Send(command);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.Message);
+        }
+        return Ok(result);
+    }
+
+    [HttpPatch("UpdateStatus")]
+    public async Task<IActionResult> UpdateStatus(UpdateDonationStatusCommand reqModel)
+    {
+        var command = new UpdateDonationStatusCommand()
+        {
+            Id = reqModel.Id,
+            Status = reqModel.Status
         };
 
         var result = await _mediator.Send(command);

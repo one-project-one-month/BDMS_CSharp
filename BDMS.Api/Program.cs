@@ -2,12 +2,15 @@ using BDMS.Domain;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
+using System.Text.Json;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .WriteTo.Console()
     .WriteTo.File($"log/{Assembly.GetEntryAssembly()?.GetName().Name}.log", rollingInterval: RollingInterval.Hour)
     .CreateLogger();
+
+EnsureValidAppSettingsJson();
 
 try
 {
@@ -66,14 +69,6 @@ try
 
     app.UseCors("AllowFrontend");
 
-    // Configure the HTTP request pipeline.
-    //if (app.Environment.IsDevelopment())
-    //{
-    //    app.UseSwagger();
-    //    app.UseSwaggerUI();
-    //}
-
-
     app.UseSwagger();
     app.UseSwaggerUI();
 
@@ -96,18 +91,29 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+static void EnsureValidAppSettingsJson()
+{
+    var appSettingsPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+    if (!File.Exists(appSettingsPath))
+    {
+        return;
+    }
+
+    try
+    {
+        using var stream = File.OpenRead(appSettingsPath);
+        using var _ = JsonDocument.Parse(stream);
+    }
+    catch (JsonException ex)
+    {
+        var backupPath = $"{appSettingsPath}.invalid.{DateTime.UtcNow:yyyyMMddHHmmss}";
+        File.Move(appSettingsPath, backupPath, overwrite: true);
+        Log.Warning(ex,
+            "Invalid JSON in appsettings.json. Renamed file to {BackupPath}. " +
+            "Provide a valid appsettings.json or environment variables for configuration.",
+            backupPath);
+    }
+}
+
 public partial class Program { }
-
-// Development 
-// conflicttesting 
-// conflict2
-// pull / merge 
-// ABCDDAFAFD1231231231
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-// Development environment is needed to use Swagger UI, otherwise it will not be available in production.\
-// You can enable it in production by removing the if condition, but it's generally not recommended for security reasons.

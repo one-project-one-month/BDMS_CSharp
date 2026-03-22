@@ -13,5 +13,6 @@ namespace BDMS.Domain.Features.Auth.Models
         public string Email { get; set; } = null!;
         public string RoleName { get; set; } = null!;
         public List<string> Permissions { get; set; } = new();
+        public CurrentUserDonorResModel? Donor { get; set; }
     }
 }

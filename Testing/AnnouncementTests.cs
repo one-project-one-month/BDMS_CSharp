@@ -118,6 +118,7 @@ public class AnnouncementApiFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll(typeof(IAnnouncementService));
 
+            services.AddTestAuthenticationAndAuthorization();
             var service = new Mock<IAnnouncementService>();
             service
                 .Setup(s => s.GetAnnouncements(It.IsAny<CancellationToken>()))

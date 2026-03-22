@@ -137,6 +137,7 @@ public class DonationApiFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll(typeof(IMediator));
 
+            services.AddTestAuthenticationAndAuthorization();
             var mediator = new Mock<IMediator>();
             mediator
                 .Setup(m => m.Send(It.IsAny<GetAllDonationQuery>(), It.IsAny<CancellationToken>()))

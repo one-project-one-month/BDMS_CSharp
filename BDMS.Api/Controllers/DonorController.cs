@@ -9,7 +9,6 @@ namespace BDMS.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy = "AdminOnly")]
 
 public class DonorController : ControllerBase
 {
@@ -21,6 +20,8 @@ public class DonorController : ControllerBase
     }
 
     [HttpGet("list")]
+    [Authorize(Policy = "AdminOnly")]
+
     public async Task<IActionResult> GetAllDonorsList()
     {
         var query = new GetAllDonorsQuery();
@@ -32,7 +33,7 @@ public class DonorController : ControllerBase
     }
 
     [HttpPost("create")]
-    [Authorize(Policy = "DonarOnly")]
+    [Authorize(Policy = "ClientOnly")]
     public async Task<IActionResult> CreateDonor(DonorReqModel reqModel)
     {
         var command = new CreateDonorCommand
@@ -51,13 +52,15 @@ public class DonorController : ControllerBase
         };
 
         var result = await _mediator.Send(command);
-        if(!result.IsSuccess)
+        if (!result.IsSuccess)
             return BadRequest(result.Message);
 
         return Ok(result);
     }
 
     [HttpGet("edit")]
+    [Authorize(Policy = "AdminOnly")]
+
     public async Task<IActionResult> GetDonorById(int donorId)
     {
         var query = new GetAllDonorByIdQuery
@@ -73,6 +76,8 @@ public class DonorController : ControllerBase
     }
 
     [HttpPut("update")]
+    [Authorize(Policy = "AdminOnly")]
+
     public async Task<IActionResult> UpdateDonor(DonorReqModel reqModel)
     {
         var command = new UpdateDonorCommand()
@@ -92,13 +97,15 @@ public class DonorController : ControllerBase
         };
 
         var result = await _mediator.Send(command);
-        if(!result.IsSuccess)
+        if (!result.IsSuccess)
             return BadRequest(result.Message);
 
         return Ok(result);
     }
 
     [HttpDelete("delete")]
+    [Authorize(Policy = "AdminOnly")]
+
     public async Task<IActionResult> DeleteDonorAsync(int donorId)
     {
         var command = new DeleteDonorCommand

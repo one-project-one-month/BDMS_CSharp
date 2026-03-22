@@ -10,7 +10,6 @@ namespace BDMS.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy = "AdminOnly")]
 public class BloodRequestController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -21,6 +20,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpGet("list")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> GetAllBloodRequestList(CancellationToken ct)
     {
         var result = await _mediator.Send(new GetAllBloodRequestsQuery(), ct);
@@ -31,6 +31,8 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "AdminOnly")]
+
     public async Task<IActionResult> GetBloodRequestById([FromRoute] int id, CancellationToken ct)
     {
         var result = await _mediator.Send(new GetBloodRequestByIdQuery { Id = id }, ct);
@@ -68,6 +70,8 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpPut("update")]
+    [Authorize(Policy = "AdminOnly")]
+
     public async Task<IActionResult> UpdateBloodRequest([FromBody] UpdateBloodRequestReqModel model, CancellationToken ct)
     {
         if (!Enum.TryParse<EnumBloodRequestUrgency>(model.Urgency, true, out var urgency) || urgency == EnumBloodRequestUrgency.None)
@@ -95,6 +99,8 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpPatch("{id}/status")]
+    [Authorize(Policy = "AdminOnly")]
+
 
     public async Task<IActionResult> UpdateStatus([FromRoute] int id, [FromBody] UpdateBloodRequestStatusReqModel model, CancellationToken ct)
     {
@@ -116,6 +122,8 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOnly")]
+
     public async Task<IActionResult> DeleteBloodRequest([FromRoute] int id, CancellationToken ct)
     {
         var result = await _mediator.Send(new DeleteBloodRequestCommand { Id = id }, ct);

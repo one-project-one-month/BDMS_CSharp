@@ -152,6 +152,7 @@ public class BloodRequestApiFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll(typeof(IMediator));
 
+            services.AddTestAuthenticationAndAuthorization();
             var mediator = new Mock<IMediator>();
 
             mediator

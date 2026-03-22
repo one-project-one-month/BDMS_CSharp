@@ -1,20 +1,14 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.Claims;
-using System.Text.Encodings.Web;
 using BDMS.Domain.Features.Certificate.Commands;
 using BDMS.Domain.Features.Certificate.Models;
 using BDMS.Domain.Features.Certificate.Queries;
 using BDMS.Shared;
 using MediatR;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -27,7 +21,6 @@ public class CertificateTests : IClassFixture<CertificateApiFactory>
     public CertificateTests(CertificateApiFactory factory)
     {
         _client = factory.CreateClient();
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Test");
     }
 
     [Fact]
@@ -90,11 +83,7 @@ public class CertificateApiFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll(typeof(IMediator));
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = "Test";
-                options.DefaultChallengeScheme = "Test";
-            }).AddScheme<AuthenticationSchemeOptions, CertificateTestAuthHandler>("Test", _ => { });
+            services.AddTestAuthenticationAndAuthorization();
 
             var mediator = new Mock<IMediator>();
             mediator
@@ -141,30 +130,5 @@ public class CertificateApiFactory : WebApplicationFactory<Program>
 
             services.AddSingleton(mediator.Object);
         });
-    }
-}
-
-public class CertificateTestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
-{
-    public CertificateTestAuthHandler(
-        IOptionsMonitor<AuthenticationSchemeOptions> options,
-        ILoggerFactory logger,
-        UrlEncoder encoder)
-        : base(options, logger, encoder)
-    {
-    }
-
-    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
-    {
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, "test-user"),
-            new Claim(ClaimTypes.Role, "admin")
-        };
-        var identity = new ClaimsIdentity(claims, Scheme.Name);
-        var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, Scheme.Name);
-
-        return Task.FromResult(AuthenticateResult.Success(ticket));
     }
 }

@@ -94,6 +94,7 @@ public class RoleApiFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll(typeof(IMediator));
 
+            services.AddTestAuthenticationAndAuthorization();
             var mediator = new Mock<IMediator>();
             mediator
                 .Setup(m => m.Send(It.IsAny<GetAllRoles>(), It.IsAny<CancellationToken>()))

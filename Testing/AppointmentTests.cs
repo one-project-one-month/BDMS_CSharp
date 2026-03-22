@@ -134,16 +134,7 @@ public class AppointmentApiFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll(typeof(IMediator));
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = TestAuthHandler.SchemeName;
-                options.DefaultChallengeScheme = TestAuthHandler.SchemeName;
-            }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("AdminStaff", policy => policy.RequireAuthenticatedUser());
-            });
+            services.AddTestAuthenticationAndAuthorization();
 
             var mediator = new Mock<IMediator>();
             mediator

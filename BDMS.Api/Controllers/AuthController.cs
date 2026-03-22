@@ -12,7 +12,6 @@ namespace BDMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "AdminOnly")]
     public class AuthController : BaseController
     {
         private readonly IMediator _mediator;
@@ -57,6 +56,14 @@ namespace BDMS.Api.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> Me()
         {
+            var role = User.FindFirstValue(ClaimTypes.Role);
+
+            if (string.IsNullOrEmpty(role) || !new[] { "admin", "staff" }.Contains(role.ToLower()))
+            {
+                Response.Cookies.Delete(_jwtSettings.AdminCookieName, BuildCookieOptions(DateTime.Now));
+                return Unauthorized(Result<string>.ValidationError("Access denied. Admin or staff role required."));
+            }
+
             var encryptedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(encryptedUserId))

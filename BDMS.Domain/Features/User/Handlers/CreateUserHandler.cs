@@ -21,9 +21,9 @@ namespace BDMS.Domain.Features.User.Handlers
 
         public async Task<Result<UserRespModel>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            var data = new UserReqModel { UserId = request.UserId, UserRoleId = request.UserRoleId, Username = request.UserName, Email = request.Email, UserHospitalId = request.hospital_id };
+            var data = new CreateUserReqModel { UserRoleId = request.UserRoleId, Username = request.UserName, Password = request.Password, Email = request.Email, UserHospitalId = request.hospital_id };
 
-            return await _userService.UpdateUserByParameter(data);
+            return await _userService.CreateUserByParameter(data);
         }
     }
 }

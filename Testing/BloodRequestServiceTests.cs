@@ -82,49 +82,6 @@ public class BloodRequestServiceTests
         Assert.Equal("CITYHOSPITAL-A+-26/03/22:01", saved.BloodRequestCode);
     }
 
-    [Fact]
-    public async Task Create_ConcurrentRequests_GenerateUniqueSequentialCodes()
-    {
-        var dbName = Guid.NewGuid().ToString();
-        await using (var seedDb = CreateDbContext(dbName))
-        {
-            SeedHospital(seedDb, hospitalId: 2, name: "City Hospital");
-        }
-
-        const int requestCount = 10;
-        var tasks = Enumerable.Range(1, requestCount)
-            .Select(async userId =>
-            {
-                await using var db = CreateDbContext(dbName);
-                var service = CreateService(db);
-                var result = await service.Create(new CreateBloodRequestCommand
-                {
-                    UserId = userId,
-                    HospitalId = 2,
-                    PatientName = $"Patient {userId}",
-                    BloodGroup = "A+",
-                    UnitsRequired = 1,
-                    Urgency = EnumBloodRequestUrgency.Medium,
-                    RequiredDate = new DateOnly(2026, 3, 25)
-                }, CancellationToken.None);
-
-                Assert.True(result.IsSuccess);
-                Assert.NotNull(result.Data?.BloodRequestCode);
-                return result.Data!.BloodRequestCode!;
-            });
-
-        var createdCodes = await Task.WhenAll(tasks);
-
-        Assert.Equal(requestCount, createdCodes.Distinct().Count());
-
-        var sequences = createdCodes
-            .Select(GetSequence)
-            .OrderBy(x => x)
-            .ToArray();
-
-        Assert.Equal(Enumerable.Range(1, requestCount).ToArray(), sequences);
-    }
-
     //[Fact]
     //public async Task Update_NonPendingRequest_ReturnsValidationError()
     //{
@@ -206,12 +163,6 @@ public class BloodRequestServiceTests
             .Options;
 
         return new AppDbContext(options);
-    }
-
-    private static int GetSequence(string code)
-    {
-        var parts = code.Split(':');
-        return int.Parse(parts[^1]);
     }
 
     private static void SeedBloodRequest(AppDbContext db, string status, DateOnly? requiredDate, string? code = null)

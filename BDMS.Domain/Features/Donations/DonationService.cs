@@ -1,17 +1,23 @@
 ﻿using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.BloodInventory;
+using BDMS.Domain.Features.BloodRequest.Models;
 using BDMS.Domain.Features.Donation.Models;
 using BDMS.Domain.Features.Donations.Commands;
 using BDMS.Domain.Features.Donations.Models;
+using BDMS.Domain.Features.Donations.Queries;
 using BDMS.Shared;
+using BDMS.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Update.Internal;
+using static Dapper.SqlMapper;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace BDMS.Domain.Features.Donation;
 
 public class DonationService : IDonationService
 {
     private readonly AppDbContext _db;
+
     private readonly IBloodInventoryService _inventoryService;
     public DonationService(AppDbContext db, IBloodInventoryService bloodInventoryService)
     {
@@ -257,6 +263,8 @@ public class DonationService : IDonationService
 
     public async Task<Result<DonationRespModel>> UpdateDonationStatus(UpdateDonationStatusCommand reqModel)
     {
+        if (reqModel.Status == EnumDonationStatus.None)
+            return Result<DonationRespModel>.ValidationError("Status is required.");
         try
         {
             var donation = await _db.Donations
@@ -266,17 +274,16 @@ public class DonationService : IDonationService
             {
                 return Result<DonationRespModel>.NotFound("Cannot find the donation to be updated.");
             }
-            if(!string.IsNullOrEmpty(reqModel.Status))
-            {
-                donation.Status = reqModel.Status;
-                _db.Entry(donation).State = EntityState.Modified;
-                await _db.SaveChangesAsync();
-            }
+
+            donation.Status = reqModel.Status.ToDatabaseValue();
+            donation.UpdatedAt = DateTime.UtcNow;
+            _db.Entry(donation).State = EntityState.Modified;
+            await _db.SaveChangesAsync();
 
             var previousStatus = donation.Status;
 
             if (!string.Equals(previousStatus, "completed", StringComparison.OrdinalIgnoreCase)
-               && string.Equals(reqModel.Status, "completed", StringComparison.OrdinalIgnoreCase))
+               && string.Equals(reqModel.Status.ToDatabaseValue(), "completed", StringComparison.OrdinalIgnoreCase))
             {
                 await _inventoryService.AddtoInventory(donation.Id, CancellationToken.None);
             }
@@ -313,5 +320,59 @@ public class DonationService : IDonationService
             return Result<DonationRespModel>.SystemError($"Error in updating donation status: {ex.Message}");
         }
     }
+
+    public async Task<Result<List<DonationRespModel>>> GetDonationByDateAndHospi(GetDonationByDateAndHospitalQuery reqModel)
+    {
+        try
+        {
+            var query = _db.Donations.Where(x => x.DeletedAt == null);
+            if (reqModel.HospitalId > 0)
+            {
+                query.Where(x => x.Id == reqModel.HospitalId);
+            }
+            if(reqModel.DonationDate is not null)
+            {
+                query.Where(x => x.DonationDate == reqModel.DonationDate);
+            }
+            if (query is null)
+            {
+                return Result<List<DonationRespModel>>.NotFound("Donation not found.");
+            }
+            var donation = await query.ToListAsync();
+
+            var result = donation.Select(d => new DonationRespModel
+            {
+                Id = d.Id,
+                DonorId = d.DonorId,
+                HospitalId = d.HospitalId,
+                BloodRequestId = d.BloodRequestId,
+                CreatedBy = d.CreatedBy,
+                DonationCode = d.DonationCode,
+                BloodGroup = d.BloodGroup,
+                UnitsDonated = d.UnitsDonated,
+                DonationDate = d.DonationDate,
+                Status = d.Status,
+                ApprovedBy = d.ApprovedBy,
+                ApprovedAt = d.ApprovedAt,
+                Remarks = d.Remarks,
+                UpdatedAt = d.UpdatedAt,
+                DeletedAt = d.DeletedAt,
+                ApprovedByNavigation = d.ApprovedByNavigation,
+                BloodInventory = d.BloodInventory,
+                BloodRequest = d.BloodRequest,
+                CreatedByNavigation = d.CreatedByNavigation,
+                Donor = d.Donor,
+                Hospital = d.Hospital,
+                MedicalRecord = d.MedicalRecord,
+            }).ToList();
+
+            return Result<List<DonationRespModel>>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<DonationRespModel>>.SystemError($"Error deleting donation : {ex.Message}");
+        }
+    }
+
 }
 

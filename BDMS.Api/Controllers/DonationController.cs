@@ -5,10 +5,12 @@ using BDMS.Domain.Features.Donations.Commands;
 using BDMS.Domain.Features.Donations.Models;
 using BDMS.Domain.Features.Donations.Queries;
 using BDMS.Domain.Features.User.Queries;
+using BDMS.Shared.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BDMS.Api.Controllers;
@@ -39,6 +41,23 @@ public class DonationController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("{HospitalId}/{DonationDate}")]
+    public async Task<IActionResult> GetDonationByDateAndHospital(int HospitalId, DateOnly DonationDate)
+    {
+        var query = new GetDonationByDateAndHospitalQuery()
+        {
+            HospitalId = HospitalId,
+            DonationDate = DonationDate
+        };
+
+        var result = await _mediator.Send(query);
+        if(!result.IsSuccess)
+        {
+            return BadRequest(result.Message);
+        }
+        return Ok(result);
+
+    }
 
     [HttpPost("Create")]
     [Authorize(Policy = "DonarOnly")]
@@ -114,17 +133,19 @@ public class DonationController : ControllerBase
     }
 
     [HttpPatch("UpdateStatus")]
-    public async Task<IActionResult> UpdateStatus(UpdateDonationStatusCommand reqModel)
+    public async Task<IActionResult> UpdateStatus(UpdateDonationStatusReqModel reqModel)
     {
+        if (!Enum.TryParse<EnumDonationStatus>(reqModel.Status, true, out var status) || status == EnumDonationStatus.None)
+            return BadRequest("Invalid status. Allowed values: pending, cancelled, approved, rejected, completed, screening.");
+
         var command = new UpdateDonationStatusCommand()
         {
             Id = reqModel.Id,
-            Status = reqModel.Status
+            Status = status
         };
-
         var result = await _mediator.Send(command);
         if (!result.IsSuccess)
-        {
+        { 
             return BadRequest(result.Message);
         }
         return Ok(result);

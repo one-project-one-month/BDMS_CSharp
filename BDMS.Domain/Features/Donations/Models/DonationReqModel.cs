@@ -52,3 +52,9 @@ public class DonationReqModel
 
     public virtual M.MedicalRecord? MedicalRecord { get; set; }
 }
+
+public class UpdateDonationStatusReqModel
+{
+    public int Id { get; set; }
+    public string Status { get; set; } = null!;
+}

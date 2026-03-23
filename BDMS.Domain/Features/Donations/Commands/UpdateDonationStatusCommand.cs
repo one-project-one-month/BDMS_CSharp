@@ -1,5 +1,6 @@
 ﻿using BDMS.Domain.Features.Donation.Models;
 using BDMS.Shared;
+using BDMS.Shared.Enums;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,6 @@ namespace BDMS.Domain.Features.Donations.Commands;
 public class UpdateDonationStatusCommand : IRequest<Result<DonationRespModel>>
 {
     public int Id { get; set; }
-    public string Status { get; set; } = null!;
+    public EnumDonationStatus Status { get; set; }
 
 }

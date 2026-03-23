@@ -188,7 +188,7 @@ public class UserApiFactory : WebApplicationFactory<Program>
                     Result<UserRespModel>.Success(new UserRespModel
                     {
                         UserId = command.UserId,
-                        Username = command.UserName,
+                        Username = "new.user",
                         Email = "test.user@example.com",
                         Role = new RoleModel { RoleId = 2, RoleName = "Admin" },
                         Hospital = new HospitalModel { HospitalId = 3, HospitalName = "City Hospital" }

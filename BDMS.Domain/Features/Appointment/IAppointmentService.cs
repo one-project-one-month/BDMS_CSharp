@@ -11,9 +11,6 @@ public interface IAppointmentService
     
     Task<Result<AppointmentRespModel>> CreateDonationAppointment(Commands.CreateDonationAppointmentCommand request,
         CancellationToken ct);
-    
-    Task<Result<AppointmentRespModel>> CreateBloodRequestAppointment(Commands.CreateBloodRequestAppointmentCommand request,
-        CancellationToken ct);
 
     Task<Result<AppointmentRespModel>> UpdateAppointmentStatus(Commands.UpdateAppointmentStatusCommand request, CancellationToken ct);
     

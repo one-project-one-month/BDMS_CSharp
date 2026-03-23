@@ -37,7 +37,7 @@ namespace BDMS.Api.Controllers
                 UserId = model.UserId,
                 UserRoleId = model.UserRoleId,
                 Email = model.Email,
-                hospital_id = model.UserHospitalId,
+                hospital_id = model.UserHospitalId ?? null,
                 UserName = model.Username,
             };
 
@@ -50,13 +50,13 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateUser(UserReqModel model)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserReqModel model)
         {
-            var command = new UpdateUserCommand
+            var command = new CreateUserCommand
             {
-                UserId = model.UserId,
                 UserRoleId = model.UserRoleId,
                 Email = model.Email,
+                Password = model.Password,
                 hospital_id = model.UserHospitalId,
                 UserName = model.Username,
             };
@@ -80,15 +80,25 @@ namespace BDMS.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPost("userbyparameter")]
-        public async Task<IActionResult> GetUserByParameter(UserReqModel model)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(int id)
         {
-            var command = new GetUserByParameterCommand { UserName = model.Username, UserId = model.UserId };
+            var command = new GetUserByParameterCommand { UserId = id };
             var result = await _mediator.Send(command);
-            if (!result.IsSuccess)
+            if(!result.IsSuccess)
             {
                 return BadRequest(result.Message);
             }
+            return Ok(result);
+        }
+
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateUserStatus(int id, [FromBody] UserStatusReqModel model)
+        {
+            var command = new UserStatusCommand { UserId = id, IsActive = model.IsActive };
+            var result = await _mediator.Send(command);
+            if (!result.IsSuccess)
+                return BadRequest(result.Message);
             return Ok(result);
         }
     }

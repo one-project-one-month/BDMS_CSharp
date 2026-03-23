@@ -9,6 +9,8 @@ namespace BDMS.Domain.Features.User
         Task<Result<UserRespModel>> GetUserByParameter(UserReqModel model);
         Task<Result<UserRespModel>> UpdateUserByParameter(UserReqModel model);
         Task<Result<UserRespModel>> DeleteUserByParameter(UserReqModel model);
-        Task<Result<UserRespModel>> CreateUserByParameter(UserReqModel model);
+        Task<Result<UserRespModel>> CreateUserByParameter(CreateUserReqModel model);
+        Task<Result<UserRespModel>> UpdateUserStatus(int userId, bool isActive);
+
     }
 }

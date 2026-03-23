@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.User.Commands
 {
-    public class GetUserByParameterCommand : IRequest<Result<UserRespModel>>
+    public class UserStatusCommand : IRequest<Result<UserRespModel>>
     {
         public int UserId { get; set; }
-        public string? UserName { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -36,6 +36,8 @@ public class UserTests : IClassFixture<UserApiFactory>
         Assert.NotNull(payload.Data);
         Assert.Single(payload.Data!);
         Assert.Equal(1, payload.Data![0].UserId);
+        Assert.Equal(2, payload.Data[0].Role!.RoleId);
+        Assert.Equal(3, payload.Data[0].Hospital!.HospitalId);
     }
 
     [Fact]
@@ -61,16 +63,18 @@ public class UserTests : IClassFixture<UserApiFactory>
         Assert.Equal(1, payload.Data!.UserId);
         Assert.Equal("updated.user", payload.Data.Username);
         Assert.Equal("updated.user@example.com", payload.Data.Email);
+        Assert.Equal(2, payload.Data.Role!.RoleId);
+        Assert.Equal(3, payload.Data.Hospital!.HospitalId);
     }
 
     [Fact]
     public async Task CreateUser_ReturnsOkWithCreatedUser()
     {
-        var request = new UserReqModel
+        var request = new CreateUserReqModel
         {
-            UserId = 5,
             Username = "new.user",
             Email = "new.user@example.com",
+            Password = "P@ssw0rd!",
             UserRoleId = 1,
             UserHospitalId = 2
         };
@@ -85,6 +89,8 @@ public class UserTests : IClassFixture<UserApiFactory>
         Assert.NotNull(payload.Data);
         Assert.Equal(5, payload.Data!.UserId);
         Assert.Equal("new.user", payload.Data.Username);
+        Assert.Equal(1, payload.Data.Role!.RoleId);
+        Assert.Equal(2, payload.Data.Hospital!.HospitalId);
     }
 
     [Fact]
@@ -106,15 +112,9 @@ public class UserTests : IClassFixture<UserApiFactory>
     }
 
     [Fact]
-    public async Task GetUserByParameter_ReturnsOkWithUserData()
+    public async Task GetUserById_ReturnsOkWithUserData()
     {
-        var request = new UserReqModel
-        {
-            UserId = 5,
-            Username = "new.user",
-        };
-
-        var response = await _client.PostAsJsonAsync("/api/User/userbyparameter", request);
+        var response = await _client.GetAsync("/api/User/5");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -124,6 +124,8 @@ public class UserTests : IClassFixture<UserApiFactory>
         Assert.NotNull(payload.Data);
         Assert.Equal(5, payload.Data!.UserId);
         Assert.Equal("new.user", payload.Data.Username);
+        Assert.Equal(2, payload.Data.Role!.RoleId);
+        Assert.Equal(3, payload.Data.Hospital!.HospitalId);
     }
 }
 
@@ -140,7 +142,14 @@ public class UserApiFactory : WebApplicationFactory<Program>
                 .Setup(m => m.Send(It.IsAny<GetAllUserQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<List<UserRespModel>>.Success(
                 [
-                    new() { UserId = 1, Username = "test.user", Email = "test.user@example.com", UserRoleId = 2, UserHospitalId = 3 }
+                    new()
+                    {
+                        UserId = 1,
+                        Username = "test.user",
+                        Email = "test.user@example.com",
+                        Role = new RoleModel { RoleId = 2, RoleName = "Admin" },
+                        Hospital = new HospitalModel { HospitalId = 3, HospitalName = "City Hospital" }
+                    }
                 ]));
 
             mediator
@@ -151,13 +160,27 @@ public class UserApiFactory : WebApplicationFactory<Program>
                         UserId = command.UserId,
                         Username = command.UserName,
                         Email = command.Email,
-                        UserRoleId = command.UserRoleId,
-                        UserHospitalId = command.hospital_id
+                        Role = new RoleModel { RoleId = command.UserRoleId, RoleName = "Updated Role" },
+                        Hospital = command.hospital_id.HasValue
+                            ? new HospitalModel { HospitalId = command.hospital_id.Value, HospitalName = "Updated Hospital" }
+                            : null
                     }));
 
             mediator
                 .Setup(m => m.Send(It.IsAny<DeleteUserByParameterCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<UserRespModel>.DeleteSuccess());
+
+            mediator
+                .Setup(m => m.Send(It.IsAny<CreateUserCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((CreateUserCommand command, CancellationToken _) =>
+                    Result<UserRespModel>.Success(new UserRespModel
+                    {
+                        UserId = 5,
+                        Username = command.UserName,
+                        Email = command.Email,
+                        Role = new RoleModel { RoleId = command.UserRoleId },
+                        Hospital = command.hospital_id.HasValue ? new HospitalModel { HospitalId = command.hospital_id.Value } : null
+                    }));
 
             mediator
                 .Setup(m => m.Send(It.IsAny<GetUserByParameterCommand>(), It.IsAny<CancellationToken>()))
@@ -167,8 +190,8 @@ public class UserApiFactory : WebApplicationFactory<Program>
                         UserId = command.UserId,
                         Username = command.UserName,
                         Email = "test.user@example.com",
-                        UserRoleId = 2,
-                        UserHospitalId = 3
+                        Role = new RoleModel { RoleId = 2, RoleName = "Admin" },
+                        Hospital = new HospitalModel { HospitalId = 3, HospitalName = "City Hospital" }
                     }));
 
             services.AddSingleton(mediator.Object);

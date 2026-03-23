@@ -180,20 +180,6 @@ public class AppointmentApiFactory : WebApplicationFactory<Program>
                     }));
 
             mediator
-                .Setup(m => m.Send(It.IsAny<CreateBloodRequestAppointmentCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((CreateBloodRequestAppointmentCommand command, CancellationToken _) =>
-                    Result<AppointmentRespModel>.Success(new AppointmentRespModel
-                    {
-                        UserId = 1,
-                        HospitalId = 2,
-                        BloodRequestId = command.BloodRequestId,
-                        AppointmentDate = new DateOnly(2026, 1, 1),
-                        AppointmentTime = new TimeOnly(10, 0),
-                        Status = EnumAppointmentStatus.Scheduled,
-                        Remarks = command.Remarks
-                    }));
-
-            mediator
                 .Setup(m => m.Send(It.IsAny<UpdateAppointmentStatusCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((UpdateAppointmentStatusCommand command, CancellationToken _) =>
                     Result<AppointmentRespModel>.Success(new AppointmentRespModel

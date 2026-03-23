@@ -71,22 +71,6 @@ namespace BDMS.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPost("blood-request/{bloodRequestId}")]
-        public async Task<IActionResult> CreateBloodRequestAppointment([FromRoute]int bloodRequestId, [FromBody] AppointmentReqModel request, CancellationToken ct)
-        {
-            var command = new CreateBloodRequestAppointmentCommand()
-            {
-                BloodRequestId = bloodRequestId,
-                Remarks = request.Remarks
-            };
-            
-            var result = await _mediator.Send(command, ct);
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
-            
-            return Ok(result);
-        }
-
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateAppointmentStatus([FromRoute] int id, [FromBody] UpdateAppointmentStatusReqModel request, CancellationToken ct)
         {

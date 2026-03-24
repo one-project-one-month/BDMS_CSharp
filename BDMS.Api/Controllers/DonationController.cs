@@ -17,7 +17,7 @@ namespace BDMS.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize(Policy = "AdminOnly")]
+[Authorize(Policy = "AdminOnly")]
 
 public class DonationController : ControllerBase
 {

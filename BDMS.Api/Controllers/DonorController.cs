@@ -33,7 +33,7 @@ public class DonorController : ControllerBase
     }
 
     [HttpPost("create")]
-    [Authorize(Policy = "ClientOnly")]
+    [Authorize(Policy = "AdminClient")]
     public async Task<IActionResult> CreateDonor(DonorReqModel reqModel)
     {
         var command = new CreateDonorCommand
@@ -58,7 +58,7 @@ public class DonorController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("edit")]
+    [HttpGet("{id}")]
     [Authorize(Policy = "AdminOnly")]
 
     public async Task<IActionResult> GetDonorById(int donorId)

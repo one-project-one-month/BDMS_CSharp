@@ -70,6 +70,42 @@ namespace BDMS.Domain.Features.UserAuth
             }
         }
 
+        public async Task<Result<UserLoginResultInternal>> RefreshToken(int userId, CancellationToken cancellation)
+        {
+            try
+            {
+                var user = await _dbContext.Users
+                    .Include(r => r.Role)
+                        .ThenInclude(rp => rp.RolePermissions)
+                        .ThenInclude(rp => rp.Permission )
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user is null)
+                    return Result<UserLoginResultInternal>.NotFound("User not found.");
+                var permissions = user.Role.RolePermissions
+                    .Select(rp => rp.Permission.Name).ToList();
+                var (token, expiration) = _tokenService.GenerateToken(user, user.Role.Name, permissions);
+                var result = new UserLoginResultInternal
+                {
+                    UserInfo = new UserAuthResModel
+                    {
+                        UserId = user.Id,
+                        UserName = user.UserName,
+                        Email = user.Email,
+                        RoleName = user.Role.Name,
+                        Permissions = permissions
+                    },
+                    Token = token,
+                    ExpireToken = expiration
+                };
+                return Result<UserLoginResultInternal>.Success(result, "Token refreshed successfully.");
+            }
+            catch (Exception ex)
+            {
+                return Result<UserLoginResultInternal>.SystemError($"Token refresh failed: {ex.Message}");
+            }
+        }
+
         public async Task<Result<UserLoginResultInternal>> Register(UserRegisterCommand request, CancellationToken cancellationToken)
         {
             try

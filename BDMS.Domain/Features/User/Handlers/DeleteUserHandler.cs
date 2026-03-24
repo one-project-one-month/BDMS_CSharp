@@ -21,9 +21,9 @@ namespace BDMS.Domain.Features.User.Handlers
 
         public async Task<Result<UserRespModel>> Handle(DeleteUserByParameterCommand request, CancellationToken cancellationToken)
         {
-            var data = new UserReqModel { UserId = request.UserId, Username = request.UserName };
+            var data = new UserReqModel { UserId = request.UserId };
 
-            return await _userService.UpdateUserByParameter(data);
+            return await _userService.DeleteUserByParameter(data);
         }
     }
 }

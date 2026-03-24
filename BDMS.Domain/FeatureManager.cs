@@ -110,6 +110,8 @@ public static class FeatureManager
 
         builder.Services.AddAuthorizationBuilder()
             .AddPolicy("AdminOnly", policy => policy.RequireRole("admin"))
+            .AddPolicy("AdminDonar", policy => policy.RequireRole("admin","donor"))
+            .AddPolicy("AdminClient", policy => policy.RequireRole("admin","user"))
             .AddPolicy("StaffOnly", policy => policy.RequireRole("staff"))
             .AddPolicy("DonarOnly", policy => policy.RequireRole("donor"))
             .AddPolicy("ClientOnly", policy => policy.RequireRole("user"));

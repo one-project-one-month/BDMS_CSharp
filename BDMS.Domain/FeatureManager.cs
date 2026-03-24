@@ -5,6 +5,7 @@ using BDMS.Domain.Features.Auth;
 using BDMS.Domain.Features.BloodInventory;
 using BDMS.Domain.Features.BloodRequest;
 using BDMS.Domain.Features.Certificate;
+using BDMS.Domain.Features.Dashboard;
 using BDMS.Domain.Features.Donation;
 using BDMS.Domain.Features.Donor;
 using BDMS.Domain.Features.MedicalRecord;
@@ -47,6 +48,7 @@ public static class FeatureManager
         builder.Services.AddScoped<TokenService>();
         builder.Services.AddScoped<RoleService>();
         builder.Services.AddScoped<ICertificateService, CertificateService>();
+        builder.Services.AddScoped<IDashboardService, DashboardService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)

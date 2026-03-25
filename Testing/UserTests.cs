@@ -96,12 +96,7 @@ public class UserTests : IClassFixture<UserApiFactory>
     [Fact]
     public async Task DeleteUser_ReturnsOkWithDeleteMessage()
     {
-        var request = new HttpRequestMessage(HttpMethod.Delete, "/api/User/delete")
-        {
-            Content = JsonContent.Create(new UserReqModel { UserId = 1, Username = "test.user" })
-        };
-
-        var response = await _client.SendAsync(request);
+        var response = await _client.DeleteAsync("/api/User/delete/1");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -127,6 +122,21 @@ public class UserTests : IClassFixture<UserApiFactory>
         Assert.Equal(2, payload.Data.Role!.RoleId);
         Assert.Equal(3, payload.Data.Hospital!.HospitalId);
     }
+
+    [Fact]
+    public async Task UpdateUserStatus_ReturnsOkWithUpdatedStatus()
+    {
+        var response = await _client.PatchAsJsonAsync("/api/User/7/status", new UserStatusReqModel { IsActive = false });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<Result<UserRespModel>>();
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsSuccess);
+        Assert.NotNull(payload.Data);
+        Assert.Equal(7, payload.Data!.UserId);
+        Assert.False(payload.Data.IsActive);
+    }
 }
 
 public class UserApiFactory : WebApplicationFactory<Program>
@@ -136,6 +146,7 @@ public class UserApiFactory : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
         {
             services.RemoveAll(typeof(IMediator));
+            services.AddTestAuthenticationAndAuthorization();
 
             var mediator = new Mock<IMediator>();
             mediator
@@ -192,6 +203,15 @@ public class UserApiFactory : WebApplicationFactory<Program>
                         Email = "test.user@example.com",
                         Role = new RoleModel { RoleId = 2, RoleName = "Admin" },
                         Hospital = new HospitalModel { HospitalId = 3, HospitalName = "City Hospital" }
+                    }));
+
+            mediator
+                .Setup(m => m.Send(It.IsAny<UserStatusCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((UserStatusCommand command, CancellationToken _) =>
+                    Result<UserRespModel>.Success(new UserRespModel
+                    {
+                        UserId = command.UserId,
+                        IsActive = command.IsActive
                     }));
 
             services.AddSingleton(mediator.Object);

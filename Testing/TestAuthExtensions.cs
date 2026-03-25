@@ -15,6 +15,7 @@ public static class TestAuthExtensions
 
         services.AddAuthorizationBuilder()
             .AddPolicy("AdminOnly", policy => policy.RequireAuthenticatedUser())
+            .AddPolicy("AdminClient", policy => policy.RequireAuthenticatedUser())
             .AddPolicy("StaffOnly", policy => policy.RequireAuthenticatedUser())
             .AddPolicy("DonorOnly", policy => policy.RequireAuthenticatedUser())
             .AddPolicy("DonarOnly", policy => policy.RequireAuthenticatedUser())

@@ -52,52 +52,80 @@ public class DonorService : IDonorService
 
     public async Task<Result<DonorRespModel>> CreateDonor(DonorReqModel reqModel)
     {
-        try
+        var strategy = _db.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async () =>
         {
-            var donor = new BDMS.Database.AppDbContextModels.Donor()
+            //using var transaction = await _db.Database.BeginTransactionAsync();
+            try
             {
-                UserId = reqModel.UserId,
-                NicNo = reqModel.NicNo,
-                DateOfBirth = reqModel.DateOfBirth,
-                Gender = reqModel.Gender,
-                BloodGroup = reqModel.BloodGroup,
-                LastDonationDate = reqModel.LastDonationDate,
-                Remarks = reqModel.Remarks,
-                EmergencyContact = reqModel.EmergencyContact,
-                EmergencyPhone = reqModel.EmergencyPhone,
-                Address = reqModel.Address,
-                IsActive = reqModel.IsActive,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+                var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == reqModel.UserId && u.IsActive == true);
+                if (user == null)
+                {
+                    return Result<DonorRespModel>.NotFound("User not found.");
+                }
+                var donorRole = await _db.Roles.FirstOrDefaultAsync(r => r.Name.ToLower() == "donor");
+                if (donorRole == null)
+                {
+                    return Result<DonorRespModel>.NotFound("Donor role not found.");
+                }
 
-            await _db.Donors.AddAsync(donor);
-            await _db.SaveChangesAsync();
 
-            var resp = new DonorRespModel
+                var donor = new BDMS.Database.AppDbContextModels.Donor()
+                {
+                    UserId = reqModel.UserId,
+                    NicNo = reqModel.NicNo,
+                    DateOfBirth = reqModel.DateOfBirth,
+                    Gender = reqModel.Gender,
+                    BloodGroup = reqModel.BloodGroup,
+                    LastDonationDate = reqModel.LastDonationDate,
+                    Remarks = reqModel.Remarks,
+                    EmergencyContact = reqModel.EmergencyContact,
+                    EmergencyPhone = reqModel.EmergencyPhone,
+                    Address = reqModel.Address,
+                    IsActive = reqModel.IsActive,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                await _db.Donors.AddAsync(donor);
+                await _db.SaveChangesAsync();
+
+                if (user.RoleId != donorRole.Id)
+                {
+                    user.RoleId = donorRole.Id;
+                    user.UpdatedAt = DateTime.Now;
+                    _db.Users.Update(user);
+                    await _db.SaveChangesAsync();
+                }
+
+                //await transaction.CommitAsync();
+
+                var resp = new DonorRespModel
+                {
+                    Id = donor.Id,
+                    UserId = donor.UserId,
+                    NicNo = donor.NicNo,
+                    DateOfBirth = donor.DateOfBirth,
+                    Gender = donor.Gender,
+                    BloodGroup = donor.BloodGroup,
+                    LastDonationDate = donor.LastDonationDate,
+                    Remarks = donor.Remarks,
+                    EmergencyContact = donor.EmergencyContact,
+                    EmergencyPhone = donor.EmergencyPhone,
+                    Address = donor.Address,
+                    IsActive = donor.IsActive,
+                    CreatedAt = donor.CreatedAt,
+                    UpdatedAt = donor.UpdatedAt
+                };
+
+                return Result<DonorRespModel>.Success(resp, "Donor created successfully");
+            }
+            catch (Exception ex)
             {
-                Id = donor.Id,
-                UserId = donor.UserId,
-                NicNo = donor.NicNo,
-                DateOfBirth = donor.DateOfBirth,
-                Gender = donor.Gender,
-                BloodGroup = donor.BloodGroup,
-                LastDonationDate = donor.LastDonationDate,
-                Remarks = donor.Remarks,
-                EmergencyContact = donor.EmergencyContact,
-                EmergencyPhone = donor.EmergencyPhone,
-                Address = donor.Address,
-                IsActive = donor.IsActive,
-                CreatedAt = donor.CreatedAt,
-                UpdatedAt = donor.UpdatedAt
-            };
-
-            return Result<DonorRespModel>.Success(resp, "Donor created successfully");
+                return Result<DonorRespModel>.SystemError($"Error creating Donor: {ex.Message}");
+            }
         }
-        catch (Exception ex)
-        {
-            return Result<DonorRespModel>.SystemError($"Error creating Donor: {ex.Message}");
-        }
+        );
     }
     public async Task<Result<DonorRespModel>> GetDonorById(int donorId)
     {

@@ -2,12 +2,14 @@ using BDMS.Domain.Features.User.Commands;
 using BDMS.Domain.Features.User.Models;
 using BDMS.Domain.Features.User.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "AdminOnly")]
     public class UserController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -68,10 +70,10 @@ namespace BDMS.Api.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteUser(UserReqModel model)
+        [HttpDelete("delete/{userId}")]
+        public async Task<IActionResult> DeleteUser([FromRoute] int userId)
         {
-            var command = new DeleteUserByParameterCommand { UserName = model.Username, UserId = model.UserId };
+            var command = new DeleteUserByParameterCommand { UserId = userId };
             var result = await _mediator.Send(command);
             if (!result.IsSuccess)
             {

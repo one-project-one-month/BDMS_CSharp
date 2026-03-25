@@ -91,6 +91,29 @@ namespace BDMS.Api.Controllers
             return Execute(result);
         }
 
+        [HttpPost("refresh-token")]
+        [Authorize]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var encryptedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(encryptedUserId))
+                return Unauthorized();
+
+            var userId = int.Parse(EncryptionHelper.Decrypt(encryptedUserId));
+
+            var result = await _mediator.Send(new RefreshTokenCommand { UserId = userId });
+
+            if (result.IsError || result.Data == null)
+                return Unauthorized(result);
+
+            Response.Cookies.Append(
+                _jwtSettings.ClientCookieName,
+                result.Data.Token,
+                BuildCookieOptions(result.Data.ExpireToken));
+
+            return Execute(result);
+        }
+
         private static CookieOptions BuildCookieOptions(DateTime expires) => new()
         {
             HttpOnly = true,

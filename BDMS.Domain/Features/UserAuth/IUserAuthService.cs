@@ -8,5 +8,6 @@ namespace BDMS.Domain.Features.UserAuth
     {
         Task<Result<UserLoginResultInternal>> Login(UserLoginCommand request, CancellationToken cancellationToken);
         Task<Result<UserLoginResultInternal>> Register(UserRegisterCommand request, CancellationToken cancellationToken);
+        Task<Result<UserLoginResultInternal>> RefreshToken(int userId, CancellationToken cancellationToken);
     }
 }

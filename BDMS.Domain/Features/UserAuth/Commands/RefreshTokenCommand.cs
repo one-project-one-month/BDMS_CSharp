@@ -1,4 +1,4 @@
-﻿using BDMS.Domain.Features.User.Models;
+﻿using BDMS.Domain.Features.UserAuth.Models;
 using BDMS.Shared;
 using MediatR;
 using System;
@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BDMS.Domain.Features.User.Commands
+namespace BDMS.Domain.Features.UserAuth.Commands
 {
-    public class DeleteUserByParameterCommand : IRequest<Result<UserRespModel>>
+    public class RefreshTokenCommand : IRequest<Result<UserLoginResultInternal>>
     {
         public int UserId { get; set; }
     }

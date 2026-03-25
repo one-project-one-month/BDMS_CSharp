@@ -12,6 +12,5 @@ namespace BDMS.Domain.Features.User.Commands
     public class GetUserByParameterCommand : IRequest<Result<UserRespModel>>
     {
         public int UserId { get; set; }
-        public string? UserName { get; set; }
     }
 }

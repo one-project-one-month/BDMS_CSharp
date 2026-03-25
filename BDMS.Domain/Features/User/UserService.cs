@@ -20,16 +20,20 @@ namespace BDMS.Domain.Features.User
         {
             try
             {
-                var user = _appDbContext.Users.FirstOrDefault(row => row.Id == model.UserId || row.UserName == model.Username);
+                var user = _appDbContext.Users
+                    .Include(u => u.Role)
+                    .Include(u => u.Hospital)
+                    .FirstOrDefault(row => row.Id == model.UserId);
                 if (user == null)
                 {
                     return Result<UserRespModel>.NotFound("User not found!");
                 }
                 user.IsActive = false;
                 user.DeletedAt = DateTime.UtcNow;
+                 _appDbContext.Remove(user);
                 await _appDbContext.SaveChangesAsync();
 
-                return Result<UserRespModel>.Success(new UserRespModel(), "User deleted.");
+                return Result<UserRespModel>.DeleteSuccess("User deleted.");
             }
             catch (Exception ex) 
             {
@@ -59,6 +63,7 @@ namespace BDMS.Domain.Features.User
                         HospitalName = row.Hospital.Name
                     } : null,
                     Username = row.UserName,
+                    IsActive = row.IsActive,
                     Email = row.Email,
 
                 }).ToListAsync();
@@ -80,7 +85,10 @@ namespace BDMS.Domain.Features.User
         {
             try
             {
-                var data = await _appDbContext.Users.AsNoTracking().FirstOrDefaultAsync(row => row.IsActive && (row.UserName == model.Username || row.Id == model.UserId));
+                var data = await _appDbContext.Users.AsNoTracking()
+                    .Include(u => u.Role)
+                    .Include(u => u.Hospital)
+                    .FirstOrDefaultAsync(row => row.IsActive &&  row.Id == model.UserId);
 
                 if (data == null)
                 {
@@ -98,6 +106,7 @@ namespace BDMS.Domain.Features.User
                     } : null,
                     //UserHospitalId = data.HospitalId, 
                     Email = data.Email , 
+                    IsActive = data.IsActive,
                     Username = data.UserName
                 };
                 return Result<UserRespModel>.Success(result, "Success");
@@ -112,9 +121,12 @@ namespace BDMS.Domain.Features.User
         {
             try
             {
-                var data = await _appDbContext.Users.FirstOrDefaultAsync(row => row.IsActive && (row.UserName == model.Username || row.Id == model.UserId));
+                var user = await _appDbContext.Users
+                    .Include(u => u.Role)
+                    .Include(u => u.Hospital)
+                    .FirstOrDefaultAsync(row => row.IsActive && (row.UserName == model.Username || row.Id == model.UserId));
 
-                if (data == null)
+                if (user == null)
                     return Result<UserRespModel>.NotFound("Cannot find the User to be updated");
 
                 if (model.UserHospitalId != 0 && model.UserHospitalId != null)
@@ -137,24 +149,26 @@ namespace BDMS.Domain.Features.User
                 if (emailTaken)
                     return Result<UserRespModel>.ValidationError("Email already exists.");
 
-                data.HospitalId = model.UserHospitalId;
-                data.RoleId = model.UserRoleId;
-                data.Email = model.Email ?? "";
-                data.UpdatedAt = DateTime.UtcNow;
+                user.HospitalId = model.UserHospitalId;
+                user.RoleId = model.UserRoleId;
+                user.UserName = model.Username ?? "";
+                user.Email = model.Email ?? "";
+                user.UpdatedAt = DateTime.UtcNow;
 
-                var updated = await _appDbContext.SaveChangesAsync();
+                await _appDbContext.SaveChangesAsync();
 
                 var result = new UserRespModel
                 {
-                    UserId = data.Id,
-                    Username = data.UserName,
-                    Email = data.Email,
+                    UserId = user.Id,
+                    Username = user.UserName,
+                    Email = user.Email,
                     //UserRoleId = data.RoleId,
                     //UserHospitalId = data.HospitalId,
-                    Role = new RoleModel { RoleId = data.RoleId },
-                    Hospital = data.Hospital != null ? new HospitalModel
+                    Role = new RoleModel { RoleId = user.RoleId, RoleName = user.Role.Name },
+                    Hospital = user.Hospital != null ? new HospitalModel
                     {
-                        HospitalId = data.Hospital.Id,
+                        HospitalId = user.HospitalId,
+                        HospitalName = user.Hospital.Name
                     } : null,
                 };
 
@@ -171,7 +185,7 @@ namespace BDMS.Domain.Features.User
         {
             try
             {
-                bool userExists = await _appDbContext.Users.AnyAsync(row => row.UserName == model.Username || row.Email == model.Email);
+                bool userExists = await _appDbContext.Users.AnyAsync(row => row.Email == model.Email);
 
                 if (userExists)
                     return Result<UserRespModel>.ValidationError("Username or Email already exists.");
@@ -213,10 +227,11 @@ namespace BDMS.Domain.Features.User
                     Email = user.Email,
                     //UserRoleId = user.RoleId,
                     //UserHospitalId = user.HospitalId,
-                    Role = new RoleModel { RoleId = user.RoleId },
+                    Role = new RoleModel { RoleId = user.RoleId, RoleName = user.Role.Name },
                     Hospital = user.Hospital != null ? new HospitalModel
                     {
                         HospitalId = user.Hospital.Id,
+                        HospitalName = user.Hospital.Name,
                     } : null,
                 };
 

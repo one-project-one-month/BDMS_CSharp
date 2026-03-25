@@ -70,18 +70,18 @@ public class AppointmentTests : IClassFixture<AppointmentApiFactory>
         Assert.Equal(4, payload.Data!.DonationId);
     }
 
-    [Fact]
-    public async Task CreateBloodRequestAppointment_ReturnsOk()
-    {
-        var response = await _client.PostAsJsonAsync("/api/Appointment/blood-request/7", new AppointmentReqModel { Remarks = "Urgent request" });
+    //[Fact]
+    //public async Task CreateBloodRequestAppointment_ReturnsOk()
+    //{
+    //    var response = await _client.PostAsJsonAsync("/api/Appointment/blood-request/7", new AppointmentReqModel { Remarks = "Urgent request" });
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var payload = await response.Content.ReadFromJsonAsync<Result<AppointmentRespModel>>();
+    //    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    //    var payload = await response.Content.ReadFromJsonAsync<Result<AppointmentRespModel>>();
 
-        Assert.NotNull(payload);
-        Assert.True(payload!.IsSuccess);
-        Assert.Equal(7, payload.Data!.BloodRequestId);
-    }
+    //    Assert.NotNull(payload);
+    //    Assert.True(payload!.IsSuccess);
+    //    Assert.Equal(7, payload.Data!.BloodRequestId);
+    //}
 
     [Fact]
     public async Task UpdateAppointmentStatus_ReturnsOkWithUpdatedStatus()

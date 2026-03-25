@@ -21,9 +21,20 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("list")]
-        public async Task<IActionResult> GetAllAppointmentList(CancellationToken ct)
+        public async Task<IActionResult> GetAllAppointmentList(
+            [FromQuery] int? hospitalId, [FromQuery] string? appointmentDate, CancellationToken ct)
         {
-            var query = new GetAllAppointmentQuery();
+            DateOnly? parsedAppointmentDate = null;
+            
+            if (!string.IsNullOrWhiteSpace(appointmentDate))
+            {
+                if (!DateOnly.TryParse(appointmentDate, out var date))
+                    return BadRequest("Invalid appointmentDate. Use yyyy-MM-dd.");
+
+                parsedAppointmentDate = date;
+            }
+            
+            var query = new GetAllAppointmentQuery() { HospitalId = hospitalId, AppointmentDate = parsedAppointmentDate };
             var result = await _mediator.Send(query, ct);
             
             if (!result.IsSuccess)
@@ -50,22 +61,6 @@ namespace BDMS.Api.Controllers
             var command = new CreateDonationAppointmentCommand()
             {
                 DonationId = donationId,
-                Remarks = request.Remarks
-            };
-            
-            var result = await _mediator.Send(command, ct);
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
-            
-            return Ok(result);
-        }
-
-        [HttpPost("blood-request/{bloodRequestId}")]
-        public async Task<IActionResult> CreateBloodRequestAppointment([FromRoute]int bloodRequestId, [FromBody] AppointmentReqModel request, CancellationToken ct)
-        {
-            var command = new CreateBloodRequestAppointmentCommand()
-            {
-                BloodRequestId = bloodRequestId,
                 Remarks = request.Remarks
             };
             

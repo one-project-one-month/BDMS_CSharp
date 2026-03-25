@@ -5,14 +5,11 @@ namespace BDMS.Domain.Features.Appointment;
 
 public interface IAppointmentService
 {
-    Task<Result<List<AppointmentRespModel>>> GetAllAppointments(CancellationToken ct);
+    Task<Result<List<AppointmentRespModel>>> GetAllAppointments(int? hospitalId, DateOnly? appointmentDate, CancellationToken ct);
     
     Task<Result<AppointmentRespModel>> GetAppointmentById(Queries.GetAppointmentByIdQuery request, CancellationToken ct);
     
     Task<Result<AppointmentRespModel>> CreateDonationAppointment(Commands.CreateDonationAppointmentCommand request,
-        CancellationToken ct);
-    
-    Task<Result<AppointmentRespModel>> CreateBloodRequestAppointment(Commands.CreateBloodRequestAppointmentCommand request,
         CancellationToken ct);
 
     Task<Result<AppointmentRespModel>> UpdateAppointmentStatus(Commands.UpdateAppointmentStatusCommand request, CancellationToken ct);

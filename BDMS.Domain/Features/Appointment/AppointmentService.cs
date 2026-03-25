@@ -18,28 +18,38 @@ public class AppointmentService : IAppointmentService
         _db = db;
     }
 
-    public async Task<Result<List<AppointmentRespModel>>> GetAllAppointments(CancellationToken ct)
+    public async Task<Result<List<AppointmentRespModel>>> GetAllAppointments(int? hospitalId, DateOnly? appointmentDate, CancellationToken ct)
     {
         try
         {
-            var result = await _db.Appointments
-                .Where(x => x.DeletedAt == null)
-                .AsNoTracking()
-                .ToListAsync(ct);
+            var query = _db.Appointments.Where(x => x.DeletedAt == null);
 
-            var data = result.Select(x => new AppointmentRespModel()
+            if (hospitalId.HasValue)
             {
-                UserId = x.UserId,
-                HospitalId = x.HospitalId,
-                DonationId = x.DonationId,
-                BloodRequestId = x.BloodRequestId,
-                AppointmentDate = x.AppointmentDate,
-                AppointmentTime = x.AppointmentTime,
-                Status = x.Status.ToEnumOrDefault(EnumAppointmentStatus.None),
-                Remarks = x.Remarks,
-            }).ToList();
+                query = query.Where(x => x.HospitalId == hospitalId.Value);
+            }
+
+            if (appointmentDate.HasValue)
+            {
+                query = query.Where(x => x.AppointmentDate == appointmentDate.Value);
+            }
             
-            return Result<List<AppointmentRespModel>>.Success(data, "Success");
+            var result = await query
+                .AsNoTracking()
+                .Select(x => new AppointmentRespModel()
+                {
+                    Id = x.Id,
+                    UserId = x.UserId,
+                    HospitalId = x.HospitalId,
+                    DonationId = x.DonationId,
+                    BloodRequestId = x.BloodRequestId,
+                    AppointmentDate = x.AppointmentDate,
+                    AppointmentTime = x.AppointmentTime,
+                    Status = x.Status.ToEnumOrDefault(EnumAppointmentStatus.None),
+                    Remarks = x.Remarks,
+                }).ToListAsync(ct);
+            
+            return Result<List<AppointmentRespModel>>.Success(result, "Appointments retrieved successfully.");
         }
         catch (Exception ex)
         {
@@ -60,6 +70,7 @@ public class AppointmentService : IAppointmentService
 
         var data = new AppointmentRespModel()
         {
+            Id = result.Id,
             UserId = result.UserId,
             HospitalId = result.HospitalId,
             DonationId = result.DonationId,
@@ -70,7 +81,7 @@ public class AppointmentService : IAppointmentService
             Remarks = result.Remarks,
         };
         
-        return Result<AppointmentRespModel>.Success(data, "Success");
+        return Result<AppointmentRespModel>.Success(data, "Appointment retrieved successfully.");
     }
 
     public async Task<Result<AppointmentRespModel>> CreateDonationAppointment(CreateDonationAppointmentCommand request, CancellationToken ct)
@@ -123,6 +134,7 @@ public class AppointmentService : IAppointmentService
 
             var response = new AppointmentRespModel()
             {
+                Id = appointment.Id,
                 UserId = appointment.UserId,
                 HospitalId = appointment.HospitalId,
                 DonationId = appointment.DonationId,
@@ -133,76 +145,7 @@ public class AppointmentService : IAppointmentService
                 Remarks = appointment.Remarks
             };
             
-            return Result<AppointmentRespModel>.Success(response, "Appointment created");
-        }
-        catch (Exception ex)
-        {
-            return Result<AppointmentRespModel>.SystemError($"Error creating appointment: {ex.Message}");
-        }
-    }
-
-    public async Task<Result<AppointmentRespModel>> CreateBloodRequestAppointment(CreateBloodRequestAppointmentCommand request, CancellationToken ct)
-    {
-        try
-        {
-            var bloodRequest = await _db.BloodRequests
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == request.BloodRequestId && x.DeletedAt == null, ct);
-
-            if (bloodRequest is null)
-            {
-                return Result<AppointmentRespModel>.NotFound("Blood request not found");
-            }
-            
-            var user = await _db.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == bloodRequest.UserId && x.DeletedAt == null && x.IsActive, ct);
-            
-            if (user is null)
-                return Result<AppointmentRespModel>.ValidationError("Request user is invalid");
-            
-            if (!string.Equals(bloodRequest.Status, "approved", StringComparison.OrdinalIgnoreCase))
-                return Result<AppointmentRespModel>.ValidationError("Request is not approved");
-
-            if (!bloodRequest.RequiredDate.HasValue)
-                return Result<AppointmentRespModel>.ValidationError("Required date is missing for this blood request");
-
-            var hasOpenAppointment = await _db.Appointments
-                .AnyAsync(x =>
-                    x.BloodRequestId == request.BloodRequestId &&
-                    x.DeletedAt == null &&
-                    x.Status.ToLower() != EnumAppointmentStatus.Cancelled.ToString().ToLower(), ct);
-            
-            if (hasOpenAppointment) 
-                return Result<AppointmentRespModel>.ValidationError("An active appointment already exists for this request");
-
-            var appointment = new AppointmentEntity()
-            {
-                UserId = user.Id,
-                HospitalId = bloodRequest.HospitalId,
-                BloodRequestId = request.BloodRequestId,
-                AppointmentDate = bloodRequest.RequiredDate.Value,
-                AppointmentTime = new TimeOnly(9, 0),
-                Status = EnumAppointmentStatus.Scheduled.ToString().ToLowerInvariant(),
-                Remarks = request.Remarks,
-            };
-            
-            _db.Appointments.Add(appointment);
-            await _db.SaveChangesAsync(ct);
-
-            var response = new AppointmentRespModel()
-            {
-                UserId = appointment.UserId,
-                HospitalId = appointment.HospitalId,
-                DonationId = appointment.DonationId,
-                BloodRequestId = appointment.BloodRequestId,
-                AppointmentDate = appointment.AppointmentDate,
-                AppointmentTime = appointment.AppointmentTime,
-                Status = appointment.Status.ToEnumOrDefault(EnumAppointmentStatus.None),
-                Remarks = appointment.Remarks,
-            };
-            
-            return Result<AppointmentRespModel>.Success(response, "Appointment created");
+            return Result<AppointmentRespModel>.Success(response, "Donation appointment created successfully.");
         }
         catch (Exception ex)
         {
@@ -230,6 +173,7 @@ public class AppointmentService : IAppointmentService
             if (currentStatus == request.Status)
                 return Result<AppointmentRespModel>.Success(new AppointmentRespModel
                 {
+                    Id = existingAppointment.Id,
                     UserId = existingAppointment.UserId,
                     HospitalId = existingAppointment.HospitalId,
                     DonationId = existingAppointment.DonationId,
@@ -238,7 +182,7 @@ public class AppointmentService : IAppointmentService
                     AppointmentTime = existingAppointment.AppointmentTime,
                     Status = currentStatus,
                     Remarks = existingAppointment.Remarks
-                }, "Appointment status unchanged");
+                }, "Appointment status is already up to date.");
 
             bool isAllowedTransition =
                 (currentStatus == EnumAppointmentStatus.Scheduled &&
@@ -258,6 +202,7 @@ public class AppointmentService : IAppointmentService
     
             var result = new AppointmentRespModel()
             {
+                Id = existingAppointment.Id,
                 UserId = existingAppointment.UserId,
                 HospitalId = existingAppointment.HospitalId,
                 DonationId = existingAppointment.DonationId,
@@ -268,7 +213,7 @@ public class AppointmentService : IAppointmentService
                 Remarks = existingAppointment.Remarks,
             };
             
-            return Result<AppointmentRespModel>.Success(result, "Appointment updated");
+            return Result<AppointmentRespModel>.Success(result, "Appointment status updated successfully.");
         }
         catch (Exception ex)
         {
@@ -292,10 +237,60 @@ public class AppointmentService : IAppointmentService
 
             existingAppointment.Status = EnumAppointmentStatus.Completed.ToString().ToLowerInvariant();
 
+            if (existingAppointment.BloodRequestId.HasValue)
+            {
+                var bloodRequest = await _db.BloodRequests
+                    .FirstOrDefaultAsync(x => x.Id == existingAppointment.BloodRequestId.Value && x.DeletedAt == null, ct);
+                
+                if (bloodRequest is null)
+                    return Result<AppointmentRespModel>.NotFound("Blood request not found");
+                
+                var inventories = await _db.BloodInventories
+                    .Where(x => x.DeletedAt == null &&
+                                x.Status == "available" &&
+                                x.HospitalId == existingAppointment.HospitalId && 
+                                x.BloodGroup == bloodRequest.BloodGroup)
+                    .OrderBy(x => x.ExpiredAt)
+                    .Take(bloodRequest.UnitsRequired)
+                    .ToListAsync(ct);
+
+                var totalAvailableUnits = inventories.Sum(x => x.Units);
+                
+                if (totalAvailableUnits < bloodRequest.UnitsRequired)
+                    return Result<AppointmentRespModel>.ValidationError(
+                        $"Insufficient stock. Available: {totalAvailableUnits}, Required: {bloodRequest.UnitsRequired}");
+                
+                var remainingUnits = bloodRequest.UnitsRequired;
+
+                foreach (var item in inventories)
+                {
+                    if (remainingUnits <= 0) break;
+
+                    if (item.Units <= remainingUnits)
+                    {
+                        remainingUnits -= item.Units;
+                        item.Units = 0;
+                        item.Status = "used";
+                        item.RequestId = bloodRequest.Id;
+                    }
+                    else
+                    {
+                        item.Units -= remainingUnits;
+                        remainingUnits = 0;
+                    }
+
+                    item.UpdatedAt = DateTime.UtcNow;
+                }
+
+                bloodRequest.Status = EnumBloodRequestStatus.Fulfilled.ToDatabaseValue();
+                bloodRequest.UpdatedAt = DateTime.UtcNow;
+            }
+
             await _db.SaveChangesAsync(ct);
 
             var response = new AppointmentRespModel()
             {
+                Id = existingAppointment.Id,
                 UserId = existingAppointment.UserId,
                 HospitalId = existingAppointment.HospitalId,
                 DonationId = existingAppointment.DonationId,
@@ -306,7 +301,11 @@ public class AppointmentService : IAppointmentService
                 Remarks = existingAppointment.Remarks,
             };
 
-            return Result<AppointmentRespModel>.Success(response, "Appointment completed");
+            var message = existingAppointment.BloodRequestId.HasValue
+                ? "Appointment completed and blood request fulfilled successfully."
+                : "Appointment completed successfully.";
+
+            return Result<AppointmentRespModel>.Success(response, message);
         }
         catch (Exception ex)
         {
@@ -328,7 +327,7 @@ public class AppointmentService : IAppointmentService
 
             await _db.SaveChangesAsync(ct);
 
-            return Result<string>.DeleteSuccess("Appointment deleted");
+            return Result<string>.DeleteSuccess("Appointment deleted successfully.");
         }
         catch (Exception ex)
         {

@@ -1,5 +1,7 @@
 ﻿using BDMS.Domain.Features.Donation.Models;
+using BDMS.Domain.Features.Donations.Commands;
 using BDMS.Domain.Features.Donations.Models;
+using BDMS.Domain.Features.Donations.Queries;
 using BDMS.Shared;
 
 namespace BDMS.Domain.Features.Donation
@@ -11,5 +13,7 @@ namespace BDMS.Domain.Features.Donation
         Task<Result<List<DonationRespModel>>> GetAllDonations();
         Task<Result<DonationRespModel>> GetDonationById(int donationId);
         Task<Result<DonationRespModel>> UpdateDonation(DonationUpdateReqModel reqModel);
+        Task<Result<DonationRespModel>> UpdateDonationStatus(UpdateDonationStatusCommand reqModel);
+        Task<Result<List<DonationRespModel>>> GetDonationByDateAndHospi(GetDonationByDateAndHospitalQuery reqModel);
     }
 }

@@ -36,19 +36,4 @@ public class DonationRespModel
 
     public DateTime? DeletedAt { get; set; }
 
-    public virtual ICollection<M.Appointment> Appointments { get; set; } = new List<M.Appointment>();
-
-    public virtual M.User? ApprovedByNavigation { get; set; }
-
-    public virtual M.BloodInventory? BloodInventory { get; set; }
-
-    public virtual M.BloodRequest? BloodRequest { get; set; }
-
-    public virtual M.User CreatedByNavigation { get; set; } = null!;
-
-    public virtual M.Donor Donor { get; set; } = null!;
-
-    public virtual M.Hospital Hospital { get; set; } = null!;
-
-    public virtual M.MedicalRecord? MedicalRecord { get; set; }
 }

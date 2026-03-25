@@ -54,14 +54,7 @@ public class DonationService : IDonationService
                 Remarks = a.Remarks,
                 CreatedAt = a.CreatedAt,
                 UpdatedAt = a.UpdatedAt,
-                DeletedAt = a.DeletedAt,
-                ApprovedByNavigation = a.ApprovedByNavigation,
-                BloodInventory = a.BloodInventory,
-                BloodRequest = a.BloodRequest,
-                CreatedByNavigation = a.CreatedByNavigation,
-                Donor = a.Donor,
-                Hospital = a.Hospital,
-                MedicalRecord = a.MedicalRecord
+                DeletedAt = a.DeletedAt
             }).ToList();
 
             return Result<List<DonationRespModel>>.Success(result, "Success");
@@ -107,14 +100,7 @@ public class DonationService : IDonationService
                 DonationDate = donation.DonationDate,
                 Status = donation.Status,
                 Remarks = donation.Remarks,
-                CreatedAt = donation.CreatedAt,
-                ApprovedByNavigation = donation.ApprovedByNavigation,
-                BloodInventory = donation.BloodInventory,
-                BloodRequest = donation.BloodRequest,
-                CreatedByNavigation = donation.CreatedByNavigation,
-                Donor = donation.Donor,
-                Hospital = donation.Hospital,
-                MedicalRecord = donation.MedicalRecord
+                CreatedAt = donation.CreatedAt
             };
             return Result<DonationRespModel>.Success(resp, "Donation is created successfully!");
 
@@ -175,14 +161,7 @@ public class DonationService : IDonationService
                 ApprovedAt = donation.ApprovedAt,
                 Remarks = donation.Remarks,
                 UpdatedAt = donation.UpdatedAt,
-                DeletedAt = donation.DeletedAt,
-                ApprovedByNavigation = donation.ApprovedByNavigation,
-                BloodInventory = donation.BloodInventory,
-                BloodRequest = donation.BloodRequest,
-                CreatedByNavigation = donation.CreatedByNavigation,
-                Donor = donation.Donor,
-                Hospital = donation.Hospital,
-                MedicalRecord = donation.MedicalRecord,
+                DeletedAt = donation.DeletedAt
             };
             return Result<DonationRespModel>.Success(result, "Donation updated successfully!");
 
@@ -221,21 +200,14 @@ public class DonationService : IDonationService
                 ApprovedAt = donation.ApprovedAt,
                 Remarks = donation.Remarks,
                 UpdatedAt = donation.UpdatedAt,
-                DeletedAt = donation.DeletedAt,
-                ApprovedByNavigation = donation.ApprovedByNavigation,
-                BloodInventory = donation.BloodInventory,
-                BloodRequest = donation.BloodRequest,
-                CreatedByNavigation = donation.CreatedByNavigation,
-                Donor = donation.Donor,
-                Hospital = donation.Hospital,
-                MedicalRecord = donation.MedicalRecord,
+                DeletedAt = donation.DeletedAt
             };
 
             return Result<DonationRespModel>.Success(result);
         }
         catch (Exception ex)
         {
-            return Result<DonationRespModel>.SystemError($"Error deleting donation : {ex.Message}");
+            return Result<DonationRespModel>.SystemError($"Error getting donation by Id : {ex.Message}");
         }
     }
 
@@ -303,14 +275,7 @@ public class DonationService : IDonationService
                 ApprovedAt = donation.ApprovedAt,
                 Remarks = donation.Remarks,
                 UpdatedAt = donation.UpdatedAt,
-                DeletedAt = donation.DeletedAt,
-                ApprovedByNavigation = donation.ApprovedByNavigation,
-                BloodInventory = donation.BloodInventory,
-                BloodRequest = donation.BloodRequest,
-                CreatedByNavigation = donation.CreatedByNavigation,
-                Donor = donation.Donor,
-                Hospital = donation.Hospital,
-                MedicalRecord = donation.MedicalRecord,
+                DeletedAt = donation.DeletedAt
             };
             return Result<DonationRespModel>.Success(result, "Donation Status updated successfully!");
 
@@ -356,14 +321,7 @@ public class DonationService : IDonationService
                 ApprovedAt = d.ApprovedAt,
                 Remarks = d.Remarks,
                 UpdatedAt = d.UpdatedAt,
-                DeletedAt = d.DeletedAt,
-                ApprovedByNavigation = d.ApprovedByNavigation,
-                BloodInventory = d.BloodInventory,
-                BloodRequest = d.BloodRequest,
-                CreatedByNavigation = d.CreatedByNavigation,
-                Donor = d.Donor,
-                Hospital = d.Hospital,
-                MedicalRecord = d.MedicalRecord,
+                DeletedAt = d.DeletedAt
             }).ToList();
 
             return Result<List<DonationRespModel>>.Success(result);

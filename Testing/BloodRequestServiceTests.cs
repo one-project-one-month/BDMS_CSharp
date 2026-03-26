@@ -183,6 +183,10 @@ public class BloodRequestServiceTests
         Assert.Equal(1, appointment.BloodRequestId);
         Assert.Equal("scheduled", appointment.Status);
         Assert.Equal(new DateOnly(2026, 3, 20), appointment.AppointmentDate);
+
+        var request = await db.BloodRequests.SingleAsync(x => x.Id == 1);
+        Assert.Equal(100, request.ApprovedBy);
+        Assert.NotNull(request.ApprovedAt);
     }
 
     [Fact]

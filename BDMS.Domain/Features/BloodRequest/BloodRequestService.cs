@@ -194,18 +194,21 @@ public class BloodRequestService : IBloodRequestService
 
             if (command.Status is EnumBloodRequestStatus.Approved or EnumBloodRequestStatus.Fulfilled)
             {
-                if (!command.DonorId.HasValue)
-                    return Result<BloodRequestRespModel>.ValidationError("DonorId is required when approving or fulfilling a blood request.");
+                if (!command.DonorId.HasValue && command.Status == EnumBloodRequestStatus.Fulfilled)
+                    return Result<BloodRequestRespModel>.ValidationError("DonorId is required when fulfilling a blood request.");
 
-                var donor = await _db.Donors.FirstOrDefaultAsync(x => x.Id == command.DonorId && x.IsActive && x.DeletedAt == null, ct);
-                if (donor == null)
-                    return Result<BloodRequestRespModel>.NotFound("Referenced donor not found.");
+                if (command.DonorId.HasValue)
+                {
+                    var donor = await _db.Donors.FirstOrDefaultAsync(x => x.Id == command.DonorId && x.IsActive && x.DeletedAt == null, ct);
+                    if (donor == null)
+                        return Result<BloodRequestRespModel>.NotFound("Referenced donor not found.");
 
-                if (!string.Equals(donor.BloodGroup, entity.BloodGroup, StringComparison.OrdinalIgnoreCase))
-                    return Result<BloodRequestRespModel>.ValidationError("Donor blood group does not match request blood group.");
+                    if (!string.Equals(donor.BloodGroup, entity.BloodGroup, StringComparison.OrdinalIgnoreCase))
+                        return Result<BloodRequestRespModel>.ValidationError("Donor blood group does not match request blood group.");
 
-                entity.ApprovedBy = donor.UserId;
-                entity.ApprovedAt = DateTime.UtcNow;
+                    entity.ApprovedBy = donor.UserId;
+                    entity.ApprovedAt = DateTime.UtcNow;
+                }
             }
 
             if (command.Status == EnumBloodRequestStatus.Approved && !entity.RequiredDate.HasValue)

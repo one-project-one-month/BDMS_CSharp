@@ -60,7 +60,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpPost("Create")]
-    [Authorize(Policy = "DonarOnly")]
+    [Authorize(Policy = "AdminOnly")]
 
     public async Task<IActionResult> CreateDonation(DonationCreateReqModel reqModel)
     {

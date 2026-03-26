@@ -210,6 +210,48 @@ public class BloodRequestServiceTests
         Assert.Equal(1, await db.Appointments.CountAsync(x => x.Status == "scheduled"));
     }
 
+    [Fact]
+    public async Task UpdateStatus_Approve_WithoutDonorId_DoesNotRequireDonor()
+    {
+        await using var db = CreateDbContext();
+        SeedBloodRequest(db, status: "pending", requiredDate: new DateOnly(2026, 3, 20));
+
+        var service = CreateService(db);
+        var result = await service.UpdateStatus(new UpdateBloodRequestStatusCommand
+        {
+            Id = 1,
+            Status = EnumBloodRequestStatus.Approved,
+            DonorId = null
+        }, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+
+        var request = await db.BloodRequests.SingleAsync(x => x.Id == 1);
+        Assert.Null(request.ApprovedBy);
+        Assert.Null(request.ApprovedAt);
+
+        var appointment = await db.Appointments.SingleAsync();
+        Assert.Equal("scheduled", appointment.Status);
+    }
+
+    [Fact]
+    public async Task UpdateStatus_Fulfilled_WithoutDonorId_ReturnsValidationError()
+    {
+        await using var db = CreateDbContext();
+        SeedBloodRequest(db, status: "approved", requiredDate: new DateOnly(2026, 3, 20));
+
+        var service = CreateService(db);
+        var result = await service.UpdateStatus(new UpdateBloodRequestStatusCommand
+        {
+            Id = 1,
+            Status = EnumBloodRequestStatus.Fulfilled,
+            DonorId = null
+        }, CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("DonorId is required when fulfilling a blood request.", result.Message);
+    }
+
     private static BloodRequestService CreateService(AppDbContext db)
     {
         var bloodInventoryService = new Mock<IBloodInventoryService>();

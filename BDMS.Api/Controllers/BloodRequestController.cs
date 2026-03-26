@@ -100,8 +100,6 @@ public class BloodRequestController : ControllerBase
 
     [HttpPatch("{id}/status")]
     [Authorize(Policy = "AdminOnly")]
-
-
     public async Task<IActionResult> UpdateStatus([FromRoute] int id, [FromBody] UpdateBloodRequestStatusReqModel model, CancellationToken ct)
     {
         if (!Enum.TryParse<EnumBloodRequestStatus>(model.Status, true, out var status) || status == EnumBloodRequestStatus.None)

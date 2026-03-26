@@ -2,6 +2,7 @@ using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Certificate.Commands;
 using BDMS.Domain.Features.Certificate.Models;
 using BDMS.Domain.Features.Certificate.Queries;
+using BDMS.Domain.Features.Roles.Models;
 using BDMS.Shared;
 using BDMS.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -67,6 +68,29 @@ public class CertificateService : ICertificateService
         catch (Exception ex)
         {
             return Result<CertificateRespModel>.SystemError($"Error generating certificate: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<List<CertificateRespModel>>> GetAllCertificates() { 
+        try
+        {
+            var certificates = await _db.Certificates
+                .AsNoTracking()
+                .Select(c => new CertificateRespModel
+                {
+                    Id = c.Id,
+                    UserId = c.UserId,
+                    CertificateTitle = c.CertificateTitle,
+                    CertificateDescription = c.CertificateDescription,
+                    CertificateData = c.CertificateData,
+                }).ToListAsync();
+
+            return Result<List<CertificateRespModel>>.Success(certificates);
+
+        }
+        catch (Exception ex)
+        {
+            return Result<List<CertificateRespModel>>.SystemError("Error retrieving roles");
         }
     }
 

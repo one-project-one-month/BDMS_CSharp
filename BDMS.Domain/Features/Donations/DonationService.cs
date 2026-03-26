@@ -140,6 +140,7 @@ public class DonationService : IDonationService
             _db.Entry(donation).State = EntityState.Modified;
             await _db.SaveChangesAsync();
 
+            //Add validation logic in here
             if (!string.Equals(previousStatus, "completed", StringComparison.OrdinalIgnoreCase)
                && string.Equals(reqModel.Status, "completed", StringComparison.OrdinalIgnoreCase))
             {

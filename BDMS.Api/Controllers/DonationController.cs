@@ -17,8 +17,6 @@ namespace BDMS.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy = "AdminOnly")]
-
 public class DonationController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -29,7 +27,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpGet("List")]
-    [Authorize(Policy = "DonorOnly")]
+    [Authorize(Policy = "AdminDonar")]
     public async Task<IActionResult> GetAllDonation()
     {
         var query = new GetAllDonationQuery();
@@ -42,6 +40,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpGet("{HospitalId}/{DonationDate}")]
+    [Authorize(Policy = "AdminDonar")]
     public async Task<IActionResult> GetDonationByDateAndHospital(int HospitalId, DateOnly DonationDate)
     {
         var query = new GetDonationByDateAndHospitalQuery()
@@ -60,8 +59,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpPost("Create")]
-    [Authorize(Policy = "AdminOnly")]
-
+    [Authorize(Policy = "AdminDonar")]
     public async Task<IActionResult> CreateDonation(DonationCreateReqModel reqModel)
     {
         var command = new CreateDonationCommand()
@@ -86,8 +84,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpGet("Edit")]
-    [Authorize(Policy = "AdminOnly")]
-
+    [Authorize(Policy = "AdminDonar")]
     public async Task<IActionResult> GetDonationById(int DonationId)
     {
         var query = new GetDonationByIdQuery()
@@ -133,6 +130,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpPatch("UpdateStatus")]
+    [Authorize(Policy = "AdminDonar")]
     public async Task<IActionResult> UpdateStatus(UpdateDonationStatusReqModel reqModel)
     {
         if (!Enum.TryParse<EnumDonationStatus>(reqModel.Status, true, out var status) || status == EnumDonationStatus.None)

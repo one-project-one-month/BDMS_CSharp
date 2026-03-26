@@ -9,5 +9,6 @@ public interface ICertificateService
 {
     Task<Result<CertificateRespModel>> GenerateCertificate(GenerateCertificateCommand request, CancellationToken ct);
     Task<Result<CertificateRespModel>> GetCertificateById(GetCertificateByIdQuery request, CancellationToken ct);
+    Task<Result<List<CertificateRespModel>>> GetAllCertificates();
     Task<Result<List<CertificateRespModel>>> GetCertificatesByDonorId(int donorId, CancellationToken ct);
 }

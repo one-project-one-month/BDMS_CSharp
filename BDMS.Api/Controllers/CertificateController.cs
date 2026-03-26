@@ -1,8 +1,10 @@
 using BDMS.Domain.Features.Certificate.Commands;
 using BDMS.Domain.Features.Certificate.Models;
 using BDMS.Domain.Features.Certificate.Queries;
+using BDMS.Domain.Features.Roles.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
@@ -32,6 +34,18 @@ namespace BDMS.Api.Controllers
                 return BadRequest(result.Message);
 
             return Ok(result);
+        }
+
+        [HttpGet("list")]
+        public async Task<IActionResult> GetAllCertificates()
+        {
+            var query = new GetAllCertificatesQuery();
+            var results = await _mediator.Send(query);
+            if (!results.IsSuccess)
+            {
+                return BadRequest(results.Message);
+            }
+            return Ok(results);
         }
 
         [HttpGet("{id}")]

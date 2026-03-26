@@ -462,9 +462,10 @@ CROSS JOIN Permissions p
 WHERE r.name = 'donor'
   AND p.name IN (
     'donors.view',
-    'blood_requests.view',
     'donations.view',
-    'appointments.view', 'appointments.create', 'appointments.update',
+    'donations.create',
+    'donations.update',
+    'appointments.view',
     'medical_records.view',
     'announcements.view',
     'certificates.view'

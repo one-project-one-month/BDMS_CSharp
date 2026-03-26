@@ -48,7 +48,6 @@ namespace BDMS.Domain.Features.User
                 //var userRole = await _appDbContext.Users
                 var result = await _appDbContext.Users
                     .AsNoTracking()
-                    .Where(row => row.IsActive)
                     .Select(row => new UserRespModel
                 {
                    UserId = row.Id,

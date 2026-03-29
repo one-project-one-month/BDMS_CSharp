@@ -245,24 +245,49 @@ public class AppointmentService : IAppointmentService
                 if (bloodRequest is null)
                     return Result<AppointmentRespModel>.NotFound("Blood request not found");
                 
-                var inventories = await _db.BloodInventories
+                var availableInventories = await _db.BloodInventories
                     .Where(x => x.DeletedAt == null &&
-                                x.Status == "available" &&
-                                x.HospitalId == existingAppointment.HospitalId && 
+                                x.Status.ToLower() == "available" &&
+                                x.HospitalId == existingAppointment.HospitalId &&
                                 x.BloodGroup == bloodRequest.BloodGroup)
                     .OrderBy(x => x.ExpiredAt)
-                    .Take(bloodRequest.UnitsRequired)
                     .ToListAsync(ct);
 
-                var totalAvailableUnits = inventories.Sum(x => x.Units);
-                
+                var totalAvailableUnits = availableInventories.Sum(x => x.Units);
+
                 if (totalAvailableUnits < bloodRequest.UnitsRequired)
-                    return Result<AppointmentRespModel>.ValidationError(
-                        $"Insufficient stock. Available: {totalAvailableUnits}, Required: {bloodRequest.UnitsRequired}");
+                {
+                    var availableUnitsInOtherHospitals = await _db.BloodInventories
+                        .Where(x => x.DeletedAt == null &&
+                                    x.Status.ToLower() == "available" &&
+                                    x.HospitalId != existingAppointment.HospitalId &&
+                                    x.BloodGroup == bloodRequest.BloodGroup)
+                        .SumAsync(x => (int?)x.Units, ct) ?? 0;
+
+                    var matchingUnitsInCurrentHospital = await _db.BloodInventories
+                        .Where(x => x.DeletedAt == null &&
+                                    x.HospitalId == existingAppointment.HospitalId &&
+                                    x.BloodGroup == bloodRequest.BloodGroup)
+                        .SumAsync(x => (int?)x.Units, ct) ?? 0;
+
+                    var stockMessage = $"Insufficient stock for hospital {existingAppointment.HospitalId} and blood group {bloodRequest.BloodGroup}. Available: {totalAvailableUnits}, Required: {bloodRequest.UnitsRequired}.";
+
+                    if (matchingUnitsInCurrentHospital > totalAvailableUnits)
+                    {
+                        stockMessage += $" Matching stock exists in this hospital, but some units are not in 'available' status.";
+                    }
+
+                    if (availableUnitsInOtherHospitals > 0)
+                    {
+                        stockMessage += $" Available matching units in other hospitals: {availableUnitsInOtherHospitals}.";
+                    }
+
+                    return Result<AppointmentRespModel>.ValidationError(stockMessage);
+                }
                 
                 var remainingUnits = bloodRequest.UnitsRequired;
 
-                foreach (var item in inventories)
+                foreach (var item in availableInventories)
                 {
                     if (remainingUnits <= 0) break;
 
@@ -285,6 +310,39 @@ public class AppointmentService : IAppointmentService
                 bloodRequest.Status = EnumBloodRequestStatus.Fulfilled.ToDatabaseValue();
                 bloodRequest.UpdatedAt = DateTime.UtcNow;
             }
+            else if (existingAppointment.DonationId.HasValue)
+            {
+                var donation = await _db.Donations
+                    .FirstOrDefaultAsync(x => x.Id == existingAppointment.DonationId.Value && x.DeletedAt == null, ct);
+
+                if (donation is null)
+                    return Result<AppointmentRespModel>.NotFound("Donation not found");
+
+                var inventoryExists = await _db.BloodInventories
+                    .AnyAsync(x => x.DonationId == donation.Id && x.DeletedAt == null, ct);
+
+                if (inventoryExists)
+                    return Result<AppointmentRespModel>.ValidationError("Inventory record already exists for this donation.");
+
+                donation.Status = EnumDonationStatus.completed.ToDatabaseValue();
+                donation.UpdatedAt = DateTime.UtcNow;
+
+                var collectedDate = donation.DonationDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
+                var inventory = new Database.AppDbContextModels.BloodInventory
+                {
+                    DonationId = donation.Id,
+                    HospitalId = donation.HospitalId,
+                    BloodGroup = donation.BloodGroup,
+                    Units = donation.UnitsDonated ?? 1,
+                    CollectedAt = collectedDate,
+                    ExpiredAt = collectedDate.AddDays(42),
+                    Status = EnumBloodInventoryStatus.Available.ToDatabaseValue(),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                await _db.BloodInventories.AddAsync(inventory, ct);
+            }
 
             await _db.SaveChangesAsync(ct);
 
@@ -303,7 +361,9 @@ public class AppointmentService : IAppointmentService
 
             var message = existingAppointment.BloodRequestId.HasValue
                 ? "Appointment completed and blood request fulfilled successfully."
-                : "Appointment completed successfully.";
+                : existingAppointment.DonationId.HasValue
+                    ? "Appointment completed, donation marked as completed, and blood inventory updated successfully."
+                    : "Appointment completed successfully.";
 
             return Result<AppointmentRespModel>.Success(response, message);
         }

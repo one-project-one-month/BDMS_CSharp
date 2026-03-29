@@ -7,7 +7,6 @@ namespace BDMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "AdminOnly")]
     public class AnnouncementController : ControllerBase
     {
         private readonly IAnnouncementService _announcementService;
@@ -18,6 +17,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("List")]
+        [Authorize(Policy = "AdminClientDonar")]
         public async Task<IActionResult> GetAnnouncements(CancellationToken ct)
         {
             var result = await _announcementService.GetAnnouncements(ct);
@@ -29,6 +29,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = "AdminClientDonar")]
         public async Task<IActionResult> GetAnnouncementById([FromRoute] int id, CancellationToken ct)
         {
             var request = new GetAnnouncementByIdReqModel { Id = id };
@@ -41,6 +42,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateAnnouncement([FromBody] CreateAnnouncementReqModel request, CancellationToken ct)
         {
             var result = await _announcementService.CreateAnnouncement(request, ct);
@@ -52,6 +54,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateAnnouncement([FromRoute] int id, [FromBody] UpdateAnnouncementReqModel request, CancellationToken ct)
         {
             request.Id = id;
@@ -64,6 +67,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteAnnouncement([FromRoute] int id, CancellationToken ct)
         {
             var request = new DeleteAnnouncementReqModel { Id = id };

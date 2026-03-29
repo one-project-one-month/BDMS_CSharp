@@ -10,7 +10,6 @@ namespace BDMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy="AdminOnly")]
     public class AppointmentController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -21,6 +20,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("list")]
+        [Authorize(Policy = "AdminClientDonar")]
         public async Task<IActionResult> GetAllAppointmentList(
             [FromQuery] int? hospitalId, [FromQuery] string? appointmentDate, CancellationToken ct)
         {
@@ -44,6 +44,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = "AdminClientDonar")]
         public async Task<IActionResult> GetAppointmentById([FromRoute] int id, CancellationToken ct)
         {
             var query = new GetAppointmentByIdQuery() { Id = id };
@@ -56,6 +57,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("donation/{donationId}")]
+        [Authorize(Policy = "AdminDonar")]
         public async Task<IActionResult> CreateDonationAppointment([FromRoute] int donationId, [FromBody] AppointmentReqModel request, CancellationToken ct)
         {
             var command = new CreateDonationAppointmentCommand()
@@ -72,6 +74,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPatch("{id}/status")]
+        [Authorize(Policy = "AdminDonar")]
         public async Task<IActionResult> UpdateAppointmentStatus([FromRoute] int id, [FromBody] UpdateAppointmentStatusReqModel request, CancellationToken ct)
         {
             if (!Enum.TryParse<EnumAppointmentStatus>(request.Status, true, out var status) ||
@@ -94,6 +97,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("{id}/complete")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CompleteAppointment([FromRoute]int id, CancellationToken ct)
         {
             var command = new CompleteAppointmentCommand() { Id = id };
@@ -106,6 +110,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteAppointment([FromRoute] int id, CancellationToken ct)
         {
             var command = new DeleteAppointmentCommand() { Id = id };

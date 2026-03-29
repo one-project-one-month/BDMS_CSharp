@@ -8,6 +8,7 @@ using BDMS.Domain.Features.Certificate;
 using BDMS.Domain.Features.Dashboard;
 using BDMS.Domain.Features.Donation;
 using BDMS.Domain.Features.Donor;
+using BDMS.Domain.Features.Hospital;
 using BDMS.Domain.Features.MedicalRecord;
 using BDMS.Domain.Features.Permissions;
 using BDMS.Domain.Features.RolePermission;
@@ -49,6 +50,7 @@ public static class FeatureManager
         builder.Services.AddScoped<RoleService>();
         builder.Services.AddScoped<ICertificateService, CertificateService>();
         builder.Services.AddScoped<IDashboardService, DashboardService>();
+        builder.Services.AddScoped<IHospitalService, HospitalService>();
     }
     
     public static void AddDomain(this WebApplicationBuilder builder)

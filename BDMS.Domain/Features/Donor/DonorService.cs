@@ -163,7 +163,7 @@ public class DonorService : IDonorService
         }
         catch (Exception ex)
         {
-            return Result<DonorRespModel>.SystemError($"Error creating Donor: {ex.Message}");
+            return Result<DonorRespModel>.SystemError($"Error retrieving Donor: {ex.Message}");
         }
     }
 

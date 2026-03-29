@@ -62,7 +62,7 @@ public class DonationService : IDonationService
         catch (Exception ex)
         {
 
-            return Result<List<DonationRespModel>>.SystemError($"Error retriving Donation : {ex.Message}");
+            return Result<List<DonationRespModel>>.SystemError($"Error retrieving Donation : {ex.Message}");
         }
     }
 

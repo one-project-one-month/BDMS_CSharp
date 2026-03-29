@@ -19,7 +19,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("List")]
-        //[Authorize(Policy = "AdminClientDonar")]
+        [Authorize(Policy = "AdminClientDonar")]
         public async Task<IActionResult> GetAnnouncements([FromQuery] string? category, CancellationToken ct)
         {
             var query = new GetAnnouncementsQuery { Category = category };
@@ -32,7 +32,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        //[Authorize(Policy = "AdminClientDonar")]
+        [Authorize(Policy = "AdminClientDonar")]
         public async Task<IActionResult> GetAnnouncementById([FromRoute] int id, CancellationToken ct)
         {
             var query = new GetAnnouncementByIdQuery(id);
@@ -45,7 +45,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateAnnouncement([FromBody] CreateAnnouncementCommand request, CancellationToken ct)
         {
             var result = await _mediator.Send(request, ct);
@@ -57,7 +57,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateAnnouncement([FromRoute] int id, [FromBody] UpdateAnnouncementCommand request, CancellationToken ct)
         {
             request.Id = id;
@@ -70,7 +70,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteAnnouncement([FromRoute] int id, CancellationToken ct)
         {
             var command = new DeleteAnnouncementCommand(id);

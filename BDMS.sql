@@ -493,3 +493,38 @@ INSERT INTO Users (role_id, hospital_id, user_name, email, password) VALUES
 '),
 ((SELECT id FROM Roles WHERE name = 'staff'), NULL, 'Staff Member',   'staff@bdms.com', 'BDoy7z8tvI0aeJfohVXAeiHsF+KlTT0xf38XnVjaQ38+1iQjUMcWiztyz/SzGwYM')
 GO
+
+-- =============================================
+-- SEED DATA: Hospitals
+-- =============================================
+INSERT INTO [dbo].[Hospitals]
+           ([name]
+           ,[address]
+           ,[phone]
+           ,[email]
+           ,[is_active]
+           ,[is_verified]
+           ,[created_at]
+           ,[updated_at]
+           ,[deleted_at])
+     VALUES
+           (N'Yangon General Hospital'
+           ,N'Bogyoke Aung San Rd, Lanmadaw Township, Yangon, Myanmar'
+           ,N'+95-1-256112'
+           ,N'ygh@gmail.com'
+           ,1
+           ,1
+           ,SYSDATETIME()
+           ,SYSDATETIME()
+           ,NULL),
+
+           (N'Mandalay General Hospital'
+           ,N'30th Street, Chan Aye Tharzan Township, Mandalay, Myanmar'
+           ,N'+95-2-35723'
+           ,N'mgh@gmail.com'
+           ,1
+           ,1
+           ,SYSDATETIME()
+           ,SYSDATETIME()
+           ,NULL)
+GO

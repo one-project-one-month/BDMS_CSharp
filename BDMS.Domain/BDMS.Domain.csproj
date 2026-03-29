@@ -23,7 +23,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Folder Include="Features\Announcement\" />
     <Folder Include="Features\UserAuth\Models\" />
     <Folder Include="Features\UserAuth\Queries\" />
   </ItemGroup>

@@ -40,16 +40,21 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<RolePermission> RolePermissions { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Announcement>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Announce__3213E83FB6141C6F");
+            entity.HasKey(e => e.Id).HasName("PK__Announce__3213E83FC7E3FB61");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Announcements_UpdatedAt"));
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Category)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("News")
+                .HasColumnName("category");
             entity.Property(e => e.Content).HasColumnName("content");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(CONVERT([date],getdate()))")
@@ -68,7 +73,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Appointment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Appointm__3213E83F372F4F82");
+            entity.HasKey(e => e.Id).HasName("PK__Appointm__3213E83F644215AC");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Appointments_UpdatedAt"));
 
@@ -113,7 +118,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<BloodInventory>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Blood_In__3213E83F4944D6E7");
+            entity.HasKey(e => e.Id).HasName("PK__Blood_In__3213E83F42FE07D8");
 
             entity.ToTable("Blood_Inventories", tb => tb.HasTrigger("trg_BloodInventories_UpdatedAt"));
 
@@ -158,7 +163,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<BloodRequest>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Blood_Re__3213E83F76232F52");
+            entity.HasKey(e => e.Id).HasName("PK__Blood_Re__3213E83FC649E692");
 
             entity.ToTable("Blood_Requests", tb => tb.HasTrigger("trg_BloodRequests_UpdatedAt"));
 
@@ -217,7 +222,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Certificate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Certific__3213E83F53D21001");
+            entity.HasKey(e => e.Id).HasName("PK__Certific__3213E83F77C4CE8D");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Certificates_UpdatedAt"));
 
@@ -245,7 +250,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Donation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Donation__3213E83F0B7BB1D4");
+            entity.HasKey(e => e.Id).HasName("PK__Donation__3213E83FBA207C0E");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Donations_UpdatedAt"));
 
@@ -303,7 +308,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Donor>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Donors__3213E83FD58082EE");
+            entity.HasKey(e => e.Id).HasName("PK__Donors__3213E83FC4101379");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Donors_UpdatedAt"));
 
@@ -351,7 +356,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Hospital>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Hospital__3213E83F96539FF3");
+            entity.HasKey(e => e.Id).HasName("PK__Hospital__3213E83F8F8E4D4B");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Hospitals_UpdatedAt"));
 
@@ -385,7 +390,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<MedicalRecord>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Medical___3213E83FC13939F3");
+            entity.HasKey(e => e.Id).HasName("PK__Medical___3213E83F8083F972");
 
             entity.ToTable("Medical_Records", tb => tb.HasTrigger("trg_MedicalRecords_UpdatedAt"));
 
@@ -443,7 +448,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Permission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Permissi__3213E83F296D61B7");
+            entity.HasKey(e => e.Id).HasName("PK__Permissi__3213E83F42A83B6A");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Permissions_UpdatedAt"));
 
@@ -463,7 +468,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Roles__3213E83F801725A5");
+            entity.HasKey(e => e.Id).HasName("PK__Roles__3213E83F97B33745");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Roles_UpdatedAt"));
 
@@ -509,7 +514,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Users__3213E83F48374B90");
+            entity.HasKey(e => e.Id).HasName("PK__Users__3213E83FEA8030E1");
 
             entity.ToTable(tb => tb.HasTrigger("trg_Users_UpdatedAt"));
 

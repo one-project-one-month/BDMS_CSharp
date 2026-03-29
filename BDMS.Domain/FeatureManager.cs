@@ -55,7 +55,7 @@ public static class FeatureManager
     {
         builder.Services.AddDbContext<AppDbContext>(opt =>
         {
-            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+            opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"), sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure(
                     maxRetryCount: 3,

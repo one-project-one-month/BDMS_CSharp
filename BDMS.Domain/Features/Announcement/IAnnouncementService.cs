@@ -8,9 +8,9 @@ namespace BDMS.Domain.Features.Announcement;
 
 public interface IAnnouncementService
 {
-    Task<Result<CreateAnnouncementResModel>> CreateAnnouncement(CreateAnnouncementReqModel request, CancellationToken cancellationToken);
-    Task<Result<UpdateAnnouncementResModel>> UpdateAnnouncement(UpdateAnnouncementReqModel request, CancellationToken cancellationToken);
-    Task<Result<DeleteAnnouncementResModel>> DeleteAnnouncement(DeleteAnnouncementReqModel request, CancellationToken cancellationToken);
-    Task<Result<GetAnnouncementByIdResModel>> GetAnnouncementById(GetAnnouncementByIdReqModel request, CancellationToken cancellationToken);
-    Task<Result<List<AnnouncementListItemResModel>>> GetAnnouncements(CancellationToken cancellationToken);
+    Task<Result<AnnouncementRespModel>> CreateAnnouncement(CreateAnnouncementRequest request, CancellationToken cancellationToken);
+    Task<Result<AnnouncementRespModel>> UpdateAnnouncement(UpdateAnnouncementRequest request, CancellationToken cancellationToken);
+    Task<Result<AnnouncementRespModel>> DeleteAnnouncement(DeleteAnnouncementRequest request, CancellationToken cancellationToken);
+    Task<Result<AnnouncementRespModel>> GetAnnouncementById(GetAnnouncementByIdRequest request, CancellationToken cancellationToken);
+    Task<Result<List<AnnouncementRespModel>>> GetAnnouncements(string? category, CancellationToken cancellationToken);
 }

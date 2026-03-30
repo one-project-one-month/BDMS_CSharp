@@ -19,7 +19,7 @@ public class HospitalController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("List")]
+    [HttpGet("list")]
     public async Task<IActionResult> GetAllHospitals()
     {
         var query = new GetAllHospitalsQuery();
@@ -31,12 +31,12 @@ public class HospitalController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("Edit")]
-    public async Task<IActionResult> GetHospitalById(int hospitalId)
+    [HttpGet("get")]
+    public async Task<IActionResult> GetHospitalById(int id)
     {
         var query = new GetHospitalByIdQuery()
         {
-            Id = hospitalId
+            Id = id
         };
         var result = await _mediator.Send(query);
 
@@ -46,7 +46,7 @@ public class HospitalController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("Update")]
+    [HttpPut("update")]
     public async Task<IActionResult> UpdateHospital([FromBody] UpdateHospitalCommand reqModel)
     {
         var result = await _mediator.Send(reqModel);
@@ -57,12 +57,12 @@ public class HospitalController : ControllerBase
         return Ok(result);
     }
 
-    [HttpDelete("Delete")]
-    public async Task<IActionResult> DeleteHospital(int hospitalId)
+    [HttpDelete("delete")]
+    public async Task<IActionResult> DeleteHospital(int id)
     {
         var command = new DeleteHospitalCommand()
         {
-            Id = hospitalId
+            Id = id
         };
         var result = await _mediator.Send(command);
 

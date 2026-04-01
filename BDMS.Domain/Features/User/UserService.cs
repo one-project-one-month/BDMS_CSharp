@@ -156,6 +156,9 @@ namespace BDMS.Domain.Features.User
 
                 await _appDbContext.SaveChangesAsync();
 
+                await _appDbContext.Entry(user).Reference(u => u.Role).LoadAsync();
+                await _appDbContext.Entry(user).Reference(u => u.Hospital).LoadAsync();
+
                 var result = new UserRespModel
                 {
                     UserId = user.Id,
@@ -184,7 +187,8 @@ namespace BDMS.Domain.Features.User
         {
             try
             {
-                bool userExists = await _appDbContext.Users.AnyAsync(row => row.Email == model.Email);
+                bool userExists = await _appDbContext.Users
+                    .AnyAsync(row => row.Email == model.Email);
 
                 if (userExists)
                     return Result<UserRespModel>.ValidationError("Username or Email already exists.");
@@ -199,6 +203,7 @@ namespace BDMS.Domain.Features.User
                 }
 
                 bool roleExists = await _appDbContext.Roles.AnyAsync(role => role.Id == model.UserRoleId);
+                
                 if (!roleExists)
                 {
                     return Result<UserRespModel>.NotFound("User Role not found.");
@@ -218,6 +223,9 @@ namespace BDMS.Domain.Features.User
 
                 await _appDbContext.AddAsync(user);
                 await _appDbContext.SaveChangesAsync();
+
+                await _appDbContext.Entry(user).Reference(u => u.Role).LoadAsync();
+                await _appDbContext.Entry(user).Reference(u => u.Hospital).LoadAsync();
 
                 var result = new UserRespModel
                 {
@@ -261,6 +269,7 @@ namespace BDMS.Domain.Features.User
                     user.DeletedAt = null;
 
                 await _appDbContext.SaveChangesAsync();
+
                 await _appDbContext.Entry(user).Reference(u => u.Role).LoadAsync();
                 await _appDbContext.Entry(user).Reference(u => u.Hospital).LoadAsync();
 

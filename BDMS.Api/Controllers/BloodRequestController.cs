@@ -1,10 +1,13 @@
+using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.BloodRequest.Commands;
 using BDMS.Domain.Features.BloodRequest.Models;
 using BDMS.Domain.Features.BloodRequest.Queries;
+using BDMS.Shared;
 using BDMS.Shared.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BDMS.Api.Controllers;
 
@@ -105,11 +108,17 @@ public class BloodRequestController : ControllerBase
         if (!Enum.TryParse<EnumBloodRequestStatus>(model.Status, true, out var status) || status == EnumBloodRequestStatus.None)
             return BadRequest("Invalid status. Allowed values: pending, cancelled, approved, rejected, fulfilled.");
 
+        var encryptedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(encryptedUserId))
+            return Unauthorized();
+        var adminUserId = int.Parse(EncryptionHelper.Decrypt(encryptedUserId));
+
         var command = new UpdateBloodRequestStatusCommand
         {
             Id = id,
             Status = status,
-            DonorId = model.DonorId
+            DonorId = model.DonorId,
+            ApprovedByUserId = adminUserId
         };
 
         var result = await _mediator.Send(command, ct);

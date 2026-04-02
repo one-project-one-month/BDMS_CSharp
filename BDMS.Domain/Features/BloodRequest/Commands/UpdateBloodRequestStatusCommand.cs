@@ -10,4 +10,5 @@ public class UpdateBloodRequestStatusCommand : IRequest<Result<BloodRequestRespM
     public int Id { get; set; }
     public EnumBloodRequestStatus Status { get; set; }
     public int? DonorId { get; set; }
+    public int ApprovedByUserId { get; set; }
 }

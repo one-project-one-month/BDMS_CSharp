@@ -8,8 +8,6 @@ namespace BDMS.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy = "AdminOnly")]
-
 public class HospitalController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -20,6 +18,7 @@ public class HospitalController : ControllerBase
     }
 
     [HttpGet("list")]
+    [Authorize(Policy = "AdminClient")]
     public async Task<IActionResult> GetAllHospitals()
     {
         var query = new GetAllHospitalsQuery();
@@ -32,6 +31,7 @@ public class HospitalController : ControllerBase
     }
 
     [HttpGet("get")]
+    [Authorize(Policy = "AdminClient")]
     public async Task<IActionResult> GetHospitalById(int id)
     {
         var query = new GetHospitalByIdQuery()
@@ -47,6 +47,7 @@ public class HospitalController : ControllerBase
     }
 
     [HttpPut("update")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateHospital([FromBody] UpdateHospitalCommand reqModel)
     {
         var result = await _mediator.Send(reqModel);
@@ -58,6 +59,7 @@ public class HospitalController : ControllerBase
     }
 
     [HttpDelete("delete")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteHospital(int id)
     {
         var command = new DeleteHospitalCommand()

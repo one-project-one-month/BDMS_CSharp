@@ -213,7 +213,7 @@ namespace BDMS.Domain.Features.User
                 {
                     UserName = model.Username,
                     Email = model.Email,
-                    Password = EncryptionHelper.Encrypt(model.Password),
+                    Password = model.Password.HashPassword(),
                     RoleId = model.UserRoleId,
                     HospitalId = (model.UserHospitalId == null || model.UserHospitalId == 0) ? null : model.UserHospitalId,
                     IsActive = true,

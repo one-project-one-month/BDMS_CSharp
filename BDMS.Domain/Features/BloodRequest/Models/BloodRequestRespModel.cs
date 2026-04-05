@@ -9,12 +9,12 @@ public class BloodRequestRespModel
     public int HospitalId { get; set; }
     public string? BloodRequestCode { get; set; }
     public string PatientName { get; set; } = string.Empty;
-    public EnumBloodGroup BloodGroup { get; set; }
+    public string BloodGroup { get; set; } = string.Empty;
     public int UnitsRequired { get; set; }
     public string? ContactPhone { get; set; }
     public string Urgency { get; set; } = string.Empty;
     public DateOnly? RequiredDate { get; set; }
-    public EnumBloodRequestStatus Status { get; set; }
+    public string Status { get; set; } = string.Empty;
     public string? Reason { get; set; }
     public int? ApprovedBy { get; set; }
     public DateTime? ApprovedAt { get; set; }

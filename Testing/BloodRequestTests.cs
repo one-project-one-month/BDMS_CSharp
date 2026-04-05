@@ -48,7 +48,7 @@ public class BloodRequestTests : IClassFixture<BloodRequestApiFactory>
 
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
-        Assert.Equal(EnumBloodRequestStatus.Pending, payload.Data!.Status);
+        Assert.Equal(EnumBloodRequestStatus.Pending.ToDatabaseValue(), payload.Data!.Status);
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public class BloodRequestTests : IClassFixture<BloodRequestApiFactory>
 
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
-        Assert.Equal(EnumBloodRequestStatus.Approved, payload.Data!.Status);
+        Assert.Equal(EnumBloodRequestStatus.Approved.ToDatabaseValue(), payload.Data!.Status);
         Assert.Equal(100, payload.Data.ApprovedBy);
     }
 
@@ -164,10 +164,10 @@ public class BloodRequestApiFactory : WebApplicationFactory<Program>
                         UserId = 2,
                         HospitalId = 1,
                         PatientName = "John Doe",
-                        BloodGroup = EnumBloodGroup.APositive,
+                        BloodGroup = EnumBloodGroup.APositive.ToDatabaseValue(),
                         UnitsRequired = 2,
                         Urgency = "high",
-                        Status = EnumBloodRequestStatus.Pending,
+                        Status = EnumBloodRequestStatus.Pending.ToDatabaseValue(),
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     }
@@ -181,10 +181,10 @@ public class BloodRequestApiFactory : WebApplicationFactory<Program>
                     UserId = 2,
                     HospitalId = 1,
                     PatientName = "John Doe",
-                    BloodGroup = EnumBloodGroup.APositive,
+                    BloodGroup = EnumBloodGroup.APositive.ToDatabaseValue(),
                     UnitsRequired = 2,
                     Urgency = "high",
-                    Status = EnumBloodRequestStatus.Pending,
+                    Status = EnumBloodRequestStatus.Pending.ToDatabaseValue(),
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 }));
@@ -198,13 +198,13 @@ public class BloodRequestApiFactory : WebApplicationFactory<Program>
                         UserId = command.UserId,
                         HospitalId = command.HospitalId,
                         PatientName = command.PatientName,
-                        BloodGroup = EnumBloodGroup.APositive,
+                        BloodGroup = EnumBloodGroup.APositive.ToDatabaseValue(),
                         UnitsRequired = command.UnitsRequired,
                         ContactPhone = command.ContactPhone,
                         Urgency = command.Urgency.ToDatabaseValue(),
                         RequiredDate = command.RequiredDate,
                         Reason = command.Reason,
-                        Status = EnumBloodRequestStatus.Pending,
+                        Status = EnumBloodRequestStatus.Pending.ToDatabaseValue(),
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     }));
@@ -218,13 +218,13 @@ public class BloodRequestApiFactory : WebApplicationFactory<Program>
                         UserId = command.UserId,
                         HospitalId = command.HospitalId,
                         PatientName = command.PatientName,
-                        BloodGroup = EnumBloodGroup.APositive,
+                        BloodGroup = EnumBloodGroup.APositive.ToDatabaseValue(),
                         UnitsRequired = command.UnitsRequired,
                         ContactPhone = command.ContactPhone,
                         Urgency = command.Urgency.ToDatabaseValue(),
                         RequiredDate = command.RequiredDate,
                         Reason = command.Reason,
-                        Status = EnumBloodRequestStatus.Pending,
+                        Status = EnumBloodRequestStatus.Pending.ToDatabaseValue(),
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     }));
@@ -238,10 +238,10 @@ public class BloodRequestApiFactory : WebApplicationFactory<Program>
                         UserId = 2,
                         HospitalId = 1,
                         PatientName = "John Doe",
-                        BloodGroup = EnumBloodGroup.APositive,
+                        BloodGroup = EnumBloodGroup.APositive.ToDatabaseValue(),
                         UnitsRequired = 2,
                         Urgency = "high",
-                        Status = command.Status,
+                        Status = command.Status.ToDatabaseValue(),
                         ApprovedBy = 100,
                         ApprovedAt = DateTime.UtcNow,
                         CreatedAt = DateTime.UtcNow,

@@ -2,9 +2,7 @@ using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Certificate.Commands;
 using BDMS.Domain.Features.Certificate.Models;
 using BDMS.Domain.Features.Certificate.Queries;
-using BDMS.Domain.Features.Roles.Models;
 using BDMS.Shared;
-using BDMS.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 using CertificateEntity = BDMS.Database.AppDbContextModels.Certificate;
 
@@ -30,15 +28,13 @@ public class CertificateService : ICertificateService
             if (donor is null)
                 return Result<CertificateRespModel>.ValidationError("Donor not found or is inactive");
 
-            // Check if donor has at least one completed donation
-            var hasCompletedDonation = await _db.Appointments
-                .AnyAsync(x => x.DonationId != null && 
-                               x.UserId == donor.UserId && 
-                               x.Status.ToLower() == EnumAppointmentStatus.Completed.ToString().ToLower() && 
-                               x.DeletedAt == null, ct);
+            // Check if donor has at least one donation record
+            var hasDonationRecord = await _db.Donations
+                .AsNoTracking()
+                .AnyAsync(x => x.DonorId == donor.Id && x.DeletedAt == null, ct);
 
-            if (!hasCompletedDonation)
-                return Result<CertificateRespModel>.ValidationError("Donor must have at least one completed donation to generate a certificate");
+            if (!hasDonationRecord)
+                return Result<CertificateRespModel>.ValidationError("Donor must have at least one donation record to generate a certificate");
 
             var certificate = new CertificateEntity()
             {

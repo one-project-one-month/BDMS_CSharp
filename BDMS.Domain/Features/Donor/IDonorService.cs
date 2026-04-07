@@ -10,5 +10,6 @@ namespace BDMS.Domain.Features.Donor
         Task<Result<List<DonorRespModel>>> GetAllDonors();
         Task<Result<DonorRespModel>> GetDonorById(int donorId);
         Task<Result<DonorRespModel>> UpdateDonor(DonorReqModel reqModel);
+        Task<Result<DonorRespModel>> UpdateDonorStatus(int donorId, bool isActive);
     }
 }

@@ -85,6 +85,23 @@ public class DonorTests : IClassFixture<DonorApiFactory>
         Assert.Equal("O+", payload.Data!.BloodGroup);
     }
 
+
+    [Fact]
+    public async Task UpdateDonorStatus_ReturnsOkWithUpdatedStatus()
+    {
+        var request = new DonorStatusReqModel { IsActive = false };
+
+        var response = await _client.PatchAsJsonAsync("/api/Donor/1/status", request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<Result<DonorRespModel>>();
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsSuccess);
+        Assert.NotNull(payload.Data);
+        Assert.False(payload.Data!.IsActive);
+    }
+
     [Fact]
     public async Task DeleteDonor_ReturnsOkWithDeleteMessage()
     {
@@ -188,6 +205,23 @@ public class DonorApiFactory : WebApplicationFactory<Program>
                         UpdatedAt = DateTime.UtcNow
                     });
                 });
+
+
+            mediator
+                .Setup(m => m.Send(It.IsAny<DonorStatusCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((DonorStatusCommand command, CancellationToken _) =>
+                    Result<DonorRespModel>.Success(new DonorRespModel
+                    {
+                        Id = command.DonorId,
+                        UserId = 2,
+                        NicNo = "9/NRC111111",
+                        DateOfBirth = new DateOnly(1995, 1, 12),
+                        Gender = "Male",
+                        BloodGroup = "A+",
+                        IsActive = command.IsActive,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    }));
 
             mediator
                 .Setup(m => m.Send(It.IsAny<DeleteDonorCommand>(), It.IsAny<CancellationToken>()))

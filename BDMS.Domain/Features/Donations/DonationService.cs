@@ -30,8 +30,12 @@ public class DonationService : IDonationService
         try
         {
             var donations = await _db.Donations
-                .Where(x => x.DeletedAt == null)
-                .ToListAsync();
+                                    .Include(x => x.Donor)
+                                        .ThenInclude(d => d.User)
+                                    .Where(x => x.DeletedAt == null
+                                             && x.Donor.DeletedAt == null
+                                             && x.Donor.User.DeletedAt == null)
+                                    .ToListAsync();
             if (donations.Count == 0)
             {
                 return Result<List<DonationRespModel>>.NotFound("Cannot find the donation");
@@ -294,11 +298,11 @@ public class DonationService : IDonationService
             var query = _db.Donations.Where(x => x.DeletedAt == null);
             if (reqModel.HospitalId > 0)
             {
-                query.Where(x => x.Id == reqModel.HospitalId);
+                query = query.Where(x => x.HospitalId == reqModel.HospitalId);
             }
             if(reqModel.DonationDate is not null)
             {
-                query.Where(x => x.DonationDate == reqModel.DonationDate);
+               query = query.Where(x => x.DonationDate == reqModel.DonationDate);
             }
             if (query is null)
             {

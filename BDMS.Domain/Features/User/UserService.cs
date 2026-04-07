@@ -30,7 +30,7 @@ namespace BDMS.Domain.Features.User
                 }
                 user.IsActive = false;
                 user.DeletedAt = DateTime.UtcNow;
-                 _appDbContext.Remove(user);
+                 _appDbContext.Update(user);
                 await _appDbContext.SaveChangesAsync();
 
                 return Result<UserRespModel>.DeleteSuccess("User deleted.");

@@ -103,6 +103,20 @@ public class DonorController : ControllerBase
         return Ok(result);
     }
 
+
+    [HttpPatch("{id}/status")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> UpdateDonorStatus(int id, [FromBody] DonorStatusReqModel model)
+    {
+        var command = new DonorStatusCommand { DonorId = id, IsActive = model.IsActive };
+        var result = await _mediator.Send(command);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+
+        return Ok(result);
+    }
+
     [HttpDelete("delete")]
     [Authorize(Policy = "AdminOnly")]
 

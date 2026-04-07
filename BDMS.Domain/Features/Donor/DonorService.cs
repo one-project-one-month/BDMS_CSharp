@@ -220,6 +220,50 @@ public class DonorService : IDonorService
         }
     }
 
+
+    public async Task<Result<DonorRespModel>> UpdateDonorStatus(int donorId, bool isActive)
+    {
+        try
+        {
+            var donor = await _db.Donors.FirstOrDefaultAsync(d => d.Id == donorId);
+            if (donor == null)
+            {
+                return Result<DonorRespModel>.NotFound("Donor not found");
+            }
+
+            donor.IsActive = isActive;
+            donor.UpdatedAt = DateTime.UtcNow;
+            donor.DeletedAt = isActive ? null : DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+
+            var result = new DonorRespModel
+            {
+                Id = donor.Id,
+                UserId = donor.UserId,
+                NicNo = donor.NicNo,
+                DateOfBirth = donor.DateOfBirth,
+                Gender = donor.Gender,
+                BloodGroup = donor.BloodGroup,
+                LastDonationDate = donor.LastDonationDate,
+                Remarks = donor.Remarks,
+                EmergencyContact = donor.EmergencyContact,
+                EmergencyPhone = donor.EmergencyPhone,
+                Address = donor.Address,
+                IsActive = donor.IsActive,
+                CreatedAt = donor.CreatedAt,
+                UpdatedAt = donor.UpdatedAt,
+                DeletedAt = donor.DeletedAt
+            };
+
+            return Result<DonorRespModel>.Success(result, isActive ? "Donor activated successfully" : "Donor deactivated successfully");
+        }
+        catch (Exception ex)
+        {
+            return Result<DonorRespModel>.SystemError($"Error updating donor status: {ex.Message}");
+        }
+    }
+
     public async Task<Result<DonorRespModel>> DeleteDonor(int donorId)
     {
         try

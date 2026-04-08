@@ -23,14 +23,25 @@ namespace BDMS.Domain.Features.User
                 var user = _appDbContext.Users
                     .Include(u => u.Role)
                     .Include(u => u.Hospital)
+                    .Include(u => u.Donor)
                     .FirstOrDefault(row => row.Id == model.UserId);
+                
                 if (user == null)
                 {
                     return Result<UserRespModel>.NotFound("User not found!");
                 }
                 user.IsActive = false;
+
                 user.DeletedAt = DateTime.UtcNow;
+
+                if(user.Donor != null)
+                {
+                    user.Donor.IsActive = false;
+                    user.DeletedAt = DateTime.UtcNow;
+                }
+
                  _appDbContext.Update(user);
+
                 await _appDbContext.SaveChangesAsync();
 
                 return Result<UserRespModel>.DeleteSuccess("User deleted.");
@@ -254,7 +265,9 @@ namespace BDMS.Domain.Features.User
         {
             try
             {
-                var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var user = await _appDbContext.Users
+                    .Include(u => u.Donor)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
                 if(user == null)
                 {
                     return Result<UserRespModel>.NotFound("User Not Found");
@@ -267,6 +280,13 @@ namespace BDMS.Domain.Features.User
                     user.DeletedAt = DateTime.Now;
                 else
                     user.DeletedAt = null;
+
+                if(user.Donor != null)
+                {
+                    user.Donor.IsActive = isActive;
+                    user.UpdatedAt = DateTime.Now;
+                    user.DeletedAt = isActive ? DateTime.Now : null;
+                }
 
                 await _appDbContext.SaveChangesAsync();
 

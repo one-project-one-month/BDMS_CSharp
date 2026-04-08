@@ -19,7 +19,7 @@ public class DonorService : IDonorService
         try
         {
             var donors = await _db.Donors
-            .Where(x => x.IsActive == true)
+            .Where(x => x.DeletedAt == null)
         .ToListAsync();
 
             var result = donors.Select(d => new DonorRespModel

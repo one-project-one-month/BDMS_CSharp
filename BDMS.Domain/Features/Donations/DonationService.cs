@@ -8,14 +8,25 @@ using BDMS.Domain.Features.Donations.Queries;
 using BDMS.Shared;
 using BDMS.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Update.Internal;
-using static Dapper.SqlMapper;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Collections.Concurrent;
+using System.Globalization;
 
 namespace BDMS.Domain.Features.Donation;
 
 public class DonationService : IDonationService
 {
+    private static readonly ConcurrentDictionary<int, SemaphoreSlim> HospitalCodeLocks = new();
+    private sealed class LockReleaser : IAsyncDisposable
+    {
+        private readonly SemaphoreSlim _semaphore;
+        public LockReleaser(SemaphoreSlim semaphore) => _semaphore = semaphore;
+        public ValueTask DisposeAsync()
+        {
+            _semaphore.Release();
+            return ValueTask.CompletedTask;
+        }
+    }
+
     private readonly AppDbContext _db;
 
     private readonly IBloodInventoryService _inventoryService;
@@ -74,13 +85,27 @@ public class DonationService : IDonationService
     {
         try
         {
+            await using var lockReleaser = await AcquireHospitalLockAsync(reqModel.HospitalId, CancellationToken.None);
+
+            var hospitalName = await _db.Hospitals
+                .Where(h => h.Id == reqModel.HospitalId && h.DeletedAt == null)
+                .Select(h => h.Name)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrWhiteSpace(hospitalName))
+            {
+                return Result<DonationRespModel>.ValidationError("Invalid hospital.");
+            }
+
+            var donationCode = await GenerateDonationCode(reqModel.HospitalId, hospitalName, reqModel.BloodGroup);
+
             var donation = new BDMS.Database.AppDbContextModels.Donation()
             {
                 DonorId = reqModel.DonorId,
                 HospitalId = reqModel.HospitalId,
                 BloodRequestId = reqModel.BloodRequestId,
                 CreatedBy = reqModel.CreatedBy,
-                DonationCode = reqModel.DonationCode,
+                DonationCode = donationCode,
                 BloodGroup = reqModel.BloodGroup,
                 UnitsDonated = reqModel.UnitsDonated,
                 DonationDate = DateOnly.FromDateTime(DateTime.UtcNow),
@@ -113,6 +138,41 @@ public class DonationService : IDonationService
         {
             return Result<DonationRespModel>.SystemError($"Error in creating donation {ex.Message}");
         }
+    }
+
+    private static async Task<IAsyncDisposable> AcquireHospitalLockAsync(int hospitalId, CancellationToken ct)
+    {
+        var hospitalLock = HospitalCodeLocks.GetOrAdd(hospitalId, _ => new SemaphoreSlim(1, 1));
+        await hospitalLock.WaitAsync(ct);
+        return new LockReleaser(hospitalLock);
+    }
+
+    private async Task<string> GenerateDonationCode(int hospitalId, string hospitalName, string bloodGroup)
+    {
+        var hospitalCode = Functions.NormalizeCodeSegment(hospitalName);
+        var bloodTypeCode = Functions.NormalizeCodeSegment(bloodGroup);
+        var prefix = $"{hospitalCode}_{bloodTypeCode}_";
+
+        var existingCodes = await _db.Donations
+            .Where(x => x.DeletedAt == null
+                && x.HospitalId == hospitalId
+                && x.BloodGroup == bloodGroup
+                && x.DonationCode != null
+                && x.DonationCode.StartsWith(prefix))
+            .Select(x => x.DonationCode!)
+            .ToListAsync();
+
+        var maxSequence = 0;
+        foreach (var code in existingCodes)
+        {
+            var suffix = code[prefix.Length..];
+            if (int.TryParse(suffix, NumberStyles.None, CultureInfo.InvariantCulture, out var seq) && seq > maxSequence)
+            {
+                maxSequence = seq;
+            }
+        }
+
+        return $"{prefix}{(maxSequence + 1):D2}";
     }
 
     public async Task<Result<DonationRespModel>> UpdateDonation(DonationUpdateReqModel reqModel)
@@ -338,4 +398,3 @@ public class DonationService : IDonationService
     }
 
 }
-

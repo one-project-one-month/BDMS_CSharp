@@ -194,8 +194,7 @@ public class BloodRequestService : IBloodRequestService
 
             if (command.Status is EnumBloodRequestStatus.Approved or EnumBloodRequestStatus.Fulfilled)
             {
-                entity.ApprovedBy = command.ApprovedByUserId;
-                entity.ApprovedAt = DateTime.UtcNow;
+                int? approvedByUserId = command.ApprovedByUserId > 0 ? command.ApprovedByUserId : null;
 
                 if (!command.DonorId.HasValue && command.Status == EnumBloodRequestStatus.Fulfilled)
                     return Result<BloodRequestRespModel>.ValidationError("DonorId is required when fulfilling a blood request.");
@@ -208,7 +207,13 @@ public class BloodRequestService : IBloodRequestService
 
                     if (!string.Equals(donor.BloodGroup, entity.BloodGroup, StringComparison.OrdinalIgnoreCase))
                         return Result<BloodRequestRespModel>.ValidationError("Donor blood group does not match request blood group.");
+
+                    if (!approvedByUserId.HasValue)
+                        approvedByUserId = donor.UserId;
                 }
+
+                entity.ApprovedBy = approvedByUserId;
+                entity.ApprovedAt = approvedByUserId.HasValue ? DateTime.UtcNow : null;
             }
 
             if (command.Status == EnumBloodRequestStatus.Approved && !entity.RequiredDate.HasValue)

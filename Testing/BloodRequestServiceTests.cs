@@ -272,6 +272,25 @@ public class BloodRequestServiceTests
         Assert.Empty(db.Appointments);
     }
 
+
+    [Fact]
+    public async Task UpdateStatus_WithEqualDonorBloodGroup_ReturnsValidationError()
+    {
+        await using var db = CreateDbContext();
+        SeedBloodRequest(db, status: "pending", requiredDate: new DateOnly(2026, 3, 20));
+        SeedDonor(db, donorId: 8, userId: 101, bloodGroup: "A+");
+
+        var service = CreateService(db);
+        var result = await service.UpdateStatus(new UpdateBloodRequestStatusCommand
+        {
+            Id = 1,
+            Status = EnumBloodRequestStatus.Approved,
+            DonorId = 8
+        }, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+    }
+
     private static BloodRequestService CreateService(AppDbContext db)
     {
         var bloodInventoryService = new Mock<IBloodInventoryService>();

@@ -232,6 +232,7 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, "test-admin"),
+            new Claim(ClaimTypes.NameIdentifier, EncryptionHelper.Encrypt("100")),
             new Claim(ClaimTypes.Role, "admin"),
             new Claim(ClaimTypes.Role, "user"),
             new Claim(ClaimTypes.Role, "donor")

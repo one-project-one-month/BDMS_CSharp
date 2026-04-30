@@ -36,7 +36,8 @@ public class DonationTests : IClassFixture<DonationApiFactory>
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
         Assert.NotNull(payload.Data);
-        Assert.Empty(payload.Data!);
+        Assert.Single(payload.Data!);
+        Assert.Equal("DN-001", payload.Data[0].DonationCode);
     }
 
     [Fact]
@@ -141,7 +142,23 @@ public class DonationApiFactory : WebApplicationFactory<Program>
             var mediator = new Mock<IMediator>();
             mediator
                 .Setup(m => m.Send(It.IsAny<GetAllDonationQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<List<DonationRespModel>>.Success([]));
+                .ReturnsAsync(Result<List<DonationRespModel>>.Success([
+                    new DonationRespModel
+                    {
+                        Id = 1,
+                        DonorId = 1,
+                        HospitalId = 2,
+                        BloodRequestId = 3,
+                        CreatedBy = 4,
+                        DonationCode = "DN-001",
+                        BloodGroup = "A+",
+                        UnitsDonated = 1,
+                        DonationDate = new DateOnly(2025, 1, 12),
+                        Status = "pending",
+                        Remarks = "Initial donation",
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    }]));
 
             mediator
                 .Setup(m => m.Send(It.IsAny<GetDonationByIdQuery>(), It.IsAny<CancellationToken>()))

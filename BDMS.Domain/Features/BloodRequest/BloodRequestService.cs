@@ -270,8 +270,8 @@ public class BloodRequestService : IBloodRequestService
 
     private async Task<string> GenerateBloodRequestCode(int hospitalId, string hospitalName, string bloodGroup, CancellationToken ct)
     {
-        var hospitalCode = NormalizeCodeSegment(hospitalName);
-        var bloodTypeCode = NormalizeCodeSegment(bloodGroup);
+        var hospitalCode = Functions.NormalizeCodeSegment(hospitalName);
+        var bloodTypeCode = Functions.NormalizeCodeSegment(bloodGroup);
         var prefix = $"{hospitalCode}_{bloodTypeCode}_";
 
         var existingCodes = await _db.BloodRequests
@@ -292,14 +292,6 @@ public class BloodRequestService : IBloodRequestService
         }
 
         return $"{prefix}{(maxSequence + 1):D2}";
-    }
-
-    private static string NormalizeCodeSegment(string value)
-    {
-        var compact = value.Trim().Replace(" ", string.Empty);
-        return string.IsNullOrWhiteSpace(compact)
-            ? "UNKNOWN"
-            : compact.ToUpperInvariant();
     }
 
     private async Task EnsureAppointmentStartedForApprovedRequest(Database.AppDbContextModels.BloodRequest request, CancellationToken ct)

@@ -252,6 +252,26 @@ public class BloodRequestServiceTests
         Assert.Contains("DonorId is required when fulfilling a blood request.", result.Message);
     }
 
+    [Fact]
+    public async Task UpdateStatus_WithMismatchedDonorBloodGroup_ReturnsValidationError()
+    {
+        await using var db = CreateDbContext();
+        SeedBloodRequest(db, status: "pending", requiredDate: new DateOnly(2026, 3, 20));
+        SeedDonor(db, donorId: 8, userId: 101, bloodGroup: "B+");
+
+        var service = CreateService(db);
+        var result = await service.UpdateStatus(new UpdateBloodRequestStatusCommand
+        {
+            Id = 1,
+            Status = EnumBloodRequestStatus.Approved,
+            DonorId = 8
+        }, CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal("Donor blood group does not match request blood group.", result.Message);
+        Assert.Empty(db.Appointments);
+    }
+
     private static BloodRequestService CreateService(AppDbContext db)
     {
         var bloodInventoryService = new Mock<IBloodInventoryService>();

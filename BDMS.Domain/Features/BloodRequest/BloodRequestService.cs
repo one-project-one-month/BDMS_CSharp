@@ -192,7 +192,10 @@ public class BloodRequestService : IBloodRequestService
             if (currentStatus == EnumBloodRequestStatus.Fulfilled || currentStatus == EnumBloodRequestStatus.Cancelled)
                 return Result<BloodRequestRespModel>.ValidationError("Status cannot be changed from fulfilled or cancelled.");
 
-            if (command.Status is EnumBloodRequestStatus.Approved or EnumBloodRequestStatus.Fulfilled)
+            if (command.Status == EnumBloodRequestStatus.Approved && !entity.RequiredDate.HasValue)
+                return Result<BloodRequestRespModel>.ValidationError("RequiredDate is required when approving a blood request.");
+
+            if (command.Status == EnumBloodRequestStatus.Fulfilled)
             {
                 int? approvedByUserId = command.ApprovedByUserId > 0 ? command.ApprovedByUserId : null;
 
@@ -214,13 +217,7 @@ public class BloodRequestService : IBloodRequestService
 
                 entity.ApprovedBy = approvedByUserId;
                 entity.ApprovedAt = approvedByUserId.HasValue ? DateTime.UtcNow : null;
-            }
 
-            if (command.Status == EnumBloodRequestStatus.Approved && !entity.RequiredDate.HasValue)
-                return Result<BloodRequestRespModel>.ValidationError("RequiredDate is required when approving a blood request.");
-
-            if (command.Status == EnumBloodRequestStatus.Fulfilled)
-            {
                 var availableUnits = await _db.BloodInventories
                     .Where(bi => bi.DeletedAt == null
                         && bi.Status == "available"

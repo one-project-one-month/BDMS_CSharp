@@ -1,5 +1,6 @@
 using BDMS.Domain.Features.Announcement.Models;
 using BDMS.Shared;
+using BDMS.Shared.Enums;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,5 +13,5 @@ public interface IAnnouncementService
     Task<Result<AnnouncementRespModel>> UpdateAnnouncement(UpdateAnnouncementRequest request, CancellationToken cancellationToken);
     Task<Result<AnnouncementRespModel>> DeleteAnnouncement(DeleteAnnouncementRequest request, CancellationToken cancellationToken);
     Task<Result<AnnouncementRespModel>> GetAnnouncementById(GetAnnouncementByIdRequest request, CancellationToken cancellationToken);
-    Task<Result<List<AnnouncementRespModel>>> GetAnnouncements(string? category, CancellationToken cancellationToken);
+    Task<Result<List<AnnouncementRespModel>>> GetAnnouncements(EnumAnnouncementCategory category, CancellationToken cancellationToken);
 }

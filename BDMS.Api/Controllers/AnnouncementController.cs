@@ -1,6 +1,7 @@
 using BDMS.Domain.Features.Announcement.Commands;
 using BDMS.Domain.Features.Announcement.Models;
 using BDMS.Domain.Features.Announcement.Queries;
+using BDMS.Shared.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ namespace BDMS.Api.Controllers
 
         [HttpGet("List")]
         [Authorize(Policy = "AdminClientDonar")]
-        public async Task<IActionResult> GetAnnouncements([FromQuery] string? category, CancellationToken ct)
+        public async Task<IActionResult> GetAnnouncements([FromQuery] EnumAnnouncementCategory category, CancellationToken ct)
         {
             var query = new GetAnnouncementsQuery { Category = category };
             var result = await _mediator.Send(query, ct);
@@ -57,6 +58,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [AllowAnonymous]
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateAnnouncement([FromRoute] int id, [FromBody] UpdateAnnouncementCommand request, CancellationToken ct)
         {

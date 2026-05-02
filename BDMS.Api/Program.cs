@@ -1,4 +1,5 @@
 using BDMS.Domain;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
@@ -47,6 +48,12 @@ try
             Scheme = "bearer"
         });
 
+        opt.MapType<DateOnly>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+        {
+            Type = "string",
+            Format = "date",
+            Example = new Microsoft.OpenApi.Any.OpenApiString(DateTime.Now.ToString("yyyy-MM-dd"))
+        });
         opt.AddSecurityRequirement(new OpenApiSecurityRequirement
         {
             {

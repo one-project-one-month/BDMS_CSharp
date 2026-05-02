@@ -20,7 +20,7 @@ public class AnnouncementService : IAnnouncementService
         _dbContext = dbContext;
     }
 
-    public async Task<Result<AnnouncementRespModel>> CreateAnnouncement(BDMS.Domain.Features.Announcement.Models.CreateAnnouncementRequest request, CancellationToken cancellationToken)
+    public async Task<Result<AnnouncementRespModel>> CreateAnnouncement(CreateAnnouncementRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -153,15 +153,15 @@ public class AnnouncementService : IAnnouncementService
         }
     }
 
-    public async Task<Result<List<AnnouncementRespModel>>> GetAnnouncements(string? category, CancellationToken cancellationToken)
+    public async Task<Result<List<AnnouncementRespModel>>> GetAnnouncements(EnumAnnouncementCategory category, CancellationToken cancellationToken)
     {
         try
         {
             var announcementsQuery = _dbContext.Announcements.AsQueryable();
 
-            if (!string.IsNullOrEmpty(category))
+            if (category != null)
             {
-                announcementsQuery = announcementsQuery.Where(a => a.Category == category);
+                announcementsQuery = announcementsQuery.Where(a => a.Category == category.ToString());
             }
 
             var announcements = await announcementsQuery

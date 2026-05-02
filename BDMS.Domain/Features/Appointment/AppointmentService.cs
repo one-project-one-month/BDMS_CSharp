@@ -36,6 +36,7 @@ public class AppointmentService : IAppointmentService
             
             var result = await query
                 .AsNoTracking()
+                .OrderByDescending(x => x.Id)
                 .Select(x => new AppointmentRespModel()
                 {
                     Id = x.Id,
@@ -218,6 +219,48 @@ public class AppointmentService : IAppointmentService
         catch (Exception ex)
         {
             return Result<AppointmentRespModel>.SystemError($"Error updating appointment status: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<AppointmentRespModel>> UpdateAppointmentTime(UpdateAppointmentTimeCommand request, CancellationToken ct)
+    {
+        try
+        {
+            var existingAppointment = await _db.Appointments
+                .FirstOrDefaultAsync(x => x.Id == request.Id && x.DeletedAt == null, ct);
+
+            if (existingAppointment is null)
+                return Result<AppointmentRespModel>.NotFound("Appointment not found");
+
+            var currentStatus = existingAppointment.Status.ToEnumOrDefault(EnumAppointmentStatus.None);
+
+            if (currentStatus != EnumAppointmentStatus.Scheduled)
+                return Result<AppointmentRespModel>.ValidationError(
+                    $"Appointment time can only be updated when status is '{EnumAppointmentStatus.Scheduled}'. Current status: '{currentStatus}'.");
+
+            existingAppointment.AppointmentDate = request.AppointmentDate;
+            existingAppointment.AppointmentTime = request.AppointmentTime;
+
+            await _db.SaveChangesAsync(ct);
+
+            var result = new AppointmentRespModel()
+            {
+                Id = existingAppointment.Id,
+                UserId = existingAppointment.UserId,
+                HospitalId = existingAppointment.HospitalId,
+                DonationId = existingAppointment.DonationId,
+                BloodRequestId = existingAppointment.BloodRequestId,
+                AppointmentDate = existingAppointment.AppointmentDate,
+                AppointmentTime = existingAppointment.AppointmentTime,
+                Status = existingAppointment.Status.ToEnumOrDefault(EnumAppointmentStatus.None),
+                Remarks = existingAppointment.Remarks,
+            };
+
+            return Result<AppointmentRespModel>.Success(result, "Appointment time updated successfully.");
+        }
+        catch (Exception ex)
+        {
+            return Result<AppointmentRespModel>.SystemError($"Error updating appointment time: {ex.Message}");
         }
     }
 

@@ -9,11 +9,12 @@ public interface IAppointmentService
     
     Task<Result<AppointmentRespModel>> GetAppointmentById(Queries.GetAppointmentByIdQuery request, CancellationToken ct);
     
-    Task<Result<AppointmentRespModel>> CreateDonationAppointment(Commands.CreateDonationAppointmentCommand request,
-        CancellationToken ct);
+    Task<Result<AppointmentRespModel>> CreateDonationAppointment(Commands.CreateDonationAppointmentCommand request, CancellationToken ct);
 
     Task<Result<AppointmentRespModel>> UpdateAppointmentStatus(Commands.UpdateAppointmentStatusCommand request, CancellationToken ct);
-    
+
+    Task<Result<AppointmentRespModel>> UpdateAppointmentTime(Commands.UpdateAppointmentTimeCommand request, CancellationToken ct);
+
     Task<Result<AppointmentRespModel>> CompleteAppointment(Commands.CompleteAppointmentCommand request, CancellationToken ct);
 
     Task<Result<string>> DeleteAppointment(Commands.DeleteAppointmentCommand request, CancellationToken ct);

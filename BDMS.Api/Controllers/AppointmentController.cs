@@ -96,6 +96,30 @@ namespace BDMS.Api.Controllers
             return Ok(result);
         }
 
+        [HttpPatch("{id}/time")]
+        [Authorize(Policy = "AdminClientDonar")]
+        public async Task<IActionResult> UpdateAppointmentTime([FromRoute] int id, [FromBody] UpdateAppointmentTimeReqModel request, CancellationToken ct)
+        {
+            if (!DateOnly.TryParse(request.AppointmentDate, out var appointmentDate))
+                return BadRequest("Invalid appointmentDate. Use yyyy-MM-dd.");
+
+            if (!TimeOnly.TryParse(request.AppointmentTime, out var appointmentTime))
+                return BadRequest("Invalid appointmentTime. Use HH:mm (e.g. 09:00).");
+
+            var command = new UpdateAppointmentTimeCommand()
+            {
+                Id = id,
+                AppointmentDate = appointmentDate,
+                AppointmentTime = appointmentTime
+            };
+
+            var result = await _mediator.Send(command, ct);
+            if (!result.IsSuccess)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+
         [HttpPost("{id}/complete")]
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CompleteAppointment([FromRoute]int id, CancellationToken ct)

@@ -13,5 +13,5 @@ public interface IAnnouncementService
     Task<Result<AnnouncementRespModel>> UpdateAnnouncement(UpdateAnnouncementRequest request, CancellationToken cancellationToken);
     Task<Result<AnnouncementRespModel>> DeleteAnnouncement(DeleteAnnouncementRequest request, CancellationToken cancellationToken);
     Task<Result<AnnouncementRespModel>> GetAnnouncementById(GetAnnouncementByIdRequest request, CancellationToken cancellationToken);
-    Task<Result<List<AnnouncementRespModel>>> GetAnnouncements(EnumAnnouncementCategory category, CancellationToken cancellationToken);
+    Task<Result<List<AnnouncementRespModel>>> GetAnnouncements(EnumAnnouncementCategory? category, CancellationToken cancellationToken);
 }

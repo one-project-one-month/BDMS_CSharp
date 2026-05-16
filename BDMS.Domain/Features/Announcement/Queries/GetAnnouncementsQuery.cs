@@ -8,5 +8,5 @@ namespace BDMS.Domain.Features.Announcement.Queries;
 
 public class GetAnnouncementsQuery : IRequest<Result<List<AnnouncementRespModel>>>
 {
-    public EnumAnnouncementCategory Category { get; set; }
+    public EnumAnnouncementCategory? Category { get; set; }
 }

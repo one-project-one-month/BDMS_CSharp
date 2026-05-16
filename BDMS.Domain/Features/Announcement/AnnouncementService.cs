@@ -153,7 +153,7 @@ public class AnnouncementService : IAnnouncementService
         }
     }
 
-    public async Task<Result<List<AnnouncementRespModel>>> GetAnnouncements(EnumAnnouncementCategory category, CancellationToken cancellationToken)
+    public async Task<Result<List<AnnouncementRespModel>>> GetAnnouncements(EnumAnnouncementCategory? category, CancellationToken cancellationToken)
     {
         try
         {

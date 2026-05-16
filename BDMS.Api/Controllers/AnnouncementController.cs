@@ -21,7 +21,7 @@ namespace BDMS.Api.Controllers
 
         [HttpGet("List")]
         [Authorize(Policy = "AdminClientDonar")]
-        public async Task<IActionResult> GetAnnouncements([FromQuery] EnumAnnouncementCategory category, CancellationToken ct)
+        public async Task<IActionResult> GetAnnouncements([FromQuery] EnumAnnouncementCategory? category, CancellationToken ct)
         {
             var query = new GetAnnouncementsQuery { Category = category };
             var result = await _mediator.Send(query, ct);
@@ -58,7 +58,6 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [AllowAnonymous]
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateAnnouncement([FromRoute] int id, [FromBody] UpdateAnnouncementCommand request, CancellationToken ct)
         {

@@ -11,7 +11,6 @@ namespace BDMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "AdminOnly")]
     public class CertificateController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -22,6 +21,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("Generate")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GenerateCertificate([FromBody] CertificateReqModel request, CancellationToken ct)
         {
             var command = new GenerateCertificateCommand()
@@ -37,6 +37,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("list")]
+        [Authorize(Policy = "AdminClientDonar")]
         public async Task<IActionResult> GetAllCertificates()
         {
             var query = new GetAllCertificatesQuery();
@@ -49,6 +50,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = "AdminClientDonar")]
         public async Task<IActionResult> GetCertificateById([FromRoute] int id, CancellationToken ct)
         {
             var query = new GetCertificateByIdQuery() { Id = id };
@@ -61,6 +63,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("donor/{donorId}")]
+        [Authorize(Policy = "AdminClientDonar")]
         public async Task<IActionResult> GetCertificatesByDonorId([FromRoute] int donorId, CancellationToken ct)
         {
             var query = new GetCertificatesByDonorIdQuery() { DonorId = donorId };

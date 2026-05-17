@@ -27,7 +27,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpGet("List")]
-    [Authorize(Policy = "AdminDonar")]
+    [Authorize(Policy = "AdminClientDonar")]
     public async Task<IActionResult> GetAllDonation()
     {
         var query = new GetAllDonationQuery();

@@ -47,11 +47,7 @@ public class DonationService : IDonationService
                                              && x.Donor.DeletedAt == null
                                              && x.Donor.User.DeletedAt == null)
                                     .ToListAsync();
-            if (donations.Count == 0)
-            {
-                return Result<List<DonationRespModel>>.NotFound("Cannot find the donation");
-            }
-
+        
             var result = donations.Select(a => new DonationRespModel
             {
                 Id = a.Id,
@@ -312,12 +308,13 @@ public class DonationService : IDonationService
                 return Result<DonationRespModel>.NotFound("Cannot find the donation to be updated.");
             }
 
+            var previousStatus = donation.Status;
+
             donation.Status = reqModel.Status.ToDatabaseValue();
             donation.UpdatedAt = DateTime.UtcNow;
             _db.Entry(donation).State = EntityState.Modified;
             await _db.SaveChangesAsync();
 
-            var previousStatus = donation.Status;
 
             if (!string.Equals(previousStatus, "completed", StringComparison.OrdinalIgnoreCase)
                && string.Equals(reqModel.Status.ToDatabaseValue(), "completed", StringComparison.OrdinalIgnoreCase))

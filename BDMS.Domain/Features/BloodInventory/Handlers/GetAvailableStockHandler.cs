@@ -1,6 +1,7 @@
 ﻿using BDMS.Domain.Features.BloodInventory.Models;
 using BDMS.Domain.Features.BloodInventory.Queries;
 using BDMS.Shared;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.BloodInventory.Handlers
 {
-    public class GetAvailableStockHandler
+    public class GetAvailableStockHandler : IRequestHandler<GetAvailableStockQuery,Result<List<AvailableStockResModel>>>
     {
         private readonly IBloodInventoryService _service;
         public GetAvailableStockHandler(IBloodInventoryService service)

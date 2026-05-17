@@ -20,7 +20,7 @@ public class DonorController : ControllerBase
     }
 
     [HttpGet("list")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "AdminClientDonar")]
 
     public async Task<IActionResult> GetAllDonorsList()
     {

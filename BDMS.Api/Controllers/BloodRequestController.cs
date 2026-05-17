@@ -23,7 +23,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpGet("list")]
-    [Authorize(Policy = "AdminClient")]
+    [Authorize(Policy = "AdminClientDonar")]
     public async Task<IActionResult> GetAllBloodRequestList(CancellationToken ct)
     {
         var result = await _mediator.Send(new GetAllBloodRequestsQuery(), ct);
@@ -34,7 +34,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Policy = "AdminClient")]
+    [Authorize(Policy = "AdminClientDonar")]
 
     public async Task<IActionResult> GetBloodRequestById([FromRoute] int id, CancellationToken ct)
     {

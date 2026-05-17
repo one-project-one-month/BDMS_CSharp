@@ -4,6 +4,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
@@ -31,7 +32,8 @@ try
         });
     });
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers()
+        .AddJsonOptions(opt => opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
 

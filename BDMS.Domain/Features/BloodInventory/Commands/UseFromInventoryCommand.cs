@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.BloodInventory.Commands
 {
-    public class UseFromInventoryCommand : IRequest<Result<AvailableStockResModel>> 
+    public class UseFromInventoryCommand : IRequest<Result<BloodInventoryResModel>> 
     {
         public int BloodInventoryId { get; set; }
         public int RequestId { get; set; }

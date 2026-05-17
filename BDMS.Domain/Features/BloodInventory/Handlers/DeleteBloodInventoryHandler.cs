@@ -1,6 +1,7 @@
 ﻿using BDMS.Domain.Features.BloodInventory.Commands;
 using BDMS.Domain.Features.BloodInventory.Models;
 using BDMS.Shared;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BDMS.Domain.Features.BloodInventory.Handlers
 {
-    public class DeleteBloodInventoryHandler
+    public class DeleteBloodInventoryHandler : IRequestHandler<DeleteBloodInventoryCommand,Result<string>>
     {
         private readonly IBloodInventoryService _service;
         public DeleteBloodInventoryHandler(IBloodInventoryService service)

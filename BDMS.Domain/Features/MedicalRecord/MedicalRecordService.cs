@@ -171,12 +171,14 @@ public class MedicalRecordService : IMedicalRecordService
         EnumMedicalRecordResult syphilis,
         EnumMedicalRecordScreeningStatus screeningStatus)
     {
+        if(screeningStatus != EnumMedicalRecordScreeningStatus.Pending)
+        {
         if (!IsDefinedAndProvided(hiv)) return "Invalid hiv result.";
         if (!IsDefinedAndProvided(hepatitisB)) return "Invalid hepatitis b result.";
         if (!IsDefinedAndProvided(hepatitisC)) return "Invalid hepatitis c result.";
         if (!IsDefinedAndProvided(malaria)) return "Invalid malaria result.";
         if (!IsDefinedAndProvided(syphilis)) return "Invalid syphilis result.";
-        if (!IsDefinedAndProvided(screeningStatus)) return "Invalid screening status.";
+        };
 
         return null;
     }

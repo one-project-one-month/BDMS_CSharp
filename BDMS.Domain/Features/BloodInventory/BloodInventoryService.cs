@@ -49,7 +49,9 @@ namespace BDMS.Domain.Features.BloodInventory
                     Units = donation.UnitsDonated ?? 1,
                     CollectedAt = collectedDate,
                     ExpiredAt = collectedDate.AddDays(BloodExpiryDays),
-                    Status = EnumBloodInventoryStatus.Available.ToDatabaseValue()
+                    Status = EnumBloodInventoryStatus.Available.ToDatabaseValue(),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdateAt = DateTime.UtcNow
                 };
 
                 await _db.BloodInventories.AddAsync(inventory, cancellationToken);

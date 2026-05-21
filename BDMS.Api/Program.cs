@@ -76,6 +76,16 @@ try
 
     var app = builder.Build();
 
+    var dbProvider = app.Configuration["DatabaseProvider"] ?? "MSSQL";
+    if (dbProvider.Equals("InMemory", StringComparison.OrdinalIgnoreCase))
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<BDMS.Database.AppDbContextModels.AppDbContext>();
+            BDMS.Database.InMemoryDbSeeder.Seed(context);
+        }
+    }
+
     app.UseCors("AllowFrontend");
 
     app.UseSwagger();

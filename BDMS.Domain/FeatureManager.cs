@@ -54,16 +54,24 @@ public static class FeatureManager
     
     public static void AddDomain(this WebApplicationBuilder builder)
     {
+        var dbProvider = builder.Configuration["DatabaseProvider"] ?? "MSSQL";
+
         builder.Services.AddDbContext<AppDbContext>(opt =>
         {
-            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+            if (dbProvider.Equals("InMemory", StringComparison.OrdinalIgnoreCase))
             {
-                sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 3,
-                    maxRetryDelay: TimeSpan.FromSeconds(5),
-                    errorNumbersToAdd: null);
-            });
-
+                opt.UseInMemoryDatabase("BDMS_InMemoryDb");
+            }
+            else
+            {
+                opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorNumbersToAdd: null);
+                });
+            }
         }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));

@@ -1,4 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.BloodInventory.Models;
 using BDMS.Shared;
 using BDMS.Shared.Enums;
@@ -51,7 +51,7 @@ namespace BDMS.Domain.Features.BloodInventory
                     ExpiredAt = collectedDate.AddDays(BloodExpiryDays),
                     Status = EnumBloodInventoryStatus.Available.ToDatabaseValue(),
                     CreatedAt = DateTime.UtcNow,
-                    UpdateAt = DateTime.UtcNow
+                    UpdatedAt = DateTime.UtcNow
                 };
 
                 await _db.BloodInventories.AddAsync(inventory, cancellationToken);

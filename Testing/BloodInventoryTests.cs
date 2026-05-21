@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using BDMS.Domain.Features.BloodInventory.Commands;
 using BDMS.Domain.Features.BloodInventory.Models;
@@ -131,7 +131,7 @@ public class BloodInventoryTests : IClassFixture<BloodInventoryApiFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var payload = await response.Content
-            .ReadFromJsonAsync<Result<AvailableStockResModel>>();
+            .ReadFromJsonAsync<Result<BloodInventoryResModel>>();
 
         Assert.NotNull(payload);
         Assert.True(payload!.IsSuccess);
@@ -252,13 +252,13 @@ public class BloodInventoryApiFactory : WebApplicationFactory<Program>
                     It.IsAny<UseFromInventoryCommand>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync((UseFromInventoryCommand command, CancellationToken _) =>
-                    Result<AvailableStockResModel>.Success(new AvailableStockResModel
-                    {
-                        HospitalId = 1,
-                        BloodGroup = "A+",
-                        TotalUnits = 2,
-                        AvailableCount = 1
-                    }, "Blood unit marked as used."));
+                {
+                    var item = BuildSampleInventory();
+                    item.Id = command.BloodInventoryId;
+                    item.RequestId = command.RequestId;
+                    item.Status = "used";
+                    return Result<BloodInventoryResModel>.Success(item, "Blood unit marked as used.");
+                });
 
             // ── RunStockTakeCommand ──
             mediator

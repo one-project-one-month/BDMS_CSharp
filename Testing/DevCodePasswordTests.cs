@@ -14,6 +14,7 @@ public class DevCodePasswordTests
 
         Assert.False(string.IsNullOrWhiteSpace(hashedPassword));
         Assert.NotEqual(password, hashedPassword);
+        Assert.Equal("QkRNU19TVEFUSUNfU0FMVKEKdAh0/Ej3q/crHyhiXLcS2+aHQW9IuzBO3lRFrkLY", hashedPassword);
         Assert.Equal(repeatedHash, hashedPassword);
         Assert.True(hashedPassword.VerifyPassword(password));
     }

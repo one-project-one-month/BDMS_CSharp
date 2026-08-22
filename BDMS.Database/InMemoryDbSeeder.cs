@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace BDMS.Database;
 
@@ -433,18 +434,20 @@ public static class InMemoryDbSeeder
 
     private static string HashPassword(string password)
     {
-        byte[] salt = System.Security.Cryptography.RandomNumberGenerator.GetBytes(16);
+        const int saltSize = 16;
+        const int keySize = 32;
+        byte[] salt = Encoding.UTF8.GetBytes("BDMS_STATIC_SALT");
         byte[] key = System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2(
             password: password,
             salt: salt,
             iterations: 100000,
             hashAlgorithm: System.Security.Cryptography.HashAlgorithmName.SHA256,
-            outputLength: 32
+            outputLength: keySize
         );
 
-        var hashBytes = new byte[16 + 32];
-        Buffer.BlockCopy(salt, 0, hashBytes, 0, 16);
-        Buffer.BlockCopy(key, 0, hashBytes, 16, 32);
+        var hashBytes = new byte[saltSize + keySize];
+        Buffer.BlockCopy(salt, 0, hashBytes, 0, saltSize);
+        Buffer.BlockCopy(key, 0, hashBytes, saltSize, keySize);
         return Convert.ToBase64String(hashBytes);
     }
 }

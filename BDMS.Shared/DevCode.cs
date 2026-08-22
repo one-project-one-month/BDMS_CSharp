@@ -50,22 +50,21 @@ namespace BDMS.Shared
 
         public static string HashPassword(this string password)
         {
-            byte[] salt = RandomNumberGenerator.GetBytes(PasswordHasherKeys.SaltSize);
-
             if (string.IsNullOrWhiteSpace(password))
             {
                 throw new ArgumentException("Password cannot be null or empty.", nameof(password));
             }
+
             byte[] key = KeyDerivation.Pbkdf2(
                 password: password,
-                salt: salt,
+                salt: PasswordHasherKeys.Salt,
                 prf: KeyDerivationPrf.HMACSHA256,
                 iterationCount: PasswordHasherKeys.Iterations,
                 numBytesRequested: PasswordHasherKeys.KeySize
             );
 
             var hashBytes = new byte[PasswordHasherKeys.SaltSize + PasswordHasherKeys.KeySize];
-            Buffer.BlockCopy(salt, 0, hashBytes, 0, PasswordHasherKeys.SaltSize);
+            Buffer.BlockCopy(PasswordHasherKeys.Salt, 0, hashBytes, 0, PasswordHasherKeys.SaltSize);
             Buffer.BlockCopy(key, 0, hashBytes, PasswordHasherKeys.SaltSize, PasswordHasherKeys.KeySize);
             return Convert.ToBase64String(hashBytes);
         }
@@ -93,6 +92,7 @@ namespace BDMS.Shared
         public const int SaltSize = 128 / 8;
         public const int KeySize = 256 / 8;
         public const int Iterations = 100_000;
+        public static readonly byte[] Salt = Encoding.UTF8.GetBytes("BDMS_STATIC_SALT");
     }
 
     public static class EncryptionHelper

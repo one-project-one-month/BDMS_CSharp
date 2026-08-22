@@ -7,12 +7,14 @@ public class DevCodePasswordTests
 {
     [Theory]
     [InlineData("Admin@123")]
-    public void HashPassword_ReturnsHashThatVerifiesProvidedPassword(string password)
+    public void HashPassword_ReturnsSameHashThatVerifiesProvidedPassword(string password)
     {
         var hashedPassword = password.HashPassword();
+        var repeatedHash = password.HashPassword();
 
         Assert.False(string.IsNullOrWhiteSpace(hashedPassword));
         Assert.NotEqual(password, hashedPassword);
+        Assert.Equal(repeatedHash, hashedPassword);
         Assert.True(hashedPassword.VerifyPassword(password));
     }
 

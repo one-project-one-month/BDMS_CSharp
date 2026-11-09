@@ -51,6 +51,27 @@ public class DonationServiceTests
         Assert.Equal("CITYHOSPITAL_A+_02", result.Data!.DonationCode);
     }
 
+    [Fact]
+    public async Task CreateDonation_ReturnsCreatedByFromRequest()
+    {
+        await using var db = CreateDbContext();
+        SeedHospital(db, hospitalId: 3, name: "Riverside Hospital");
+
+        var service = CreateService(db);
+        var result = await service.CreateDonation(new DonationCreateReqModel
+        {
+            DonorId = 11,
+            HospitalId = 3,
+            CreatedBy = 77,
+            BloodGroup = "B+",
+            UnitsDonated = 2
+        });
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Equal(77, result.Data!.CreatedBy);
+    }
+
     private static DonationService CreateService(AppDbContext db)
     {
         var inventoryService = new Mock<IBloodInventoryService>();

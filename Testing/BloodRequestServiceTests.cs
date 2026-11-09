@@ -291,6 +291,52 @@ public class BloodRequestServiceTests
         Assert.True(result.IsSuccess);
     }
 
+    [Fact]
+    public async Task UpdateStatus_Approve_WithApprovedByUserId_StampsApprover()
+    {
+        await using var db = CreateDbContext();
+        SeedBloodRequest(db, status: "pending", requiredDate: new DateOnly(2026, 3, 20));
+
+        var service = CreateService(db);
+        var result = await service.UpdateStatus(new UpdateBloodRequestStatusCommand
+        {
+            Id = 1,
+            Status = EnumBloodRequestStatus.Approved,
+            ApprovedByUserId = 42
+        }, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+
+        var request = await db.BloodRequests.SingleAsync(x => x.Id == 1);
+        Assert.Equal(42, request.ApprovedBy);
+        Assert.NotNull(request.ApprovedAt);
+        Assert.Equal(42, result.Data!.ApprovedBy);
+        Assert.NotNull(result.Data!.ApprovedAt);
+    }
+
+    [Fact]
+    public async Task Create_ReturnsBloodGroupInDatabaseFormat()
+    {
+        await using var db = CreateDbContext();
+        SeedHospital(db, hospitalId: 2, name: "City Hospital");
+
+        var service = CreateService(db);
+        var result = await service.Create(new CreateBloodRequestCommand
+        {
+            UserId = 11,
+            HospitalId = 2,
+            PatientName = "Format Patient",
+            BloodGroup = "O+",
+            UnitsRequired = 1,
+            Urgency = EnumBloodRequestUrgency.Low,
+            RequiredDate = new DateOnly(2026, 3, 25)
+        }, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Data);
+        Assert.Equal("O+", result.Data!.BloodGroup);
+    }
+
     private static BloodRequestService CreateService(AppDbContext db)
     {
         var bloodInventoryService = new Mock<IBloodInventoryService>();

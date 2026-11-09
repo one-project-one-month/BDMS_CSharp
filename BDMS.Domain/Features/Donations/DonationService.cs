@@ -119,6 +119,7 @@ public class DonationService : IDonationService
                 DonorId = donation.DonorId,
                 HospitalId = donation.HospitalId,
                 BloodRequestId = donation.BloodRequestId,
+                CreatedBy = donation.CreatedBy,
                 DonationCode = donation.DonationCode,
                 BloodGroup = donation.BloodGroup,
                 UnitsDonated = donation.UnitsDonated,

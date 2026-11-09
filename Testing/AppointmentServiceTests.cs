@@ -96,6 +96,65 @@ public class AppointmentServiceTests
         Assert.True(result.IsSuccess);
     }
 
+    [Fact]
+    public async Task CompleteAppointment_WhenInventoryAlreadyExists_CompletesWithoutDuplicateInventory()
+    {
+        await using var db = CreateDbContext();
+
+        db.Donations.Add(new Donation
+        {
+            Id = 3,
+            DonorId = 12,
+            HospitalId = 5,
+            CreatedBy = 1,
+            BloodGroup = "O+",
+            UnitsDonated = 2,
+            DonationDate = new DateOnly(2026, 11, 1),
+            Status = "completed",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
+
+        db.BloodInventories.Add(new BloodInventory
+        {
+            Id = 30,
+            DonationId = 3,
+            HospitalId = 5,
+            BloodGroup = "O+",
+            Units = 2,
+            CollectedAt = new DateOnly(2026, 11, 1),
+            ExpiredAt = new DateOnly(2026, 12, 13),
+            Status = "available",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
+
+        db.Appointments.Add(new Appointment
+        {
+            Id = 3,
+            UserId = 10,
+            HospitalId = 5,
+            DonationId = 3,
+            AppointmentDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            AppointmentTime = new TimeOnly(9, 0),
+            Status = EnumAppointmentStatus.Confirmed.ToString().ToLowerInvariant(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        });
+
+        await db.SaveChangesAsync();
+
+        var service = new AppointmentService(db);
+        var result = await service.CompleteAppointment(new CompleteAppointmentCommand { Id = 3 }, CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Contains("already existed", result.Message);
+
+        var appointment = await db.Appointments.SingleAsync(x => x.Id == 3);
+        Assert.Equal("completed", appointment.Status);
+        Assert.Equal(1, await db.BloodInventories.CountAsync(x => x.DonationId == 3));
+    }
+
     private static AppDbContext CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()

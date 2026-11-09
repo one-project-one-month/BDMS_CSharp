@@ -280,6 +280,8 @@ public class AppointmentService : IAppointmentService
 
             existingAppointment.Status = EnumAppointmentStatus.Completed.ToString().ToLowerInvariant();
 
+            var inventoryAlreadyExisted = false;
+
             if (existingAppointment.BloodRequestId.HasValue)
             {
                 var bloodRequest = await _db.BloodRequests
@@ -364,27 +366,29 @@ public class AppointmentService : IAppointmentService
                 var inventoryExists = await _db.BloodInventories
                     .AnyAsync(x => x.DonationId == donation.Id && x.DeletedAt == null, ct);
 
-                if (inventoryExists)
-                    return Result<AppointmentRespModel>.ValidationError("Inventory record already exists for this donation.");
+                inventoryAlreadyExisted = inventoryExists;
 
                 donation.Status = EnumDonationStatus.completed.ToDatabaseValue();
                 donation.UpdatedAt = DateTime.UtcNow;
 
-                var collectedDate = donation.DonationDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
-                var inventory = new Database.AppDbContextModels.BloodInventory
+                if (!inventoryExists)
                 {
-                    DonationId = donation.Id,
-                    HospitalId = donation.HospitalId,
-                    BloodGroup = donation.BloodGroup,
-                    Units = donation.UnitsDonated ?? 1,
-                    CollectedAt = collectedDate,
-                    ExpiredAt = collectedDate.AddDays(42),
-                    Status = EnumBloodInventoryStatus.Available.ToDatabaseValue(),
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
+                    var collectedDate = donation.DonationDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
+                    var inventory = new Database.AppDbContextModels.BloodInventory
+                    {
+                        DonationId = donation.Id,
+                        HospitalId = donation.HospitalId,
+                        BloodGroup = donation.BloodGroup,
+                        Units = donation.UnitsDonated ?? 1,
+                        CollectedAt = collectedDate,
+                        ExpiredAt = collectedDate.AddDays(42),
+                        Status = EnumBloodInventoryStatus.Available.ToDatabaseValue(),
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
 
-                await _db.BloodInventories.AddAsync(inventory, ct);
+                    await _db.BloodInventories.AddAsync(inventory, ct);
+                }
             }
 
             await _db.SaveChangesAsync(ct);
@@ -405,7 +409,9 @@ public class AppointmentService : IAppointmentService
             var message = existingAppointment.BloodRequestId.HasValue
                 ? "Appointment completed and blood request fulfilled successfully."
                 : existingAppointment.DonationId.HasValue
-                    ? "Appointment completed, donation marked as completed, and blood inventory updated successfully."
+                    ? inventoryAlreadyExisted
+                        ? "Appointment completed, donation marked as completed; blood inventory record already existed."
+                        : "Appointment completed, donation marked as completed, and blood inventory updated successfully."
                     : "Appointment completed successfully.";
 
             return Result<AppointmentRespModel>.Success(response, message);

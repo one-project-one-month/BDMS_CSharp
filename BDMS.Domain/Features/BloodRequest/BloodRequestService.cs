@@ -247,6 +247,8 @@ public class BloodRequestService : IBloodRequestService
 
             if (command.Status == EnumBloodRequestStatus.Approved)
             {
+                entity.ApprovedBy = command.ApprovedByUserId > 0 ? command.ApprovedByUserId : null;
+                entity.ApprovedAt = entity.ApprovedBy.HasValue ? DateTime.UtcNow : null;
                 await EnsureAppointmentStartedForApprovedRequest(entity, ct);
             }
 
@@ -334,7 +336,7 @@ public class BloodRequestService : IBloodRequestService
             HospitalId = request.HospitalId,
             BloodRequestCode = request.BloodRequestCode,
             PatientName = request.PatientName,
-            BloodGroup = request.BloodGroup.ToBloodGroupEnum().ToString().ToLowerInvariant(),
+            BloodGroup = request.BloodGroup,
             UnitsRequired = request.UnitsRequired,
             ContactPhone = request.ContactPhone,
             Urgency = request.Urgency,

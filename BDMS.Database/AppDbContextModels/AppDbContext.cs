@@ -122,7 +122,8 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("Blood_Inventories", tb => tb.HasTrigger("trg_BloodInventories_UpdatedAt"));
 
-            entity.HasIndex(e => e.DonationId, "UQ_BloodInventories_Donation").IsUnique();
+            entity.HasIndex(e => e.DonationId, "UQ_BloodInventories_Donation").IsUnique()
+                .HasFilter("[deleted_at] IS NULL");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.BloodGroup)
@@ -312,9 +313,11 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable(tb => tb.HasTrigger("trg_Donors_UpdatedAt"));
 
-            entity.HasIndex(e => e.NicNo, "UQ_Donors_NicNo").IsUnique();
+            entity.HasIndex(e => e.NicNo, "UQ_Donors_NicNo").IsUnique()
+                .HasFilter("[deleted_at] IS NULL");
 
-            entity.HasIndex(e => e.UserId, "UQ_Donors_UserId").IsUnique();
+            entity.HasIndex(e => e.UserId, "UQ_Donors_UserId").IsUnique()
+                .HasFilter("[deleted_at] IS NULL");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Address).HasColumnName("address");
@@ -360,9 +363,11 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable(tb => tb.HasTrigger("trg_Hospitals_UpdatedAt"));
 
-            entity.HasIndex(e => e.Email, "UQ_Hospitals_Email").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ_Hospitals_Email").IsUnique()
+                .HasFilter("[deleted_at] IS NULL");
 
-            entity.HasIndex(e => e.Phone, "UQ_Hospitals_Phone").IsUnique();
+            entity.HasIndex(e => e.Phone, "UQ_Hospitals_Phone").IsUnique()
+                .HasFilter("[deleted_at] IS NULL");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Address).HasColumnName("address");
@@ -394,7 +399,8 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("Medical_Records", tb => tb.HasTrigger("trg_MedicalRecords_UpdatedAt"));
 
-            entity.HasIndex(e => e.DonationId, "UQ_MedicalRecords_Donation").IsUnique();
+            entity.HasIndex(e => e.DonationId, "UQ_MedicalRecords_Donation").IsUnique()
+                .HasFilter("[deleted_at] IS NULL");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)

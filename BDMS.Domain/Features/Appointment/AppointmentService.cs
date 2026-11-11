@@ -1,5 +1,6 @@
 using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Appointment.Commands;
+using BDMS.Domain.Features.BloodInventory;
 using BDMS.Domain.Features.Appointment.Models;
 using BDMS.Domain.Features.Appointment.Queries;
 using BDMS.Shared;
@@ -12,10 +13,12 @@ namespace BDMS.Domain.Features.Appointment;
 public class AppointmentService : IAppointmentService
 {
     private readonly AppDbContext _db;
+    private readonly IBloodInventoryService _inventory;
 
-    public AppointmentService(AppDbContext db)
+    public AppointmentService(AppDbContext db, IBloodInventoryService inventory)
     {
         _db = db;
+        _inventory = inventory;
     }
 
     public async Task<Result<List<AppointmentRespModel>>> GetAllAppointments(int? hospitalId, DateOnly? appointmentDate, CancellationToken ct)
@@ -289,68 +292,12 @@ public class AppointmentService : IAppointmentService
                 
                 if (bloodRequest is null)
                     return Result<AppointmentRespModel>.NotFound("Blood request not found");
-                
-                var availableInventories = await _db.BloodInventories
-                    .Where(x => x.DeletedAt == null &&
-                                x.Status.ToLower() == "available" &&
-                                x.HospitalId == existingAppointment.HospitalId &&
-                                x.BloodGroup == bloodRequest.BloodGroup)
-                    .OrderBy(x => x.ExpiredAt)
-                    .ToListAsync(ct);
 
-                var totalAvailableUnits = availableInventories.Sum(x => x.Units);
-
-                if (totalAvailableUnits < bloodRequest.UnitsRequired)
-                {
-                    var availableUnitsInOtherHospitals = await _db.BloodInventories
-                        .Where(x => x.DeletedAt == null &&
-                                    x.Status.ToLower() == "available" &&
-                                    x.HospitalId != existingAppointment.HospitalId &&
-                                    x.BloodGroup == bloodRequest.BloodGroup)
-                        .SumAsync(x => (int?)x.Units, ct) ?? 0;
-
-                    var matchingUnitsInCurrentHospital = await _db.BloodInventories
-                        .Where(x => x.DeletedAt == null &&
-                                    x.HospitalId == existingAppointment.HospitalId &&
-                                    x.BloodGroup == bloodRequest.BloodGroup)
-                        .SumAsync(x => (int?)x.Units, ct) ?? 0;
-
-                    var stockMessage = $"Insufficient stock for hospital {existingAppointment.HospitalId} and blood group {bloodRequest.BloodGroup}. Available: {totalAvailableUnits}, Required: {bloodRequest.UnitsRequired}.";
-
-                    if (matchingUnitsInCurrentHospital > totalAvailableUnits)
-                    {
-                        stockMessage += $" Matching stock exists in this hospital, but some units are not in 'available' status.";
-                    }
-
-                    if (availableUnitsInOtherHospitals > 0)
-                    {
-                        stockMessage += $" Available matching units in other hospitals: {availableUnitsInOtherHospitals}.";
-                    }
-
-                    return Result<AppointmentRespModel>.ValidationError(stockMessage);
-                }
-                
-                var remainingUnits = bloodRequest.UnitsRequired;
-
-                foreach (var item in availableInventories)
-                {
-                    if (remainingUnits <= 0) break;
-
-                    if (item.Units <= remainingUnits)
-                    {
-                        remainingUnits -= item.Units;
-                        item.Units = 0;
-                        item.Status = "used";
-                        item.RequestId = bloodRequest.Id;
-                    }
-                    else
-                    {
-                        item.Units -= remainingUnits;
-                        remainingUnits = 0;
-                    }
-
-                    item.UpdatedAt = DateTime.UtcNow;
-                }
+                var consume = await _inventory.ConsumeForRequest(
+                    existingAppointment.HospitalId, bloodRequest.BloodGroup,
+                    bloodRequest.UnitsRequired, bloodRequest.Id, ct);
+                if (!consume.IsSuccess)
+                    return Result<AppointmentRespModel>.ValidationError(consume.Message);
 
                 bloodRequest.Status = EnumBloodRequestStatus.Fulfilled.ToDatabaseValue();
                 bloodRequest.UpdatedAt = DateTime.UtcNow;

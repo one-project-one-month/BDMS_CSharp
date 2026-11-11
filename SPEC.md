@@ -47,7 +47,7 @@ Login, logout, register, and `/me` / refresh stay cookie/JWT auth only (`[Author
 
 | Email | Password | Role |
 |---|---|---|
-| `admin@bdms.com` | `admin@123` | admin |
+| `admin@bdms.com` | `Admin@123` | admin |
 | `staff@bdms.com` | `staff@123` | staff |
 | `somchai.j@email.com` | `admin@123` | donor |
 | `niran.s@bgh.co.th` | `admin@123` | staff |
@@ -139,7 +139,9 @@ Rows originate from completed donations (42-day shelf life) or `POST add/{donati
 POST /api/auth/login                 admin
 POST /api/donation/Create            {donorId, hospitalId, bloodGroup, unitsDonated, createdBy} → status Pending
 PATCH /api/donation/UpdateStatus     → screening → approved
-POST /api/appointment/donation/{id}  donor → scheduled
+POST /api/appointment/donation/{id}  admin → scheduled  (donor lacks appointments.create → 403)
 PATCH /api/appointment/{id}/status   admin → confirmed
 POST /api/appointment/{id}/complete  admin → appointment+donation completed, inventory row created
 ```
+
+> `donorId` in `donation/Create` is **`Donors.id`** (profile id from `GET /api/donor/list`), not the login `Users.id` — `FK_Donations_Donor → Donors.id`. Passing the user id fails with a plain-text 400 (EF save error).

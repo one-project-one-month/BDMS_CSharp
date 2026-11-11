@@ -72,7 +72,7 @@ public static class FeatureManager
                         errorNumbersToAdd: null);
                 });
             }
-        }, ServiceLifetime.Transient, ServiceLifetime.Transient);
+        });
 
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 

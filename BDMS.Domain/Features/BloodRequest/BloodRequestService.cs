@@ -1,4 +1,5 @@
 using BDMS.Database.AppDbContextModels;
+using BDMS.Domain.Features.BloodInventory;
 using BDMS.Domain.Features.BloodRequest.Commands;
 using BDMS.Domain.Features.BloodRequest.Models;
 using BDMS.Shared;
@@ -24,10 +25,12 @@ public class BloodRequestService : IBloodRequestService
     }
 
     private readonly AppDbContext _db;
+    private readonly IBloodInventoryService _inventory;
 
-    public BloodRequestService(AppDbContext db)
+    public BloodRequestService(AppDbContext db, IBloodInventoryService inventory)
     {
         _db = db;
+        _inventory = inventory;
     }
 
     public async Task<Result<List<BloodRequestRespModel>>> GetAll(CancellationToken ct)
@@ -218,23 +221,10 @@ public class BloodRequestService : IBloodRequestService
                 entity.ApprovedBy = approvedByUserId;
                 entity.ApprovedAt = approvedByUserId.HasValue ? DateTime.UtcNow : null;
 
-                var availableUnits = await _db.BloodInventories
-                    .Where(bi => bi.DeletedAt == null
-                        && bi.Status == "available"
-                        && bi.HospitalId == entity.HospitalId
-                        && string.Equals(bi.BloodGroup, entity.BloodGroup))
-                    .OrderBy(bi => bi.ExpiredAt)  // FIFO: use oldest first
-                    .Take(entity.UnitsRequired)
-                    .ToListAsync(ct);
-                if (availableUnits.Count < entity.UnitsRequired)
-                    return Result<BloodRequestRespModel>.ValidationError(
-                        $"Insufficient stock. Available: {availableUnits.Count}, Required: {entity.UnitsRequired}");
-                foreach (var unit in availableUnits)
-                {
-                    unit.Status = "used";
-                    unit.RequestId = entity.Id;
-                    unit.UpdatedAt = DateTime.UtcNow;
-                }
+                var consume = await _inventory.ConsumeForRequest(
+                    entity.HospitalId, entity.BloodGroup, entity.UnitsRequired, entity.Id, ct);
+                if (!consume.IsSuccess)
+                    return Result<BloodRequestRespModel>.ValidationError(consume.Message);
             }
             else if (command.Status == EnumBloodRequestStatus.Rejected)
             {

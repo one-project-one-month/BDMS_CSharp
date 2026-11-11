@@ -1,15 +1,12 @@
 ﻿using BDMS.Domain.Features.BloodInventory.Commands;
 using BDMS.Domain.Features.BloodInventory.Models;
 using BDMS.Shared;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediatR;
 
 namespace BDMS.Domain.Features.BloodInventory.Handlers
 {
     public class UseFromInventoryHandler
+        : IRequestHandler<UseFromInventoryCommand, Result<BloodInventoryResModel>>
     {
         private readonly IBloodInventoryService _service;
         public UseFromInventoryHandler(IBloodInventoryService service)

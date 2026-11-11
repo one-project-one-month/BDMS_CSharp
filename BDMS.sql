@@ -69,9 +69,10 @@ CREATE TABLE Hospitals (
     updated_at      DATETIME2           NOT NULL DEFAULT GETDATE(),
     deleted_at      DATETIME2           NULL,
 
-    CONSTRAINT UQ_Hospitals_Phone UNIQUE (phone),
-    CONSTRAINT UQ_Hospitals_Email UNIQUE (email)
 );
+GO
+CREATE UNIQUE INDEX UQ_Hospitals_Phone ON Hospitals(phone) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX UQ_Hospitals_Email  ON Hospitals(email)  WHERE deleted_at IS NULL;
 GO
 
 -- =============================================
@@ -115,12 +116,13 @@ CREATE TABLE Donors (
     updated_at          DATETIME2           NOT NULL DEFAULT GETDATE(),
     deleted_at          DATETIME2           NULL,
 
-    CONSTRAINT UQ_Donors_UserId           UNIQUE (user_id),
-    CONSTRAINT UQ_Donors_NicNo            UNIQUE (nic_no),
     CONSTRAINT FK_Donors_User             FOREIGN KEY (user_id) REFERENCES Users(id),
     CONSTRAINT CK_Donors_BloodGroup       CHECK (blood_group IN ('A+','A-','B+','B-','AB+','AB-','O+','O-')),
     CONSTRAINT CK_Donors_Gender           CHECK (gender IN ('male','female','other'))
 );
+GO
+CREATE UNIQUE INDEX UQ_Donors_UserId ON Donors(user_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX UQ_Donors_NicNo  ON Donors(nic_no)  WHERE deleted_at IS NULL;
 GO
 
 -- =============================================
@@ -130,6 +132,7 @@ CREATE TABLE Announcements (
     id              INT IDENTITY(1,1)   PRIMARY KEY,
     title           NVARCHAR(255)       NOT NULL,
     content         NVARCHAR(MAX)       NULL,
+    category        VARCHAR(20)         NOT NULL DEFAULT 'News',
     is_active       BIT                 NOT NULL DEFAULT 1,
     expired_at      DATE                NULL,
     created_at      DATE                NOT NULL DEFAULT CAST(GETDATE() AS DATE),
@@ -261,7 +264,6 @@ CREATE TABLE Medical_Records (
     updated_at          DATETIME2           NOT NULL DEFAULT GETDATE(),
     deleted_at          DATETIME2           NULL,
 
-    CONSTRAINT UQ_MedicalRecords_Donation       UNIQUE (donation_id),
     CONSTRAINT FK_MedicalRecords_Donation       FOREIGN KEY (donation_id)  REFERENCES Donations(id),
     CONSTRAINT FK_MedicalRecords_Hospital       FOREIGN KEY (hospital_id)  REFERENCES Hospitals(id),
     CONSTRAINT FK_MedicalRecords_ScreenedBy     FOREIGN KEY (screened_by)  REFERENCES Users(id),
@@ -272,6 +274,8 @@ CREATE TABLE Medical_Records (
     CONSTRAINT CK_MedicalRecords_Syphilis       CHECK (syphilis_result IN ('positive','negative','inconclusive')),
     CONSTRAINT CK_MedicalRecords_ScreenStatus   CHECK (screening_status IN ('pending','failed','passed'))
 );
+GO
+CREATE UNIQUE INDEX UQ_MedicalRecords_Donation ON Medical_Records(donation_id) WHERE deleted_at IS NULL;
 GO
 
 -- =============================================
@@ -291,7 +295,6 @@ CREATE TABLE Blood_Inventories (
     updated_at      DATETIME2           NOT NULL DEFAULT GETDATE(),
     deleted_at      DATETIME2           NULL,
 
-    CONSTRAINT UQ_BloodInventories_Donation     UNIQUE (donation_id),
     CONSTRAINT FK_BloodInventories_Donation     FOREIGN KEY (donation_id) REFERENCES Donations(id),
     CONSTRAINT FK_BloodInventories_Hospital     FOREIGN KEY (hospital_id) REFERENCES Hospitals(id),
     CONSTRAINT FK_BloodInventories_Request      FOREIGN KEY (request_id)  REFERENCES Blood_Requests(id),
@@ -299,10 +302,14 @@ CREATE TABLE Blood_Inventories (
     CONSTRAINT CK_BloodInventories_Status       CHECK (status IN ('available','used','expired'))
 );
 GO
+CREATE UNIQUE INDEX UQ_BloodInventories_Donation ON Blood_Inventories(donation_id) WHERE deleted_at IS NULL;
+GO
 
 -- =============================================
 -- TRIGGERS: Auto-update updated_at on all tables
 -- =============================================
+-- filtered indexes require QUOTED_IDENTIFIER ON; session setting bakes into every trigger below
+SET QUOTED_IDENTIFIER ON;
 
 CREATE TRIGGER trg_Roles_UpdatedAt ON Roles AFTER UPDATE AS
     UPDATE Roles SET updated_at = GETDATE() WHERE id IN (SELECT id FROM inserted);

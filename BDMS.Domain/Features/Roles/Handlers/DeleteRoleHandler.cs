@@ -20,8 +20,7 @@ namespace BDMS.Domain.Features.Roles.Handlers
 
         public async Task<Result<RolesReqRespModel>> Handle(DeleteRoleCommand command, CancellationToken cancellationToken)
         {
-            var roleDelete = new RolesReqRespModel { Id = command.Id };
-            return await _roleService.CreateRole(roleDelete);
+            return await _roleService.DeleteRoleById(command.Id);
         }
     }
 }

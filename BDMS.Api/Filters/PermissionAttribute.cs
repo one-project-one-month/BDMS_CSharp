@@ -44,6 +44,13 @@ public class PermissionFilter : IAsyncActionFilter
             return;
         }
 
+        // 2. Permission claims issued at login
+        if (_requiredPermissions.Any(p => user.HasClaim("Permission", p)))
+        {
+            await next();
+            return;
+        }
+
         // 3. Fallback: Live DB lookup (catches mid-session permission updates or tokens without claims)
         var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!string.IsNullOrEmpty(userIdClaim))

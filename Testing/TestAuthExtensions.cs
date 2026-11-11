@@ -13,16 +13,7 @@ public static class TestAuthExtensions
             options.DefaultChallengeScheme = TestAuthHandler.SchemeName;
         }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
 
-        services.AddAuthorizationBuilder()
-            .AddPolicy("AdminOnly", policy => policy.RequireAuthenticatedUser())
-            .AddPolicy("AdminClient", policy => policy.RequireAuthenticatedUser())
-            .AddPolicy("AdminDonar", policy => policy.RequireAuthenticatedUser())
-            .AddPolicy("AdminClientDonar", policy => policy.RequireAuthenticatedUser())
-            .AddPolicy("StaffOnly", policy => policy.RequireAuthenticatedUser())
-            .AddPolicy("DonorOnly", policy => policy.RequireAuthenticatedUser())
-            .AddPolicy("DonarOnly", policy => policy.RequireAuthenticatedUser())
-            .AddPolicy("ClientOnly", policy => policy.RequireAuthenticatedUser())
-            .AddPolicy("AdminStaff", policy => policy.RequireAuthenticatedUser());
+        services.AddAuthorization();
 
         return services;
     }

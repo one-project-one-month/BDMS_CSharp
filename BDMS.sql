@@ -398,6 +398,7 @@ INSERT INTO Permissions (name) VALUES
 ('appointments.view'),
 ('appointments.create'),
 ('appointments.update'),
+('appointments.complete'),
 ('appointments.delete'),
 ('medical_records.view'),
 ('medical_records.create'),
@@ -446,7 +447,7 @@ WHERE r.name = 'staff'
     'hospitals.view',
     'blood_requests.view', 'blood_requests.create', 'blood_requests.update', 'blood_requests.approve',
     'donations.view', 'donations.create', 'donations.update', 'donations.approve',
-    'appointments.view', 'appointments.create', 'appointments.update',
+    'appointments.view', 'appointments.create', 'appointments.update', 'appointments.complete',
     'medical_records.view', 'medical_records.create', 'medical_records.update',
     'blood_inventories.view', 'blood_inventories.create', 'blood_inventories.update',
     'announcements.view',
@@ -466,6 +467,8 @@ WHERE r.name = 'donor'
     'donations.create',
     'donations.update',
     'appointments.view',
+    'appointments.create',
+    'appointments.update',
     'medical_records.view',
     'announcements.view',
     'certificates.view'
@@ -481,7 +484,8 @@ WHERE r.name = 'user'
   AND p.name IN (
     'blood_requests.view', 'blood_requests.create',
     'announcements.view',
-    'appointments.view', 'appointments.create'
+    'appointments.view', 'appointments.create', 'appointments.update',
+    'hospitals.view'
   );
 GO
 

@@ -1,17 +1,12 @@
-﻿using BDMS.Database.AppDbContextModels;
+﻿using BDMS.Api.Filters;
 using BDMS.Domain.Features.Donation.Models;
 using BDMS.Domain.Features.Donation.Queries;
 using BDMS.Domain.Features.Donations.Commands;
 using BDMS.Domain.Features.Donations.Models;
 using BDMS.Domain.Features.Donations.Queries;
-using BDMS.Domain.Features.User.Queries;
 using BDMS.Shared.Enums;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BDMS.Api.Controllers;
 
@@ -27,7 +22,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpGet("List")]
-    [Authorize(Policy = "AdminClientDonar")]
+    [Permission("donations.view")]
     public async Task<IActionResult> GetAllDonation()
     {
         var query = new GetAllDonationQuery();
@@ -40,7 +35,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpGet("{HospitalId}/{DonationDate}")]
-    [Authorize(Policy = "AdminDonar")]
+    [Permission("donations.view")]
     public async Task<IActionResult> GetDonationByDateAndHospital(int HospitalId, DateOnly DonationDate)
     {
         var query = new GetDonationByDateAndHospitalQuery()
@@ -59,7 +54,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpPost("Create")]
-    [Authorize(Policy = "AdminDonar")]
+    [Permission("donations.create")]
     public async Task<IActionResult> CreateDonation(DonationCreateReqModel reqModel)
     {
         var command = new CreateDonationCommand()
@@ -84,7 +79,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpGet("Edit")]
-    [Authorize(Policy = "AdminDonar")]
+    [Permission("donations.view")]
     public async Task<IActionResult> GetDonationById(int DonationId)
     {
         var query = new GetDonationByIdQuery()
@@ -101,7 +96,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpPut("Update")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("donations.update")]
 
     public async Task<IActionResult> UpdateDonation(DonationUpdateReqModel reqModel)
     {
@@ -130,7 +125,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpPatch("UpdateStatus")]
-    [Authorize(Policy = "AdminDonar")]
+    [Permission("donations.approve")]
     public async Task<IActionResult> UpdateStatus(UpdateDonationStatusReqModel reqModel)
     {
         if (!Enum.TryParse<EnumDonationStatus>(reqModel.Status, true, out var status) || status == EnumDonationStatus.None)
@@ -150,7 +145,7 @@ public class DonationController : ControllerBase
     }
 
     [HttpDelete("Delete")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("donations.delete")]
 
     public async Task<IActionResult> DeleteDonation(int DonationId)
     {

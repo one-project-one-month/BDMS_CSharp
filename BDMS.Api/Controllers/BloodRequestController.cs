@@ -1,11 +1,10 @@
-using BDMS.Database.AppDbContextModels;
+using BDMS.Api.Filters;
 using BDMS.Domain.Features.BloodRequest.Commands;
 using BDMS.Domain.Features.BloodRequest.Models;
 using BDMS.Domain.Features.BloodRequest.Queries;
 using BDMS.Shared;
 using BDMS.Shared.Enums;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -23,7 +22,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpGet("list")]
-    [Authorize(Policy = "AdminClientDonar")]
+    [Permission("blood_requests.view")]
     public async Task<IActionResult> GetAllBloodRequestList(CancellationToken ct)
     {
         var result = await _mediator.Send(new GetAllBloodRequestsQuery(), ct);
@@ -34,7 +33,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Policy = "AdminClientDonar")]
+    [Permission("blood_requests.view")]
 
     public async Task<IActionResult> GetBloodRequestById([FromRoute] int id, CancellationToken ct)
     {
@@ -46,7 +45,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpPost("create")]
-    [Authorize(Policy = "AdminClient")]
+    [Permission("blood_requests.create")]
     public async Task<IActionResult> CreateBloodRequest([FromBody] BloodRequestReqModel model, CancellationToken ct)
     {
         if (!Enum.TryParse<EnumBloodRequestUrgency>(model.Urgency, true, out var urgency) || urgency == EnumBloodRequestUrgency.None)
@@ -73,7 +72,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpPut("update")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("blood_requests.update")]
 
     public async Task<IActionResult> UpdateBloodRequest([FromBody] UpdateBloodRequestReqModel model, CancellationToken ct)
     {
@@ -102,7 +101,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpPatch("{id}/status")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("blood_requests.approve")]
     public async Task<IActionResult> UpdateStatus([FromRoute] int id, [FromBody] UpdateBloodRequestStatusReqModel model, CancellationToken ct)
     {
         if (!Enum.TryParse<EnumBloodRequestStatus>(model.Status, true, out var status) || status == EnumBloodRequestStatus.None)
@@ -129,7 +128,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("blood_requests.delete")]
 
     public async Task<IActionResult> DeleteBloodRequest([FromRoute] int id, CancellationToken ct)
     {

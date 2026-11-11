@@ -1,9 +1,9 @@
+using BDMS.Api.Filters;
 using BDMS.Domain.Features.Announcement.Commands;
 using BDMS.Domain.Features.Announcement.Models;
 using BDMS.Domain.Features.Announcement.Queries;
 using BDMS.Shared.Enums;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
@@ -20,7 +20,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("List")]
-        [Authorize(Policy = "AdminClientDonar")]
+        [Permission("announcements.view")]
         public async Task<IActionResult> GetAnnouncements([FromQuery] EnumAnnouncementCategory category, CancellationToken ct)
         {
             var query = new GetAnnouncementsQuery { Category = category };
@@ -33,7 +33,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "AdminClientDonar")]
+        [Permission("announcements.view")]
         public async Task<IActionResult> GetAnnouncementById([FromRoute] int id, CancellationToken ct)
         {
             var query = new GetAnnouncementByIdQuery(id);
@@ -46,7 +46,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
+        [Permission("announcements.create")]
         public async Task<IActionResult> CreateAnnouncement([FromBody] CreateAnnouncementCommand request, CancellationToken ct)
         {
             var result = await _mediator.Send(request, ct);
@@ -58,8 +58,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [AllowAnonymous]
-        [Authorize(Policy = "AdminOnly")]
+        [Permission("announcements.update")]
         public async Task<IActionResult> UpdateAnnouncement([FromRoute] int id, [FromBody] UpdateAnnouncementCommand request, CancellationToken ct)
         {
             request.Id = id;
@@ -72,7 +71,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Permission("announcements.delete")]
         public async Task<IActionResult> DeleteAnnouncement([FromRoute] int id, CancellationToken ct)
         {
             var command = new DeleteAnnouncementCommand(id);

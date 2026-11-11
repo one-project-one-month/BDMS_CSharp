@@ -1,15 +1,14 @@
+using BDMS.Api.Filters;
 using BDMS.Domain.Features.User.Commands;
 using BDMS.Domain.Features.User.Models;
 using BDMS.Domain.Features.User.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "AdminOnly")]
     public class UserController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -20,6 +19,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("list")]
+        [Permission("users.view")]
         public async Task<IActionResult> GetAllUserList()
         {
             var query = new GetAllUserQuery();
@@ -32,6 +32,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPut("update")]
+        [Permission("users.update")]
         public async Task<IActionResult> UpdateUser(UserReqModel model)
         {
             var command = new UpdateUserCommand
@@ -52,6 +53,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("create")]
+        [Permission("users.create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserReqModel model)
         {
             var command = new CreateUserCommand
@@ -71,6 +73,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpDelete("delete/{userId}")]
+        [Permission("users.delete")]
         public async Task<IActionResult> DeleteUser([FromRoute] int userId)
         {
             var command = new DeleteUserByParameterCommand { UserId = userId };
@@ -83,6 +86,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Permission("users.view")]
         public async Task<IActionResult> GetUserById(int id)
         {
             var command = new GetUserByParameterCommand { UserId = id };
@@ -95,6 +99,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPatch("{id}/status")]
+        [Permission("users.update")]
         public async Task<IActionResult> UpdateUserStatus(int id, [FromBody] UserStatusReqModel model)
         {
             var command = new UserStatusCommand { UserId = id, IsActive = model.IsActive };

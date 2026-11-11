@@ -33,7 +33,7 @@ public static class InMemoryDbSeeder
             "hospitals.view", "hospitals.create", "hospitals.update", "hospitals.delete",
             "blood_requests.view", "blood_requests.create", "blood_requests.update", "blood_requests.approve", "blood_requests.delete",
             "donations.view", "donations.create", "donations.update", "donations.approve", "donations.delete",
-            "appointments.view", "appointments.create", "appointments.update", "appointments.delete",
+            "appointments.view", "appointments.create", "appointments.update", "appointments.complete", "appointments.delete",
             "medical_records.view", "medical_records.create", "medical_records.update", "medical_records.delete",
             "blood_inventories.view", "blood_inventories.create", "blood_inventories.update", "blood_inventories.delete",
             "announcements.view", "announcements.create", "announcements.update", "announcements.delete",
@@ -59,7 +59,7 @@ public static class InMemoryDbSeeder
             "users.view", "donors.view", "donors.create", "donors.update", "hospitals.view",
             "blood_requests.view", "blood_requests.create", "blood_requests.update", "blood_requests.approve",
             "donations.view", "donations.create", "donations.update", "donations.approve",
-            "appointments.view", "appointments.create", "appointments.update",
+            "appointments.view", "appointments.create", "appointments.update", "appointments.complete",
             "medical_records.view", "medical_records.create", "medical_records.update",
             "blood_inventories.view", "blood_inventories.create", "blood_inventories.update",
             "announcements.view", "certificates.view", "certificates.create"
@@ -73,7 +73,8 @@ public static class InMemoryDbSeeder
         var donorPerms = new[]
         {
             "donors.view", "donations.view", "donations.create", "donations.update",
-            "appointments.view", "medical_records.view", "announcements.view", "certificates.view"
+            "appointments.view", "appointments.create", "appointments.update",
+            "medical_records.view", "announcements.view", "certificates.view"
         };
         foreach (var p in permissions.Where(x => donorPerms.Contains(x.Name)))
         {
@@ -83,7 +84,8 @@ public static class InMemoryDbSeeder
         // User gets read-only/minimal
         var userPerms = new[]
         {
-            "blood_requests.view", "blood_requests.create", "announcements.view", "appointments.view", "appointments.create"
+            "blood_requests.view", "blood_requests.create", "announcements.view",
+            "appointments.view", "appointments.create", "appointments.update", "hospitals.view"
         };
         foreach (var p in permissions.Where(x => userPerms.Contains(x.Name)))
         {

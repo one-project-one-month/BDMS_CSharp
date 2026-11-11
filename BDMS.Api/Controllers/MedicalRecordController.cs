@@ -1,15 +1,14 @@
+using BDMS.Api.Filters;
 using BDMS.Domain.Features.MedicalRecord.Commands;
 using BDMS.Domain.Features.MedicalRecord.Models;
 using BDMS.Domain.Features.MedicalRecord.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy ="AdminOnly")]
 public class MedicalRecordController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -20,6 +19,7 @@ public class MedicalRecordController : ControllerBase
     }
 
     [HttpGet("list")]
+    [Permission("medical_records.view")]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
         var result = await _mediator.Send(new GetAllMedicalRecordsQuery(), ct);
@@ -30,6 +30,7 @@ public class MedicalRecordController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Permission("medical_records.view")]
     public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken ct)
     {
         var result = await _mediator.Send(new GetMedicalRecordByIdQuery { Id = id }, ct);
@@ -40,6 +41,7 @@ public class MedicalRecordController : ControllerBase
     }
 
     [HttpPost("create")]
+    [Permission("medical_records.create")]
     public async Task<IActionResult> Create([FromBody] MedicalRecordReqModel model, CancellationToken ct)
     {
         var command = new CreateMedicalRecordCommand
@@ -66,6 +68,7 @@ public class MedicalRecordController : ControllerBase
     }
 
     [HttpPut("update")]
+    [Permission("medical_records.update")]
     public async Task<IActionResult> Update([FromBody] MedicalRecordReqModel model, CancellationToken ct)
     {
         var command = new UpdateMedicalRecordCommand
@@ -93,6 +96,7 @@ public class MedicalRecordController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Permission("medical_records.delete")]
     public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken ct)
     {
         var result = await _mediator.Send(new DeleteMedicalRecordCommand { Id = id }, ct);

@@ -1,8 +1,8 @@
-﻿using BDMS.Domain.Features.Donor.Commands;
+﻿using BDMS.Api.Filters;
+using BDMS.Domain.Features.Donor.Commands;
 using BDMS.Domain.Features.Donor.Models;
 using BDMS.Domain.Features.Donor.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers;
@@ -20,7 +20,7 @@ public class DonorController : ControllerBase
     }
 
     [HttpGet("list")]
-    [Authorize(Policy = "AdminClientDonar")]
+    [Permission("donors.view")]
 
     public async Task<IActionResult> GetAllDonorsList()
     {
@@ -33,7 +33,7 @@ public class DonorController : ControllerBase
     }
 
     [HttpPost("create")]
-    [Authorize(Policy = "AdminClient")]
+    [Permission("donors.create")]
     public async Task<IActionResult> CreateDonor(DonorReqModel reqModel)
     {
         var command = new CreateDonorCommand
@@ -59,7 +59,7 @@ public class DonorController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("donors.view")]
 
     public async Task<IActionResult> GetDonorById(int donorId)
     {
@@ -76,7 +76,7 @@ public class DonorController : ControllerBase
     }
 
     [HttpPut("update")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("donors.update")]
 
     public async Task<IActionResult> UpdateDonor(DonorReqModel reqModel)
     {
@@ -105,7 +105,7 @@ public class DonorController : ControllerBase
 
 
     [HttpPatch("{id}/status")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("donors.update")]
     public async Task<IActionResult> UpdateDonorStatus(int id, [FromBody] DonorStatusReqModel model)
     {
         var command = new DonorStatusCommand { DonorId = id, IsActive = model.IsActive };
@@ -118,7 +118,7 @@ public class DonorController : ControllerBase
     }
 
     [HttpDelete("delete")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("donors.delete")]
 
     public async Task<IActionResult> DeleteDonorAsync(int donorId)
     {

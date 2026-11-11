@@ -1,15 +1,14 @@
-﻿using BDMS.Domain.Features.Roles.Commands;
+﻿using BDMS.Api.Filters;
+using BDMS.Domain.Features.Roles.Commands;
 using BDMS.Domain.Features.Roles.Models;
 using BDMS.Domain.Features.Roles.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "AdminOnly")]
     public class RoleController : Controller
     {
         private readonly IMediator mediator;
@@ -20,6 +19,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("list")]
+        [Permission("roles.view")]
         public async Task<IActionResult> GetAllRoles()
         {
             var query = new GetAllRoles();
@@ -32,6 +32,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("create")]
+        [Permission("roles.create")]
         public async Task<IActionResult> CreateRole(RolesReqRespModel model)
         {
             var command = new CreateRoleCommand { Id = model.Id, Name = model.Name };
@@ -44,6 +45,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPut("edit")]
+        [Permission("roles.update")]
         public async Task<IActionResult> UpdateRole(RolesReqRespModel model)
         {
             var command = new UpdateRoleCommand { Id = model.Id, Name = model.Name };
@@ -56,6 +58,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpDelete("delete")]
+        [Permission("roles.delete")]
         public async Task<IActionResult> DeleteRole(RolesReqRespModel model)
         {
             var command = new DeleteRoleCommand { Id = model.Id };

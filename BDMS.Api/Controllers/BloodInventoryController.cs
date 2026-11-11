@@ -1,4 +1,5 @@
-﻿using BDMS.Domain.Features.BloodInventory.Commands;
+﻿using BDMS.Api.Filters;
+using BDMS.Domain.Features.BloodInventory.Commands;
 using BDMS.Domain.Features.BloodInventory.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,7 @@ public class BloodInventoryController : ControllerBase
     }
 
     [HttpGet("list")]
+    [Permission("blood_inventories.view")]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
         var result = await _mediator.Send(new GetAllBloodInventoryQuery(), ct);
@@ -25,6 +27,7 @@ public class BloodInventoryController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Permission("blood_inventories.view")]
     public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken ct)
     {
         var result = await _mediator.Send(new GetBloodInventoryByIdQuery { Id = id }, ct);
@@ -33,6 +36,7 @@ public class BloodInventoryController : ControllerBase
     }
 
     [HttpGet("hospital/{hospitalId}")]
+    [Permission("blood_inventories.view")]
     public async Task<IActionResult> GetByHospital([FromRoute] int hospitalId, CancellationToken ct)
     {
         var result = await _mediator.Send(
@@ -42,6 +46,7 @@ public class BloodInventoryController : ControllerBase
     }
 
     [HttpGet("available-stock")]
+    [Permission("blood_inventories.view")]
     public async Task<IActionResult> GetAvailableStock(
         [FromQuery] int? hospitalId, [FromQuery] string? bloodGroup, CancellationToken ct)
     {
@@ -52,6 +57,7 @@ public class BloodInventoryController : ControllerBase
     }
 
     [HttpPost("add/{donationId}")]
+    [Permission("blood_inventories.create")]
     public async Task<IActionResult> AddToInventory([FromRoute] int donationId, CancellationToken ct)
     {
         var result = await _mediator.Send(
@@ -61,6 +67,7 @@ public class BloodInventoryController : ControllerBase
     }
 
     [HttpPatch("use")]
+    [Permission("blood_inventories.update")]
     public async Task<IActionResult> UseFromInventory(
         [FromBody] UseFromInventoryCommand command, CancellationToken ct)
     {
@@ -70,6 +77,7 @@ public class BloodInventoryController : ControllerBase
     }
 
     [HttpPost("stock-take")]
+    [Permission("blood_inventories.update")]
     public async Task<IActionResult> RunStockTake(
         [FromQuery] int? hospitalId, CancellationToken ct)
     {
@@ -80,6 +88,7 @@ public class BloodInventoryController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Permission("blood_inventories.delete")]
     public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken ct)
     {
         var result = await _mediator.Send(

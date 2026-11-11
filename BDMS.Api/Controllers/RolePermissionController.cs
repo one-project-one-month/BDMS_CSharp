@@ -1,4 +1,5 @@
-﻿using BDMS.Domain.Features.RolePermission.Command;
+﻿using BDMS.Api.Filters;
+using BDMS.Domain.Features.RolePermission.Command;
 using BDMS.Domain.Features.RolePermission.Model;
 using BDMS.Domain.Features.RolePermission.Query;
 using MediatR;
@@ -18,6 +19,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("list")]
+        [Permission("permissions.view")]
         public async Task<IActionResult> GetAllRolePermissions()
         {
             var query = new GetAllRolePermission();
@@ -30,6 +32,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("create")]
+        [Permission("permissions.manage")]
         public async Task<IActionResult> CreateRolePermission(RolePermissionReqRespModel model)
         {
             var command = new CreateRolePermissionCommand { RoleId = model.RoleId, PermissionId = model.PermissionId };
@@ -42,6 +45,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPut("edit")]
+        [Permission("permissions.manage")]
         public async Task<IActionResult> UpdateRolePermission([FromBody] UpdateRolePermissionRequest model)
         {
             var command = new UpdateRolePermissionCommand 
@@ -55,6 +59,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpDelete("delete")]
+        [Permission("permissions.manage")]
         public async Task<IActionResult> DeleteRolePermission(RolePermissionReqRespModel model)
         {
             var command = new DeleteRolePermissionCommand { RoleId = model.RoleId, PermissionId = model.PermissionId };

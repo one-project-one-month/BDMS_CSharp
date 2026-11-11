@@ -28,21 +28,20 @@ Configuration: `appsettings.Development.json` (localhost SQL Server) overrides `
 - Token config lives in the `Jwt` section (key, issuer, audience, 60-minute expiry).
 - Passwords: PBKDF2 in `BDMS.Shared/DevCode.cs` — HMAC-SHA256, 100 000 iterations, 16-byte salt, 32-byte key, base64(salt‖key), static salt `BDMS_STATIC_SALT` (deterministic in dev).
 
-### Roles and policies
+### Roles and permissions
 
-Roles: `admin`, `staff`, `donor`, `user`. Policies are registered in `BDMS.Domain/FeatureManager.cs` (not `Program.cs`):
+Roles: `admin`, `staff`, `donor`, `user`. Authorization is **dynamic RBAC** via `[Permission("resource.action")]` (`BDMS.Api/Filters/PermissionAttribute.cs`), not static role policies. `FeatureManager` only calls `AddAuthorization()` (JWT/cookie auth still registered there).
 
-| Policy | Roles |
-|---|---|
-| `AdminOnly` | admin |
-| `StaffOnly` | staff |
-| `DonarOnly` *(sic)* | donor |
-| `ClientOnly` | user |
-| `AdminDonar` | admin, donor |
-| `AdminClient` | admin, user |
-| `AdminClientDonar` | admin, user, donor |
+`PermissionFilter` allows the request when:
 
-Note: no endpoint currently uses `StaffOnly`; `BloodInventoryController` and `DashboardController` carry **no `[Authorize]`** and are anonymous.
+1. The caller is authenticated (otherwise 401).
+2. The caller has role `admin` (bypass), **or**
+3. The JWT has a matching `Permission` claim, **or**
+4. A live `Role_Permissions` row matches (covers mid-session grants and tokens without claims).
+
+Otherwise 403. Seeded permission names live in `InMemoryDbSeeder` / `BDMS.sql` (e.g. `donations.view`, `appointments.complete`, `permissions.manage`). Admin is seeded with every permission; staff/donor/user get subsets.
+
+Login, logout, register, and `/me` / refresh stay cookie/JWT auth only (`[Authorize]` where a current user is required). `DashboardController` has `[Authorize]` only — there is no `dashboard.*` permission.
 
 ### Seeded dev accounts (`InMemoryDbSeeder` / `BDMS_seed.sql`)
 
@@ -64,20 +63,23 @@ Note: no endpoint currently uses `StaffOnly`; `BloodInventoryController` and `Da
 
 ### Endpoint map
 
-| Controller | Endpoints (policy) |
+| Controller | Endpoints (permission) |
 |---|---|
 | **Auth** | `POST login`, `POST logout`, `GET me` — admin/staff login, sets admin cookie |
 | **UserAuth** | `POST login`, `POST register`, `POST logout`, `GET me` `[Authorize]`, `POST refresh-token` `[Authorize]` — sets client cookie |
-| **Donation** | `GET List` (AdminClientDonar), `GET {HospitalId}/{DonationDate}` (AdminDonar), `POST Create` (AdminDonar), `GET Edit` (AdminDonar), `PUT Update` (AdminOnly), `PATCH UpdateStatus` (AdminDonar), `DELETE Delete` (AdminOnly) |
-| **Appointment** | `GET list`, `GET {id}` (AdminClientDonar), `POST donation/{donationId}` (AdminDonar), `PATCH {id}/status` (AdminDonar), `PATCH {id}/time` (AdminClientDonar), `POST {id}/complete` (AdminOnly), `DELETE {id}` (AdminOnly) |
-| **BloodRequest** | `GET list`, `GET {id}` (AdminClientDonar), `POST create` (AdminClient), `PUT update`, `PATCH {id}/status`, `DELETE {id}` (AdminOnly) |
-| **BloodInventory** | `GET list`, `GET {id}`, `GET hospital/{hospitalId}`, `GET available-stock`, `POST add/{donationId}`, `PATCH use`, `POST stock-take`, `DELETE {id}` — **anonymous** |
-| **Donor** | `GET list` (AdminClientDonar), `POST create` (AdminClient), `GET {id}`/`PUT update`/`PATCH {id}/status`/`DELETE delete` (AdminOnly) |
-| **Dashboard** | `GET {userId}` — anonymous |
-| **Certificate** | `POST Generate` (AdminOnly), `GET list`/`GET {id}`/`GET donor/{donorId}` (AdminClientDonar) |
-| **Announcement** | `GET List`, `GET {id}` (AdminClientDonar), `POST`/`PUT {id}`/`DELETE {id}` (AdminOnly) |
-| **Hospital** | `GET list`, `GET get` (AdminClient), `PUT update`, `DELETE delete` (AdminOnly) |
-| **MedicalRecord / Permission / Role / RolePermission / User** | AdminOnly (class-level on MedicalRecord, Permission, Role, User) |
+| **Donation** | `GET List` / `GET {HospitalId}/{DonationDate}` / `GET Edit` (`donations.view`), `POST Create` (`donations.create`), `PUT Update` (`donations.update`), `PATCH UpdateStatus` (`donations.approve`), `DELETE Delete` (`donations.delete`) |
+| **Appointment** | `GET list` / `GET {id}` (`appointments.view`), `POST donation/{donationId}` (`appointments.create`), `PATCH {id}/status` / `PATCH {id}/time` (`appointments.update`), `POST {id}/complete` (`appointments.complete`), `DELETE {id}` (`appointments.delete`) |
+| **BloodRequest** | `GET list` / `GET {id}` (`blood_requests.view`), `POST create` (`blood_requests.create`), `PUT update` (`blood_requests.update`), `PATCH {id}/status` (`blood_requests.approve`), `DELETE {id}` (`blood_requests.delete`) |
+| **BloodInventory** | `GET list` / `{id}` / `hospital/{hospitalId}` / `available-stock` (`blood_inventories.view`), `POST add/{donationId}` (`blood_inventories.create`), `PATCH use` / `POST stock-take` (`blood_inventories.update`), `DELETE {id}` (`blood_inventories.delete`) |
+| **Donor** | `GET list` / `GET {id}` (`donors.view`), `POST create` (`donors.create`), `PUT update` / `PATCH {id}/status` (`donors.update`), `DELETE delete` (`donors.delete`) |
+| **Dashboard** | `GET {userId}` — `[Authorize]` |
+| **Certificate** | `POST Generate` (`certificates.create`), `GET list` / `{id}` / `donor/{donorId}` (`certificates.view`) |
+| **Announcement** | `GET List` / `GET {id}` (`announcements.view`), `POST` (`announcements.create`), `PUT {id}` (`announcements.update`), `DELETE {id}` (`announcements.delete`) |
+| **Hospital** | `GET list` / `GET get` (`hospitals.view`), `PUT update` (`hospitals.update`), `DELETE delete` (`hospitals.delete`) |
+| **MedicalRecord** | `GET list` / `{id}` (`medical_records.view`), `POST create` (`medical_records.create`), `PUT update` (`medical_records.update`), `DELETE {id}` (`medical_records.delete`) |
+| **Permission / RolePermission** | `GET list` (`permissions.view`), create/edit/delete (`permissions.manage`) |
+| **Role** | `GET list` (`roles.view`), `POST create` (`roles.create`), `PUT edit` (`roles.update`), `DELETE delete` (`roles.delete`) |
+| **User** | `GET list` / `{id}` (`users.view`), `POST create` (`users.create`), `PUT update` / `PATCH {id}/status` (`users.update`), `DELETE` (`users.delete`) |
 
 ## 4. Domain model (core tables)
 
@@ -116,16 +118,16 @@ pending → screening → approved → completed
 
 ### Appointment lifecycle
 
-- **Create** (`POST /api/appointment/donation/{donationId}`, admin/donor). Hard preconditions: donation exists, donor active, **donation status = `approved`**, `DonationDate` set, no other open appointment for the donor. New appointment: `AppointmentDate = donation.DonationDate`, time `09:00`, status `scheduled`, `BloodRequestId = null`.
+- **Create** (`POST /api/appointment/donation/{donationId}`, `appointments.create`). Hard preconditions: donation exists, donor active, **donation status = `approved`**, `DonationDate` set, no other open appointment for the donor. New appointment: `AppointmentDate = donation.DonationDate`, time `09:00`, status `scheduled`, `BloodRequestId = null`.
 - **Transitions** (`PATCH {id}/status`): `scheduled → confirmed | cancelled`, `confirmed → cancelled` **only**. `confirmed → completed` is rejected — completion goes through `/complete`.
-- **Reschedule** (`PATCH {id}/time`, AdminClientDonar).
-- **Complete** (`POST {id}/complete`, AdminOnly, appointment must be `confirmed`):
+- **Reschedule** (`PATCH {id}/time`, `appointments.update`).
+- **Complete** (`POST {id}/complete`, `appointments.complete`, appointment must be `confirmed`):
   - *Donation appointment*: marks donation `completed`; creates inventory row if none exists (units = `UnitsDonated`, `CollectedAt = DonationDate`, `ExpiredAt = collected + 42 days`, status `Available`). If a row already exists (e.g. the donation was completed via `UpdateStatus` first), it is left untouched and the message reports "already existed" — **no error, no duplicate**.
   - *Blood-request appointment*: validates available stock at the appointment's hospital (rich error message including other-hospital availability), consumes units FIFO by expiry, marks request `Fulfilled`.
 
 ### Blood request lifecycle
 
-`pending → approved → fulfilled / rejected` (admin only for mutations). Requests are created by admin/user (`AdminClient`); fulfilment happens through a blood-request appointment consuming inventory.
+`pending → approved → fulfilled / rejected` (`blood_requests.approve` / `blood_requests.update` / `blood_requests.delete` for mutations). Requests are created with `blood_requests.create`; fulfilment happens through a blood-request appointment consuming inventory.
 
 ### Inventory
 

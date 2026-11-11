@@ -1,15 +1,14 @@
-﻿using BDMS.Domain.Features.Permissions.Commands;
+﻿using BDMS.Api.Filters;
+using BDMS.Domain.Features.Permissions.Commands;
 using BDMS.Domain.Features.Permissions.Models;
 using BDMS.Domain.Features.Permissions.Query;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "AdminOnly")]
     public class PermissionController : Controller
     {
         private readonly IMediator mediator;
@@ -20,6 +19,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("list")]
+        [Permission("permissions.view")]
         public async Task<IActionResult> GetAllPermissions()
         {
             var query = new GetAllPermissions();
@@ -32,6 +32,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("create")]
+        [Permission("permissions.manage")]
         public async Task<IActionResult> CreatePermission(PermissionReqRespModel model) 
         {
             var command = new CreatePermissionCommand { Id = model.Id, Name = model.Name };
@@ -44,6 +45,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPut("edit")]
+        [Permission("permissions.manage")]
         public async Task<IActionResult> UpdatePermission(PermissionReqRespModel model)
         {
             var command = new UpdatePermissionCommand { Id = model.Id, Name = model.Name };
@@ -56,6 +58,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpDelete("delete")]
+        [Permission("permissions.manage")]
         public async Task<IActionResult> DeletePermission(PermissionReqRespModel model)
         {
             var command = new DeletePermissionCommand { Id = model.Id };

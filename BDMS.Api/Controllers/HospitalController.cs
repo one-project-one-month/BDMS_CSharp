@@ -1,7 +1,7 @@
-﻿using BDMS.Domain.Features.Hospital.Commands;
+﻿using BDMS.Api.Filters;
+using BDMS.Domain.Features.Hospital.Commands;
 using BDMS.Domain.Features.Hospital.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers;
@@ -18,7 +18,7 @@ public class HospitalController : ControllerBase
     }
 
     [HttpGet("list")]
-    [Authorize(Policy = "AdminClient")]
+    [Permission("hospitals.view")]
     public async Task<IActionResult> GetAllHospitals()
     {
         var query = new GetAllHospitalsQuery();
@@ -31,7 +31,7 @@ public class HospitalController : ControllerBase
     }
 
     [HttpGet("get")]
-    [Authorize(Policy = "AdminClient")]
+    [Permission("hospitals.view")]
     public async Task<IActionResult> GetHospitalById(int id)
     {
         var query = new GetHospitalByIdQuery()
@@ -47,7 +47,7 @@ public class HospitalController : ControllerBase
     }
 
     [HttpPut("update")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("hospitals.update")]
     public async Task<IActionResult> UpdateHospital([FromBody] UpdateHospitalCommand reqModel)
     {
         var result = await _mediator.Send(reqModel);
@@ -59,7 +59,7 @@ public class HospitalController : ControllerBase
     }
 
     [HttpDelete("delete")]
-    [Authorize(Policy = "AdminOnly")]
+    [Permission("hospitals.delete")]
     public async Task<IActionResult> DeleteHospital(int id)
     {
         var command = new DeleteHospitalCommand()

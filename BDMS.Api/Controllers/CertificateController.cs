@@ -1,10 +1,8 @@
+using BDMS.Api.Filters;
 using BDMS.Domain.Features.Certificate.Commands;
 using BDMS.Domain.Features.Certificate.Models;
 using BDMS.Domain.Features.Certificate.Queries;
-using BDMS.Domain.Features.Roles.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
@@ -21,7 +19,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("Generate")]
-        [Authorize(Policy = "AdminOnly")]
+        [Permission("certificates.create")]
         public async Task<IActionResult> GenerateCertificate([FromBody] CertificateReqModel request, CancellationToken ct)
         {
             var command = new GenerateCertificateCommand()
@@ -37,7 +35,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("list")]
-        [Authorize(Policy = "AdminClientDonar")]
+        [Permission("certificates.view")]
         public async Task<IActionResult> GetAllCertificates()
         {
             var query = new GetAllCertificatesQuery();
@@ -50,7 +48,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "AdminClientDonar")]
+        [Permission("certificates.view")]
         public async Task<IActionResult> GetCertificateById([FromRoute] int id, CancellationToken ct)
         {
             var query = new GetCertificateByIdQuery() { Id = id };
@@ -63,7 +61,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("donor/{donorId}")]
-        [Authorize(Policy = "AdminClientDonar")]
+        [Permission("certificates.view")]
         public async Task<IActionResult> GetCertificatesByDonorId([FromRoute] int donorId, CancellationToken ct)
         {
             var query = new GetCertificatesByDonorIdQuery() { DonorId = donorId };

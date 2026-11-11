@@ -1,8 +1,6 @@
-﻿using BDMS.Domain.Features.Dashboard;
-using BDMS.Domain.Features.Dashboard.Query;
-using BDMS.Shared;
+﻿using BDMS.Domain.Features.Dashboard.Query;
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
@@ -19,6 +17,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetDashboardById([FromRoute] int userId, CancellationToken ct) 
         {
             var command = new GetDashboardByIdQuery { user_Id = userId};

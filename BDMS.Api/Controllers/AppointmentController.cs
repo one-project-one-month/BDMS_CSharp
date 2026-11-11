@@ -1,9 +1,9 @@
+using BDMS.Api.Filters;
 using BDMS.Domain.Features.Appointment.Commands;
 using BDMS.Domain.Features.Appointment.Models;
 using BDMS.Domain.Features.Appointment.Queries;
 using BDMS.Shared.Enums;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers
@@ -20,7 +20,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("list")]
-        [Authorize(Policy = "AdminClientDonar")]
+        [Permission("appointments.view")]
         public async Task<IActionResult> GetAllAppointmentList(
             [FromQuery] int? hospitalId, [FromQuery] string? appointmentDate, CancellationToken ct)
         {
@@ -44,7 +44,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "AdminClientDonar")]
+        [Permission("appointments.view")]
         public async Task<IActionResult> GetAppointmentById([FromRoute] int id, CancellationToken ct)
         {
             var query = new GetAppointmentByIdQuery() { Id = id };
@@ -57,7 +57,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("donation/{donationId}")]
-        [Authorize(Policy = "AdminDonar")]
+        [Permission("appointments.create")]
         public async Task<IActionResult> CreateDonationAppointment([FromRoute] int donationId, [FromBody] AppointmentReqModel request, CancellationToken ct)
         {
             var command = new CreateDonationAppointmentCommand()
@@ -74,7 +74,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPatch("{id}/status")]
-        [Authorize(Policy = "AdminDonar")]
+        [Permission("appointments.update")]
         public async Task<IActionResult> UpdateAppointmentStatus([FromRoute] int id, [FromBody] UpdateAppointmentStatusReqModel request, CancellationToken ct)
         {
             if (!Enum.TryParse<EnumAppointmentStatus>(request.Status, true, out var status) ||
@@ -97,7 +97,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPatch("{id}/time")]
-        [Authorize(Policy = "AdminClientDonar")]
+        [Permission("appointments.update")]
         public async Task<IActionResult> UpdateAppointmentTime([FromRoute] int id, [FromBody] UpdateAppointmentTimeReqModel request, CancellationToken ct)
         {
             if (!DateOnly.TryParse(request.AppointmentDate, out var appointmentDate))
@@ -121,7 +121,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpPost("{id}/complete")]
-        [Authorize(Policy = "AdminOnly")]
+        [Permission("appointments.complete")]
         public async Task<IActionResult> CompleteAppointment([FromRoute]int id, CancellationToken ct)
         {
             var command = new CompleteAppointmentCommand() { Id = id };
@@ -134,7 +134,7 @@ namespace BDMS.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Permission("appointments.delete")]
         public async Task<IActionResult> DeleteAppointment([FromRoute] int id, CancellationToken ct)
         {
             var command = new DeleteAppointmentCommand() { Id = id };

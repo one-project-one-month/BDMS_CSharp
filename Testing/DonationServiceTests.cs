@@ -39,7 +39,6 @@ public class DonationServiceTests
             HospitalId = 2,
             BloodRequestId = 1,
             CreatedBy = 100,
-            DonationCode = "IGNORED",
             BloodGroup = "A+",
             UnitsDonated = 1,
             DonationDate = new DateOnly(2026, 1, 2),

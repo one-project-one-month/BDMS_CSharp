@@ -131,6 +131,7 @@ GO
 CREATE TABLE Announcements (
     id              INT IDENTITY(1,1)   PRIMARY KEY,
     title           NVARCHAR(255)       NOT NULL,
+    category        VARCHAR(20)         NOT NULL DEFAULT 'News',
     content         NVARCHAR(MAX)       NULL,
     category        VARCHAR(20)         NOT NULL DEFAULT 'News',
     is_active       BIT                 NOT NULL DEFAULT 1,

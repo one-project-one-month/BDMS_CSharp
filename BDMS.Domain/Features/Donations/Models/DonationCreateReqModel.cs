@@ -1,4 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Database.AppDbContextModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +16,6 @@ public class DonationCreateReqModel
     public int? BloodRequestId { get; set; }
 
     public int CreatedBy { get; set; }
-
-    public string? DonationCode { get; set; }
 
     public string BloodGroup { get; set; } = null!;
 

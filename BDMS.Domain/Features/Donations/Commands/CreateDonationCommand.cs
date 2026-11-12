@@ -1,4 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Donation.Models;
 using BDMS.Shared;
 using MediatR;
@@ -19,8 +19,6 @@ public class CreateDonationCommand : IRequest<Result<DonationRespModel>>
     public int? BloodRequestId { get; set; }
 
     public int CreatedBy { get; set; }
-
-    public string? DonationCode { get; set; }
 
     public string BloodGroup { get; set; } = null!;
 

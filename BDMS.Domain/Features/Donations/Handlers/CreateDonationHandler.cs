@@ -1,4 +1,4 @@
-﻿using BDMS.Domain.Features.Donation;
+using BDMS.Domain.Features.Donation;
 using BDMS.Domain.Features.Donation.Models;
 using BDMS.Domain.Features.Donations.Models;
 using BDMS.Shared;
@@ -23,7 +23,6 @@ public class CreateDonationHandler : IRequestHandler<Commands.CreateDonationComm
             HospitalId = reqModel.HospitalId,
             BloodRequestId = reqModel.BloodRequestId,
             CreatedBy = reqModel.CreatedBy,
-            DonationCode = reqModel.DonationCode,
             BloodGroup = reqModel.BloodGroup,
             UnitsDonated = reqModel.UnitsDonated,
             DonationDate = reqModel.DonationDate,

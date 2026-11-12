@@ -71,15 +71,17 @@ GO
 -- =============================================
 -- 4. ANNOUNCEMENTS  (no FK dependencies)
 -- =============================================
-INSERT INTO Announcements (title, content, is_active, expired_at) VALUES
+INSERT INTO Announcements (title, category, content, is_active, expired_at) VALUES
 (
   'World Blood Donor Day - June 14',
+  'News',
   'Join us on June 14 for World Blood Donor Day. Donation drives will be held at all partner hospitals across Bangkok. Walk-ins welcome.',
   1,
   '2026-06-15'
 ),
 (
   'Urgent: O- Blood Stock Critical',
+  'Emergency',
   'Our O-negative inventory is critically low. All eligible donors are urged to visit the nearest hospital as soon as possible.',
   1,
   '2026-05-20'

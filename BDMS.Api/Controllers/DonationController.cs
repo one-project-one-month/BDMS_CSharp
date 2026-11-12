@@ -1,4 +1,4 @@
-﻿using BDMS.Api.Filters;
+using BDMS.Api.Filters;
 using BDMS.Domain.Features.Donation.Models;
 using BDMS.Domain.Features.Donation.Queries;
 using BDMS.Domain.Features.Donations.Commands;
@@ -55,7 +55,7 @@ public class DonationController : ControllerBase
 
     [HttpPost("Create")]
     [Permission("donations.create")]
-    public async Task<IActionResult> CreateDonation(DonationCreateReqModel reqModel)
+    public async Task<IActionResult> CreateDonation([FromBody] DonationCreateReqModel reqModel)
     {
         var command = new CreateDonationCommand()
         {
@@ -63,7 +63,6 @@ public class DonationController : ControllerBase
             HospitalId = reqModel.HospitalId,
             BloodRequestId = reqModel.BloodRequestId,
             CreatedBy = reqModel.CreatedBy,
-            DonationCode = reqModel.DonationCode,
             BloodGroup = reqModel.BloodGroup,
             UnitsDonated = reqModel.UnitsDonated,
             DonationDate = reqModel.DonationDate,

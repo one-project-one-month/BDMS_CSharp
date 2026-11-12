@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+.git/
+learn/
+db-export/
+audit-output/
+Testing/
+log/
+*.md
+docker-compose.yml

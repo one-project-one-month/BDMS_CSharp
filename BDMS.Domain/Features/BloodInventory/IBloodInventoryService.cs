@@ -18,5 +18,7 @@ namespace BDMS.Domain.Features.BloodInventory
         Task<Result<List<BloodInventoryResModel>>> GetByHospital(int hospitalId, CancellationToken ct);
         Task<Result<List<AvailableStockResModel>>> GetAvailableStock(int? hospitalId, string? bloodGroup, CancellationToken ct);
         Task<Result<string>> Delete(int id, CancellationToken ct);
+        // Mutates tracked inventory rows only; caller saves the change.
+        Task<Result<string>> ConsumeForRequest(int hospitalId, string bloodGroup, int unitsRequired, int requestId, CancellationToken ct);
     }
 }

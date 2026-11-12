@@ -1,8 +1,10 @@
 using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Appointment;
 using BDMS.Domain.Features.Appointment.Commands;
+using BDMS.Domain.Features.BloodInventory;
 using BDMS.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Xunit;
 
 namespace Testing;
@@ -42,7 +44,7 @@ public class AppointmentServiceTests
 
         await db.SaveChangesAsync();
 
-        var service = new AppointmentService(db);
+        var service = new AppointmentService(db, Mock.Of<IBloodInventoryService>());
         var result = await service.CompleteAppointment(new CompleteAppointmentCommand { Id = 1 }, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -90,7 +92,7 @@ public class AppointmentServiceTests
 
         await db.SaveChangesAsync();
 
-        var service = new AppointmentService(db);
+        var service = new AppointmentService(db, Mock.Of<IBloodInventoryService>());
         var result = await service.CompleteAppointment(new CompleteAppointmentCommand { Id = 2 }, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -144,7 +146,7 @@ public class AppointmentServiceTests
 
         await db.SaveChangesAsync();
 
-        var service = new AppointmentService(db);
+        var service = new AppointmentService(db, Mock.Of<IBloodInventoryService>());
         var result = await service.CompleteAppointment(new CompleteAppointmentCommand { Id = 3 }, CancellationToken.None);
 
         Assert.True(result.IsSuccess);

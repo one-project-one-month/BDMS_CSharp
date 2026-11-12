@@ -30,7 +30,8 @@ namespace BDMS.Domain.Features.Roles
                     return Result<RolesReqRespModel>.ValidationError("Role already exists.");
                 }
 
-                var role = new RolesReqRespModel { Name = rolesReqRespModel.Name };
+                // must add the mapped entity, not the DTO — AddAsync(RolesReqRespModel) always throws
+                var role = new Role { Name = rolesReqRespModel.Name!, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
 
                 await _db.AddAsync(role);
                 await _db.SaveChangesAsync();

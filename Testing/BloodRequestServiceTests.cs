@@ -2,6 +2,7 @@ using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.BloodInventory;
 using BDMS.Domain.Features.BloodRequest;
 using BDMS.Domain.Features.BloodRequest.Commands;
+using BDMS.Shared;
 using BDMS.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -340,7 +341,10 @@ public class BloodRequestServiceTests
     private static BloodRequestService CreateService(AppDbContext db)
     {
         var bloodInventoryService = new Mock<IBloodInventoryService>();
-        return new BloodRequestService(db);
+        bloodInventoryService
+            .Setup(x => x.ConsumeForRequest(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result<string>.Success("consumed"));
+        return new BloodRequestService(db, bloodInventoryService.Object);
     }
 
     private static AppDbContext CreateDbContext(string? dbName = null)

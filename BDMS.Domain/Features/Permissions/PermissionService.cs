@@ -31,7 +31,8 @@ namespace BDMS.Domain.Features.Permissions
                     return Result<PermissionReqRespModel>.ValidationError("Permission already exists.");
                 }
 
-                var permission = new PermissionReqRespModel { Name = permissionReqRespModel.Name };
+                // must add the mapped entity, not the DTO — AddAsync(PermissionReqRespModel) always throws
+                var permission = new Permission { Name = permissionReqRespModel.Name!, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
 
                 await _db.AddAsync(permission);
                 await _db.SaveChangesAsync();

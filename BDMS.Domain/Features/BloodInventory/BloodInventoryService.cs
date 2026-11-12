@@ -238,6 +238,73 @@ namespace BDMS.Domain.Features.BloodInventory
             }
         }
 
+        public async Task<Result<string>> ConsumeForRequest(int hospitalId, string bloodGroup, int unitsRequired, int requestId, CancellationToken ct)
+        {
+            var availableInventories = await _db.BloodInventories
+                .Where(x => x.DeletedAt == null &&
+                            x.Status.ToLower() == "available" &&
+                            x.HospitalId == hospitalId &&
+                            x.BloodGroup == bloodGroup)
+                .OrderBy(x => x.ExpiredAt)
+                .ToListAsync(ct);
+
+            var totalAvailableUnits = availableInventories.Sum(x => x.Units);
+
+            if (totalAvailableUnits < unitsRequired)
+            {
+                var availableUnitsInOtherHospitals = await _db.BloodInventories
+                    .Where(x => x.DeletedAt == null &&
+                                x.Status.ToLower() == "available" &&
+                                x.HospitalId != hospitalId &&
+                                x.BloodGroup == bloodGroup)
+                    .SumAsync(x => (int?)x.Units, ct) ?? 0;
+
+                var matchingUnitsInCurrentHospital = await _db.BloodInventories
+                    .Where(x => x.DeletedAt == null &&
+                                x.HospitalId == hospitalId &&
+                                x.BloodGroup == bloodGroup)
+                    .SumAsync(x => (int?)x.Units, ct) ?? 0;
+
+                var stockMessage = $"Insufficient stock for hospital {hospitalId} and blood group {bloodGroup}. Available: {totalAvailableUnits}, Required: {unitsRequired}.";
+
+                if (matchingUnitsInCurrentHospital > totalAvailableUnits)
+                {
+                    stockMessage += " Matching stock exists in this hospital, but some units are not in 'available' status.";
+                }
+
+                if (availableUnitsInOtherHospitals > 0)
+                {
+                    stockMessage += $" Available matching units in other hospitals: {availableUnitsInOtherHospitals}.";
+                }
+
+                return Result<string>.ValidationError(stockMessage);
+            }
+
+            var remainingUnits = unitsRequired;
+
+            foreach (var item in availableInventories)
+            {
+                if (remainingUnits <= 0) break;
+
+                if (item.Units <= remainingUnits)
+                {
+                    remainingUnits -= item.Units;
+                    item.Units = 0;
+                    item.Status = "used";
+                    item.RequestId = requestId;
+                }
+                else
+                {
+                    item.Units -= remainingUnits;
+                    remainingUnits = 0;
+                }
+
+                item.UpdatedAt = DateTime.UtcNow;
+            }
+
+            return Result<string>.Success($"{unitsRequired} unit(s) consumed for request {requestId}.");
+        }
+
         private static BloodInventoryResModel ToResponse(
         Database.AppDbContextModels.BloodInventory item)
         {

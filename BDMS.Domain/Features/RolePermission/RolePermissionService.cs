@@ -31,7 +31,8 @@ namespace BDMS.Domain.Features.RolePermission
                     return Result<RolePermissionReqRespModel>.ValidationError("Role-Permission already exists.");
                 }
 
-                var rolePermission = new RolePermissionReqRespModel { RoleId = rolePermissionReqRespModel.RoleId, PermissionId = rolePermissionReqRespModel.PermissionId };
+                // must add the mapped entity, not the DTO — AddAsync(RolePermissionReqRespModel) always throws
+                var rolePermission = new BDMS.Database.AppDbContextModels.RolePermission { RoleId = rolePermissionReqRespModel.RoleId, PermissionId = rolePermissionReqRespModel.PermissionId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
 
                 await _db.AddAsync(rolePermission);
                 await _db.SaveChangesAsync();
@@ -114,12 +115,12 @@ namespace BDMS.Domain.Features.RolePermission
                 _db.RolePermissions.Remove(rolePermission);
                 await _db.SaveChangesAsync();
 
-                var newRolePermission = new RolePermissionReqRespModel { RoleId = newModel.RoleId, PermissionId = newModel.PermissionId};
+                var newRolePermission = new BDMS.Database.AppDbContextModels.RolePermission { RoleId = newModel.RoleId, PermissionId = newModel.PermissionId, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
 
                 await _db.AddAsync(newRolePermission);
                 await _db.SaveChangesAsync();
 
-                return Result<RolePermissionReqRespModel>.Success(newRolePermission);
+                return Result<RolePermissionReqRespModel>.Success(new RolePermissionReqRespModel { RoleId = newRolePermission.RoleId, PermissionId = newRolePermission.PermissionId });
             }
             catch
             {

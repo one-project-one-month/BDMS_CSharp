@@ -1,6 +1,7 @@
 ﻿using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Donor.Models;
 using BDMS.Shared;
+using BDMS.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace BDMS.Domain.Features.Donor;
@@ -36,6 +37,7 @@ public class DonorService : IDonorService
                 EmergencyPhone = d.EmergencyPhone,
                 Address = d.Address,
                 IsActive = d.IsActive,
+                Status = d.Status,
                 CreatedAt = d.CreatedAt,
                 UpdatedAt = d.UpdatedAt,
                 DeletedAt = d.DeletedAt
@@ -83,6 +85,8 @@ public class DonorService : IDonorService
                     EmergencyPhone = reqModel.EmergencyPhone,
                     Address = reqModel.Address,
                     IsActive = reqModel.IsActive,
+                    // Admin/staff create = already approved
+                    Status = EnumDonorStatus.Approved.ToDatabaseValue(),
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
@@ -114,6 +118,7 @@ public class DonorService : IDonorService
                     EmergencyPhone = donor.EmergencyPhone,
                     Address = donor.Address,
                     IsActive = donor.IsActive,
+                    Status = donor.Status,
                     CreatedAt = donor.CreatedAt,
                     UpdatedAt = donor.UpdatedAt
                 };
@@ -127,13 +132,82 @@ public class DonorService : IDonorService
         }
         );
     }
+    public async Task<Result<DonorRespModel>> BecomeDonor(int userId, DonorReqModel reqModel)
+    {
+        try
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId && u.IsActive);
+            if (user == null)
+                return Result<DonorRespModel>.NotFound("User not found.");
+
+            var existing = await _db.Donors
+                .FirstOrDefaultAsync(d => d.UserId == userId && d.DeletedAt == null);
+            if (existing != null)
+            {
+                return Result<DonorRespModel>.ValidationError(
+                    existing.Status == EnumDonorStatus.Pending.ToDatabaseValue()
+                        ? "Your donor application is already pending approval."
+                        : "You already have a donor record.");
+            }
+
+            if (await _db.Donors.AnyAsync(d => d.NicNo == reqModel.NicNo && d.DeletedAt == null))
+                return Result<DonorRespModel>.ValidationError("NIC number is already registered.");
+
+            var donor = new BDMS.Database.AppDbContextModels.Donor
+            {
+                UserId = userId,
+                NicNo = reqModel.NicNo,
+                DateOfBirth = reqModel.DateOfBirth,
+                Gender = reqModel.Gender,
+                BloodGroup = reqModel.BloodGroup,
+                LastDonationDate = reqModel.LastDonationDate,
+                Remarks = reqModel.Remarks,
+                EmergencyContact = reqModel.EmergencyContact,
+                EmergencyPhone = reqModel.EmergencyPhone,
+                Address = reqModel.Address,
+                IsActive = false,
+                Status = EnumDonorStatus.Pending.ToDatabaseValue(),
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _db.Donors.AddAsync(donor);
+            await _db.SaveChangesAsync();
+
+            var resp = new DonorRespModel
+            {
+                Id = donor.Id,
+                UserId = donor.UserId,
+                NicNo = donor.NicNo,
+                DateOfBirth = donor.DateOfBirth,
+                Gender = donor.Gender,
+                BloodGroup = donor.BloodGroup,
+                LastDonationDate = donor.LastDonationDate,
+                Remarks = donor.Remarks,
+                EmergencyContact = donor.EmergencyContact,
+                EmergencyPhone = donor.EmergencyPhone,
+                Address = donor.Address,
+                IsActive = donor.IsActive,
+                Status = donor.Status,
+                CreatedAt = donor.CreatedAt,
+                UpdatedAt = donor.UpdatedAt
+            };
+
+            return Result<DonorRespModel>.Success(resp, "Donor application submitted. Awaiting approval.");
+        }
+        catch (Exception ex)
+        {
+            return Result<DonorRespModel>.SystemError($"Error submitting donor application: {ex.Message}");
+        }
+    }
+
     public async Task<Result<DonorRespModel>> GetDonorById(int donorId)
     {
         try
         {
             var donor = await _db.Donors
             .FirstOrDefaultAsync(d => d.Id == donorId
-            && d.IsActive == true);
+            && d.DeletedAt == null);
 
             if (donor == null)
             {
@@ -154,6 +228,7 @@ public class DonorService : IDonorService
                 EmergencyPhone = donor.EmergencyPhone,
                 Address = donor.Address,
                 IsActive = donor.IsActive,
+                Status = donor.Status,
                 CreatedAt = donor.CreatedAt,
                 UpdatedAt = donor.UpdatedAt,
                 DeletedAt = donor.DeletedAt
@@ -173,7 +248,7 @@ public class DonorService : IDonorService
         {
             var donor = _db.Donors
             .FirstOrDefault(d => d.Id == reqModel.Id
-            && d.IsActive == true);
+            && d.DeletedAt == null);
 
             if (donor == null)
             {
@@ -192,6 +267,7 @@ public class DonorService : IDonorService
             donor.Address = reqModel.Address;
             donor.IsActive = reqModel.IsActive;
             donor.UpdatedAt = DateTime.UtcNow;
+            // Status is intentionally untouched: only activation approves a pending donor
 
             _db.Entry(donor).State = EntityState.Modified;
             await _db.SaveChangesAsync();
@@ -209,6 +285,7 @@ public class DonorService : IDonorService
                 EmergencyPhone = donor.EmergencyPhone,
                 Address = donor.Address,
                 IsActive = donor.IsActive,
+                Status = donor.Status,
                 UpdatedAt = donor.UpdatedAt
             };
 
@@ -235,6 +312,15 @@ public class DonorService : IDonorService
             donor.UpdatedAt = DateTime.UtcNow;
             donor.DeletedAt = isActive ? null : DateTime.UtcNow;
 
+            if (isActive)
+            {
+                // Activation is the approval step for pending self-applications
+                donor.Status = EnumDonorStatus.Approved.ToDatabaseValue();
+                var roleError = await AssignDonorRoleAsync(donor.UserId);
+                if (roleError != null)
+                    return Result<DonorRespModel>.ValidationError(roleError);
+            }
+
             await _db.SaveChangesAsync();
 
             var result = new DonorRespModel
@@ -251,12 +337,13 @@ public class DonorService : IDonorService
                 EmergencyPhone = donor.EmergencyPhone,
                 Address = donor.Address,
                 IsActive = donor.IsActive,
+                Status = donor.Status,
                 CreatedAt = donor.CreatedAt,
                 UpdatedAt = donor.UpdatedAt,
                 DeletedAt = donor.DeletedAt
             };
 
-            return Result<DonorRespModel>.Success(result, isActive ? "Donor activated successfully" : "Donor deactivated successfully");
+            return Result<DonorRespModel>.Success(result, isActive ? "Donor approved successfully" : "Donor deactivated successfully");
         }
         catch (Exception ex)
         {
@@ -270,7 +357,7 @@ public class DonorService : IDonorService
         {
             var donor = await _db.Donors
             .FirstOrDefaultAsync(d => d.Id == donorId
-            && d.IsActive == true);
+            && d.DeletedAt == null);
 
             if (donor == null)
             {
@@ -287,5 +374,27 @@ public class DonorService : IDonorService
         {
             return Result<DonorRespModel>.SystemError($"Error deleting Donor: {ex.Message}");
         }
+    }
+
+    // Returns null on success, otherwise an error message
+    private async Task<string?> AssignDonorRoleAsync(int userId)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId && u.IsActive);
+        if (user == null)
+            return "User not found.";
+
+        var donorRole = await _db.Roles.FirstOrDefaultAsync(r => r.Name.ToLower() == "donor");
+        if (donorRole == null)
+            return "Donor role not found.";
+
+        if (user.RoleId != donorRole.Id)
+        {
+            user.RoleId = donorRole.Id;
+            user.UpdatedAt = DateTime.UtcNow;
+            _db.Users.Update(user);
+            await _db.SaveChangesAsync();
+        }
+
+        return null;
     }
 }

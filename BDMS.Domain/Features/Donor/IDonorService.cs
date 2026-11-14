@@ -6,6 +6,7 @@ namespace BDMS.Domain.Features.Donor
     public interface IDonorService
     {
         Task<Result<DonorRespModel>> CreateDonor(DonorReqModel reqModel);
+        Task<Result<DonorRespModel>> BecomeDonor(int userId, DonorReqModel reqModel);
         Task<Result<DonorRespModel>> DeleteDonor(int donorId);
         Task<Result<List<DonorRespModel>>> GetAllDonors();
         Task<Result<DonorRespModel>> GetDonorById(int donorId);

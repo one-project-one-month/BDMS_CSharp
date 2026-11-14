@@ -29,6 +29,9 @@ public partial class Donor
 
     public bool IsActive { get; set; }
 
+    // pending | approved (EnumDonorStatus, lowercase in DB)
+    public string Status { get; set; } = "pending";
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }

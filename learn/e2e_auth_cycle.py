@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """BDMS E2E — auth lifecycle: register/login/me/refresh/logout (client) + admin login/me/logout.
 Cookie flow tested by hand-capturing Set-Cookie (Secure cookies won't round-trip over http via urllib)."""
-import json, time, urllib.request, urllib.error, sys, re, uuid
+import json, time, urllib.request, urllib.error, sys, re, uuid, os
 
-BASE = "http://localhost:5017"
+BASE = os.environ.get("BDMS_BASE", "http://localhost:5017")
 log, checks = [], []
 
 def call(method, path, body=None, token=None, cookie=None):

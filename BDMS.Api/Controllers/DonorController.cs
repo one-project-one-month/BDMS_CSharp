@@ -2,8 +2,11 @@
 using BDMS.Domain.Features.Donor.Commands;
 using BDMS.Domain.Features.Donor.Models;
 using BDMS.Domain.Features.Donor.Queries;
+using BDMS.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BDMS.Api.Controllers;
 
@@ -49,6 +52,37 @@ public class DonorController : ControllerBase
             EmergencyPhone = reqModel.EmergencyPhone,
             Address = reqModel.Address,
             IsActive = reqModel.IsActive
+        };
+
+        var result = await _mediator.Send(command);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+
+        return Ok(result);
+    }
+
+    // Self-service: any authenticated user applies; record starts pending until admin/staff activates it
+    [HttpPost("become")]
+    [Authorize]
+    public async Task<IActionResult> BecomeDonor(DonorReqModel reqModel)
+    {
+        var encryptedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(encryptedUserId))
+            return Unauthorized();
+
+        var userId = int.Parse(EncryptionHelper.Decrypt(encryptedUserId));
+        var command = new BecomeDonorCommand
+        {
+            UserId = userId,
+            NicNo = reqModel.NicNo,
+            DateOfBirth = reqModel.DateOfBirth,
+            Gender = reqModel.Gender,
+            BloodGroup = reqModel.BloodGroup,
+            LastDonationDate = reqModel.LastDonationDate,
+            Remarks = reqModel.Remarks,
+            EmergencyContact = reqModel.EmergencyContact,
+            EmergencyPhone = reqModel.EmergencyPhone,
+            Address = reqModel.Address
         };
 
         var result = await _mediator.Send(command);

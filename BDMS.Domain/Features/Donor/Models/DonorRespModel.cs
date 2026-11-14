@@ -28,6 +28,8 @@ public class DonorRespModel
 
     public bool IsActive { get; set; }
 
+    public string Status { get; set; } = "pending";
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }

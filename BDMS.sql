@@ -112,13 +112,15 @@ CREATE TABLE Donors (
     emergency_phone     NVARCHAR(20)        NULL,
     address             NVARCHAR(MAX)       NULL,
     is_active           BIT                 NOT NULL DEFAULT 1,
+    status              NVARCHAR(20)        NOT NULL DEFAULT 'approved',
     created_at          DATETIME2           NOT NULL DEFAULT GETDATE(),
     updated_at          DATETIME2           NOT NULL DEFAULT GETDATE(),
     deleted_at          DATETIME2           NULL,
 
     CONSTRAINT FK_Donors_User             FOREIGN KEY (user_id) REFERENCES Users(id),
     CONSTRAINT CK_Donors_BloodGroup       CHECK (blood_group IN ('A+','A-','B+','B-','AB+','AB-','O+','O-')),
-    CONSTRAINT CK_Donors_Gender           CHECK (gender IN ('male','female','other'))
+    CONSTRAINT CK_Donors_Gender           CHECK (gender IN ('male','female','other')),
+    CONSTRAINT CK_Donors_Status           CHECK (status IN ('pending','approved'))
 );
 GO
 CREATE UNIQUE INDEX UQ_Donors_UserId ON Donors(user_id) WHERE deleted_at IS NULL;

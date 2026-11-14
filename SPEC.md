@@ -71,7 +71,7 @@ Login, logout, register, and `/me` / refresh stay cookie/JWT auth only (`[Author
 | **Appointment** | `GET list` / `GET {id}` (`appointments.view`), `POST donation/{donationId}` (`appointments.create`), `PATCH {id}/status` / `PATCH {id}/time` (`appointments.update`), `POST {id}/complete` (`appointments.complete`), `DELETE {id}` (`appointments.delete`) |
 | **BloodRequest** | `GET list` / `GET {id}` (`blood_requests.view`), `POST create` (`blood_requests.create`), `PUT update` (`blood_requests.update`), `PATCH {id}/status` (`blood_requests.approve`), `DELETE {id}` (`blood_requests.delete`) |
 | **BloodInventory** | `GET list` / `{id}` / `hospital/{hospitalId}` / `available-stock` (`blood_inventories.view`), `POST add/{donationId}` (`blood_inventories.create`), `PATCH use` / `POST stock-take` (`blood_inventories.update`), `DELETE {id}` (`blood_inventories.delete`) |
-| **Donor** | `GET list` / `GET {id}` (`donors.view`), `POST create` (`donors.create`), `PUT update` / `PATCH {id}/status` (`donors.update`), `DELETE delete` (`donors.delete`) |
+| **Donor** | `GET list` / `GET {id}` (`donors.view`), `POST create` (`donors.create`, status `approved`), `POST become` (`[Authorize]`, self-service, status `pending` until activated), `PUT update` / `PATCH {id}/status` (`donors.update`; activating a pending donor approves it and assigns the donor role), `DELETE delete` (`donors.delete`) |
 | **Dashboard** | `GET {userId}` — `[Authorize]` |
 | **Certificate** | `POST Generate` (`certificates.create`), `GET list` / `{id}` / `donor/{donorId}` (`certificates.view`) |
 | **Announcement** | `GET List` / `GET {id}` (`announcements.view`), `POST` (`announcements.create`), `PUT {id}` (`announcements.update`), `DELETE {id}` (`announcements.delete`) |

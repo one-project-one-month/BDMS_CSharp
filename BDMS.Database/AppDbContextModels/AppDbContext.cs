@@ -341,6 +341,10 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
                 .HasColumnName("is_active");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("approved")
+                .HasColumnName("status");
             entity.Property(e => e.LastDonationDate).HasColumnName("last_donation_date");
             entity.Property(e => e.NicNo)
                 .HasMaxLength(50)

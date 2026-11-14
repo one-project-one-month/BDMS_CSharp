@@ -200,6 +200,7 @@ public static class InMemoryDbSeeder
             EmergencyPhone = "0812345678",
             Address = "45/3 Rama IV Rd, Khlong Toei, Bangkok 10110",
             IsActive = true,
+            Status = "approved",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -215,6 +216,7 @@ public static class InMemoryDbSeeder
             EmergencyPhone = "0898765432",
             Address = "12 Lat Phrao Rd, Bangkok 10230",
             IsActive = true,
+            Status = "approved",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };

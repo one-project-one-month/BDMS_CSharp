@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +12,7 @@ namespace BDMS.Shared
         public string Issuer { get; set; } = null!;
         public string Audience { get; set; } = null!;
         public int ExpireMinutes { get; set; }
+        public int RememberMeDays { get; set; } = 30;
         public string AdminCookieName { get; set; } = "BDMS_Admin_Token";
         public string ClientCookieName { get; set; } = "BDMS_Client_Token";
 

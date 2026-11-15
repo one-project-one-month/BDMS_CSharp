@@ -1,4 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.User.Models;
 using BDMS.Domain.Features.User.Queries;
 using BDMS.Shared;
@@ -17,6 +17,6 @@ public class GetAllUserHandler : IRequestHandler<Queries.GetAllUserQuery, Result
 
     public async Task<Result<List<UserRespModel>>> Handle(Queries.GetAllUserQuery request, CancellationToken cancellationToken)
     {
-        return await _userService.GetAllUser();
+        return await _userService.GetAllUser(request.PageNumber, request.PageSize);
     }
 }

@@ -1,4 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.User.Models;
 using BDMS.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -52,13 +52,18 @@ namespace BDMS.Domain.Features.User
             }
         }
 
-        public async Task<Result<List<UserRespModel>>> GetAllUser()
+        public async Task<Result<List<UserRespModel>>> GetAllUser(int? pageNumber = null, int? pageSize = null)
         {
             try
             {
-                //var userRole = await _appDbContext.Users
-                var result = await _appDbContext.Users
-                    .AsNoTracking()
+                var query = _appDbContext.Users.AsNoTracking();
+
+                if (pageNumber.HasValue && pageSize.HasValue && pageNumber.Value > 0 && pageSize.Value > 0)
+                {
+                    query = query.Skip((pageNumber.Value - 1) * pageSize.Value).Take(pageSize.Value);
+                }
+
+                var result = await query
                     .Select(row => new UserRespModel
                 {
                    UserId = row.Id,

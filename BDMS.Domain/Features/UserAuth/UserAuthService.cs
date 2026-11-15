@@ -47,7 +47,7 @@ namespace BDMS.Domain.Features.UserAuth
 
                 var permissions = user.Role.RolePermissions.Select(rp => rp.Permission.Name).ToList();
 
-                var (token, expiration) = _tokenService.GenerateToken(user, user.Role.Name, permissions);
+                var (token, expiration) = _tokenService.GenerateToken(user, user.Role.Name, permissions, request.RememberMe);
 
                 var result = new UserLoginResultInternal
                 {

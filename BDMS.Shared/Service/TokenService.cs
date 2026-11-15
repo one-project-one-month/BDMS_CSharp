@@ -1,4 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Database.AppDbContextModels;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace BDMS.Shared.Service
             _jwtSettings = jwtSettings;
         }
 
-        public(string Token, DateTime Expiration) GenerateToken(User user, string roleName, List<string> permissions)
+        public (string Token, DateTime Expiration) GenerateToken(User user, string roleName, List<string> permissions, bool rememberMe = false)
         {
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
@@ -34,7 +34,7 @@ namespace BDMS.Shared.Service
                 new Claim(ClaimTypes.Role, roleName)
             };
 
-            foreach(var permission in permissions)
+            foreach (var permission in permissions)
             {
                 claims.Add(new Claim("Permission", permission));
             }
@@ -45,7 +45,9 @@ namespace BDMS.Shared.Service
                 claims.Add(new Claim("HospitalId", encryptedHospitalId));
             }
 
-            var expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpireMinutes);
+            var expiration = rememberMe
+                ? DateTime.UtcNow.AddDays(_jwtSettings.RememberMeDays > 0 ? _jwtSettings.RememberMeDays : 30)
+                : DateTime.UtcNow.AddMinutes(_jwtSettings.ExpireMinutes > 0 ? _jwtSettings.ExpireMinutes : 60);
 
             var token = new JwtSecurityToken(
              issuer: _jwtSettings.Issuer,

@@ -1,4 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Auth.Commands;
 using BDMS.Domain.Features.Auth.Models;
 using BDMS.Shared;
@@ -49,7 +49,7 @@ namespace BDMS.Domain.Features.Auth
 
             var permissions = user.Role.RolePermissions.Select(rp => rp.Permission.Name).ToList();
 
-            var (token, expiration) = _tokenService.GenerateToken(user, user.Role.Name, permissions);
+            var (token, expiration) = _tokenService.GenerateToken(user, user.Role.Name, permissions, request.RememberMe);
 
             var result = new LoginResultInternal
             {

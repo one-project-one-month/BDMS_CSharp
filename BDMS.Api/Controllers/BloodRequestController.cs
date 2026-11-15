@@ -22,7 +22,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpGet("list")]
-    [Permission("blood_requests.view")]
+    [Permission("blood_requests.view", "donors.view")]
     public async Task<IActionResult> GetAllBloodRequestList(CancellationToken ct)
     {
         var result = await _mediator.Send(new GetAllBloodRequestsQuery(), ct);
@@ -33,7 +33,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Permission("blood_requests.view")]
+    [Permission("blood_requests.view", "donors.view")]
 
     public async Task<IActionResult> GetBloodRequestById([FromRoute] int id, CancellationToken ct)
     {
@@ -45,7 +45,7 @@ public class BloodRequestController : ControllerBase
     }
 
     [HttpPost("create")]
-    [Permission("blood_requests.create")]
+    [Permission("blood_requests.create", "donors.view")]
     public async Task<IActionResult> CreateBloodRequest([FromBody] BloodRequestReqModel model, CancellationToken ct)
     {
         if (!Enum.TryParse<EnumBloodRequestUrgency>(model.Urgency, true, out var urgency) || urgency == EnumBloodRequestUrgency.None)

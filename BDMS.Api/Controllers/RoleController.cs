@@ -1,4 +1,4 @@
-﻿using BDMS.Api.Filters;
+using BDMS.Api.Filters;
 using BDMS.Domain.Features.Roles.Commands;
 using BDMS.Domain.Features.Roles.Models;
 using BDMS.Domain.Features.Roles.Queries;
@@ -35,7 +35,7 @@ namespace BDMS.Api.Controllers
         [Permission("roles.create")]
         public async Task<IActionResult> CreateRole(RolesReqRespModel model)
         {
-            var command = new CreateRoleCommand { Id = model.Id, Name = model.Name };
+            var command = new CreateRoleCommand { Id = model.Id, Name = model.Name, PermissionIds = model.PermissionIds };
             var result = await mediator.Send(command);
             if (!result.IsSuccess)
             {
@@ -48,7 +48,7 @@ namespace BDMS.Api.Controllers
         [Permission("roles.update")]
         public async Task<IActionResult> UpdateRole(RolesReqRespModel model)
         {
-            var command = new UpdateRoleCommand { Id = model.Id, Name = model.Name };
+            var command = new UpdateRoleCommand { Id = model.Id, Name = model.Name, PermissionIds = model.PermissionIds };
             var result = await mediator.Send(command);
             if (!result.IsSuccess)
             {

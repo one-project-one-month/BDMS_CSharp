@@ -1,7 +1,8 @@
-﻿using BDMS.Api.Filters;
+using BDMS.Api.Filters;
 using BDMS.Domain.Features.Hospital.Commands;
 using BDMS.Domain.Features.Hospital.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BDMS.Api.Controllers;
@@ -18,7 +19,7 @@ public class HospitalController : ControllerBase
     }
 
     [HttpGet("list")]
-    [Permission("hospitals.view")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAllHospitals()
     {
         var query = new GetAllHospitalsQuery();
@@ -31,7 +32,7 @@ public class HospitalController : ControllerBase
     }
 
     [HttpGet("get")]
-    [Permission("hospitals.view")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetHospitalById(int id)
     {
         var query = new GetHospitalByIdQuery()

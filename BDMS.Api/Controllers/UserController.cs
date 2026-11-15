@@ -20,9 +20,9 @@ namespace BDMS.Api.Controllers
 
         [HttpGet("list")]
         [Permission("users.view")]
-        public async Task<IActionResult> GetAllUserList()
+        public async Task<IActionResult> GetAllUserList([FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
-            var query = new GetAllUserQuery();
+            var query = new GetAllUserQuery { PageNumber = pageNumber, PageSize = pageSize };
             var result = await _mediator.Send(query);
 
             if (!result.IsSuccess)

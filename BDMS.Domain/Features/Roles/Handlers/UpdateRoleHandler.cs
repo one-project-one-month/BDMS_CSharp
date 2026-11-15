@@ -1,4 +1,4 @@
-﻿using Azure.Core;
+using Azure.Core;
 using BDMS.Domain.Features.Roles.Commands;
 using BDMS.Domain.Features.Roles.Models;
 using BDMS.Shared;
@@ -22,7 +22,7 @@ namespace BDMS.Domain.Features.Roles.Handlers
 
         public async Task<Result<RolesReqRespModel>> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
         {
-            var roleUpdate = new RolesReqRespModel { Id = request.Id, Name = request.Name };
+            var roleUpdate = new RolesReqRespModel { Id = request.Id, Name = request.Name, PermissionIds = request.PermissionIds };
             return await _roleService.UpdateRole(roleUpdate);
         }
     }

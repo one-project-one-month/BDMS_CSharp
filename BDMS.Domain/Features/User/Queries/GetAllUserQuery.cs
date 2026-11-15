@@ -6,5 +6,7 @@ namespace BDMS.Domain.Features.User.Queries;
 
 public class GetAllUserQuery : IRequest<Result<List<UserRespModel>>>
 {
+    public int? PageNumber { get; set; }
+    public int? PageSize { get; set; }
 }
 

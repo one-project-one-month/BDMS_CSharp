@@ -1,4 +1,4 @@
-﻿using BDMS.Domain.Features.Roles.Models;
+using BDMS.Domain.Features.Roles.Models;
 using BDMS.Shared;
 using MediatR;
 using System;
@@ -13,5 +13,6 @@ namespace BDMS.Domain.Features.Roles.Commands
     {
         public int Id { get; set; }
         public string? Name { get; set; }
+        public List<int>? PermissionIds { get; set; }
     }
 }

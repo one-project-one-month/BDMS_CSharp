@@ -25,7 +25,12 @@ namespace BDMS.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] AdminLoginReqModel model)
         {
-            var command = new AdminLoginCommand { Email = model.Email, Password = model.Password };
+            var command = new AdminLoginCommand
+            {
+                Email = model.Email,
+                Password = model.Password,
+                RememberMe = model.RememberMe
+            };
 
             var result = await _mediator.Send(command);
 
@@ -37,7 +42,7 @@ namespace BDMS.Api.Controllers
             Response.Cookies.Append(
                 _jwtSettings.AdminCookieName,
                 result.Data.Token,
-                BuildCookieOptions(result.Data.ExpireToken));
+                BuildCookieOptions(model.RememberMe ? result.Data.ExpireToken : null));
 
             return Execute(result);
         }
@@ -75,7 +80,7 @@ namespace BDMS.Api.Controllers
             return Execute(result);
 
         }
-        private static CookieOptions BuildCookieOptions(DateTime expires) => new()
+        private static CookieOptions BuildCookieOptions(DateTime? expires) => new()
         {
             HttpOnly = true,
             Secure = true,

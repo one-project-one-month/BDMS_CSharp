@@ -1,4 +1,4 @@
-﻿using BDMS.Database.AppDbContextModels;
+using BDMS.Database.AppDbContextModels;
 using BDMS.Domain.Features.Roles.Models;
 using BDMS.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +36,21 @@ namespace BDMS.Domain.Features.Roles
                 await _db.AddAsync(role);
                 await _db.SaveChangesAsync();
 
-                var result = new RolesReqRespModel { Id = role.Id, Name = role.Name };
+                if (rolesReqRespModel.PermissionIds != null && rolesReqRespModel.PermissionIds.Count > 0)
+                {
+                    var rolePermissions = rolesReqRespModel.PermissionIds.Distinct().Select(pid => new BDMS.Database.AppDbContextModels.RolePermission
+                    {
+                        RoleId = role.Id,
+                        PermissionId = pid,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    }).ToList();
+
+                    await _db.RolePermissions.AddRangeAsync(rolePermissions);
+                    await _db.SaveChangesAsync();
+                }
+
+                var result = new RolesReqRespModel { Id = role.Id, Name = role.Name, PermissionIds = rolesReqRespModel.PermissionIds };
 
                 return Result<RolesReqRespModel>.Success(result);
             }
@@ -82,9 +96,36 @@ namespace BDMS.Domain.Features.Roles
 
                 role.Name = rolesReqRespModel.Name;
 
+                if (rolesReqRespModel.PermissionIds != null)
+                {
+                    var existingRolePerms = await _db.RolePermissions.Where(rp => rp.RoleId == role.Id).ToListAsync();
+                    var existingPermIds = existingRolePerms.Select(rp => rp.PermissionId).ToHashSet();
+                    var targetPermIds = rolesReqRespModel.PermissionIds.Distinct().ToHashSet();
+
+                    var toRemove = existingRolePerms.Where(rp => !targetPermIds.Contains(rp.PermissionId)).ToList();
+                    if (toRemove.Count > 0)
+                    {
+                        _db.RolePermissions.RemoveRange(toRemove);
+                    }
+
+                    var toAdd = targetPermIds.Where(pid => !existingPermIds.Contains(pid))
+                        .Select(pid => new BDMS.Database.AppDbContextModels.RolePermission
+                        {
+                            RoleId = role.Id,
+                            PermissionId = pid,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        }).ToList();
+
+                    if (toAdd.Count > 0)
+                    {
+                        await _db.RolePermissions.AddRangeAsync(toAdd);
+                    }
+                }
+
                 await _db.SaveChangesAsync();
 
-                var result = new RolesReqRespModel { Id = role.Id, Name = role.Name };
+                var result = new RolesReqRespModel { Id = role.Id, Name = role.Name, PermissionIds = rolesReqRespModel.PermissionIds };
 
                 return Result<RolesReqRespModel>.Success(result);
             }

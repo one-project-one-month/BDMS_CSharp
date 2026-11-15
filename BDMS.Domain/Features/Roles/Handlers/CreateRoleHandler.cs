@@ -1,4 +1,4 @@
-﻿using BDMS.Domain.Features.Roles.Commands;
+using BDMS.Domain.Features.Roles.Commands;
 using BDMS.Domain.Features.Roles.Models;
 using BDMS.Shared;
 using MediatR;
@@ -21,7 +21,7 @@ namespace BDMS.Domain.Features.Roles.Handlers
         }
         public async Task<Result<RolesReqRespModel>> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
         {
-            var roleCreate = new RolesReqRespModel { Id = request.Id, Name = request.Name };
+            var roleCreate = new RolesReqRespModel { Id = request.Id, Name = request.Name, PermissionIds = request.PermissionIds };
 
             return await _roleService.CreateRole(roleCreate);
         }

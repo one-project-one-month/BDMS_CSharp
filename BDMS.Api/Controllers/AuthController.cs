@@ -54,6 +54,10 @@ namespace BDMS.Api.Controllers
                 _jwtSettings.AdminCookieName,
                 BuildCookieOptions(DateTime.Now)
             );
+            Response.Cookies.Delete(
+                _jwtSettings.ClientCookieName,
+                BuildCookieOptions(DateTime.Now)
+            );
 
             return Ok(Result<string>.Success("Logout Successfully"));
         }

@@ -33,7 +33,8 @@ namespace BDMS.Domain.Features.Auth.Handlers
             var permissions = user.Role.RolePermissions.Select(rp => rp.Permission.Name).ToList();
             var donor = await _db.Donors
                                  .AsNoTracking()
-                                 .FirstOrDefaultAsync(d => d.UserId == user.Id && d.IsActive && d.DeletedAt == null, cancellationToken);
+                                 // Include pending (IsActive == false) so the UI can show application status
+                                 .FirstOrDefaultAsync(d => d.UserId == user.Id && d.DeletedAt == null, cancellationToken);
 
             var result = new LoginResModel
             {
@@ -58,6 +59,7 @@ namespace BDMS.Domain.Features.Auth.Handlers
                         EmergencyPhone = donor.EmergencyPhone,
                         Address = donor.Address,
                         IsActive = donor.IsActive,
+                        Status = donor.Status,
                         CreatedAt = donor.CreatedAt,
                         UpdatedAt = donor.UpdatedAt,
                         DeletedAt = donor.DeletedAt
